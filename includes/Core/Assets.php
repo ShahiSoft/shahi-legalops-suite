@@ -172,6 +172,14 @@ class Assets {
             
             // Add inline CSS to ensure tabs are visible and bright
             $this->add_settings_tab_style();
+        } elseif ($this->is_accessibility_scanner_page($hook)) {
+            // Accessibility Scanner module styles
+            $this->enqueue_style(
+                'shahi-accessibility-scanner',
+                'css/accessibility-scanner/admin',
+                array('shahi-components'),
+                $this->version
+            );
         }
     }
     
@@ -436,6 +444,17 @@ class Assets {
             );
             
             $this->localize_settings_script();
+        } elseif ($this->is_accessibility_scanner_page($hook)) {
+            // Accessibility Scanner module scripts
+            $this->enqueue_script(
+                'shahi-accessibility-scanner',
+                'js/accessibility-scanner/admin',
+                array('jquery', 'shahi-components', 'wp-i18n'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_accessibility_scanner_script();
         }
     }
     
@@ -902,5 +921,55 @@ class Assets {
         }
         
         return $tag;
+    }
+    
+    /**
+     * Check if current page is an accessibility scanner page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if accessibility scanner page, false otherwise.
+     */
+    private function is_accessibility_scanner_page($hook) {
+        return strpos($hook, 'shahi-accessibility') !== false;
+    }
+    
+    /**
+     * Localize script data for Accessibility Scanner.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_accessibility_scanner_script() {
+        wp_localize_script('shahi-accessibility-scanner', 'shahiA11y', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('shahi_a11y_nonce'),
+            'strings' => array(
+                'scanRunning' => __('Scan in progress...', 'shahi-legalops-suite'),
+                'scanComplete' => __('Scan completed successfully', 'shahi-legalops-suite'),
+                'scanFailed' => __('Scan failed. Please try again.', 'shahi-legalops-suite'),
+                'fixApplying' => __('Applying fix...', 'shahi-legalops-suite'),
+                'fixApplied' => __('Fix applied successfully', 'shahi-legalops-suite'),
+                'fixFailed' => __('Failed to apply fix', 'shahi-legalops-suite'),
+                'issueIgnored' => __('Issue ignored', 'shahi-legalops-suite'),
+                'reportExporting' => __('Exporting report...', 'shahi-legalops-suite'),
+                'reportExported' => __('Report exported successfully', 'shahi-legalops-suite'),
+                'confirmDelete' => __('Are you sure you want to delete this scan?', 'shahi-legalops-suite'),
+                'confirmReset' => __('Are you sure you want to reset settings to defaults?', 'shahi-legalops-suite'),
+                'settingsSaved' => __('Settings saved successfully', 'shahi-legalops-suite'),
+                'settingsFailed' => __('Failed to save settings', 'shahi-legalops-suite'),
+            ),
+            'wcagLevels' => array(
+                'A' => __('Level A (Minimum)', 'shahi-legalops-suite'),
+                'AA' => __('Level AA (Recommended)', 'shahi-legalops-suite'),
+                'AAA' => __('Level AAA (Enhanced)', 'shahi-legalops-suite'),
+            ),
+            'severityLevels' => array(
+                'critical' => __('Critical', 'shahi-legalops-suite'),
+                'serious' => __('Serious', 'shahi-legalops-suite'),
+                'moderate' => __('Moderate', 'shahi-legalops-suite'),
+                'minor' => __('Minor', 'shahi-legalops-suite'),
+            ),
+        ));
     }
 }

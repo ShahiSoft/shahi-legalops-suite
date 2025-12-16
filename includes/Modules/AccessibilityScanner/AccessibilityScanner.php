@@ -14,6 +14,7 @@
 namespace ShahiLegalopsSuite\Modules\AccessibilityScanner;
 
 use ShahiLegalopsSuite\Modules\Module;
+use ShahiLegalopsSuite\Modules\AccessibilityScanner\Admin\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -37,6 +38,26 @@ class AccessibilityScanner extends Module {
      * @var string
      */
     protected $key = 'accessibility-scanner';
+    
+    /**
+     * Settings instance
+     *
+     * @since 1.0.0
+     * @var Settings
+     */
+    private $settings;
+    
+    /**
+     * Constructor
+     *
+     * @since 1.0.0
+     */
+    public function __construct() {
+        parent::__construct();
+        
+        // Initialize settings
+        $this->settings = new Settings();
+    }
     
     /**
      * Get module unique key
@@ -127,7 +148,7 @@ class AccessibilityScanner extends Module {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         
         // Enqueue frontend widget assets (if widget enabled)
-        if ($this->get_setting('widget_enabled', false)) {
+        if ($this->get_setting('widget', 'enabled', false)) {
             add_action('wp_enqueue_scripts', [$this, 'enqueue_widget_assets']);
             add_action('wp_footer', [$this, 'render_widget']);
         }
@@ -148,8 +169,8 @@ class AccessibilityScanner extends Module {
         }
         
         // Schedule automated scans (if enabled)
-        $scan_frequency = $this->get_setting('scan_frequency', 'disabled');
-        if ($scan_frequency !== 'disabled') {
+        $scan_frequency = $this->get_setting('general', 'auto_scan_interval', 'never');
+        if ($scan_frequency !== 'never') {
             add_action('shahi_a11y_scheduled_scan', [$this, 'run_scheduled_scan']);
             
             if (!wp_next_scheduled('shahi_a11y_scheduled_scan')) {
@@ -387,7 +408,7 @@ class AccessibilityScanner extends Module {
             __('Settings', 'shahi-legalops-suite'),
             'manage_options',
             'shahi-accessibility-settings',
-            [$this, 'render_settings_page']
+            [$this->settings, 'render']
         );
         
         // Scan results page
@@ -791,5 +812,21 @@ class AccessibilityScanner extends Module {
         set_transient('shahi_a11y_dashboard_stats', $stats, 5 * MINUTE_IN_SECONDS);
         
         return $stats;
+    }
+    
+    /**
+     * Get a setting value
+     *
+     * @since 1.0.0
+     * @param string $section Setting section
+     * @param string $key Setting key
+     * @param mixed $default Default value if not found
+     * @return mixed Setting value
+     */
+    private function get_setting($section, $key, $default = null) {
+        if ($this->settings) {
+            return $this->settings->get_setting($section, $key, $default);
+        }
+        return $default;
     }
 }
