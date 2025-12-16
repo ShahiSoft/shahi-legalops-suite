@@ -198,8 +198,18 @@ class CheckerRegistry {
      * @return void
      */
     private function register_default_checkers() {
-        // Note: Checker classes will be registered here when implemented
-        // For now, this provides the foundation for future checkers
+        // Register built-in accessibility checkers
+        $default_checkers = [
+            Checkers\ImageChecker::class,
+            Checkers\HeadingChecker::class,
+            Checkers\LinkChecker::class,
+            Checkers\FormChecker::class,
+            Checkers\ARIAChecker::class,
+        ];
+        
+        foreach ($default_checkers as $checker_class) {
+            $this->register($checker_class);
+        }
         
         /**
          * Filter: Allow registration of custom checkers
