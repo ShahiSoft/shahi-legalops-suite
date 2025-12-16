@@ -1,0 +1,129 @@
+name: Release Plugin
+
+# PLACEHOLDER: This workflow creates GitHub releases when you push a version tag
+# Customize the build steps and release assets as needed
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, zip
+          coverage: none
+
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Validate Composer
+        run: composer validate --strict
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --optimize-autoloader --prefer-dist --no-progress
+
+      - name: Install Node.js (if needed)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # PLACEHOLDER: Uncomment if you have Node.js dependencies
+      # - name: Install Node dependencies
+      #   run: npm ci
+      
+      # PLACEHOLDER: Uncomment if you need to build frontend assets
+      # - name: Build frontend assets
+      #   run: npm run build
+
+      - name: Run build script
+        run: bash bin/build.sh
+
+      - name: Get plugin slug from main file
+        id: plugin_slug
+        run: |
+          # Find the main PHP file (should be in root directory)
+          MAIN_FILE=$(ls *.php | head -n 1)
+          SLUG=$(basename "$MAIN_FILE" .php)
+          echo "SLUG=$SLUG" >> $GITHUB_OUTPUT
+
+      - name: Create release archive
+        id: create_archive
+        run: |
+          cd dist
+          ZIP_NAME="${{ steps.plugin_slug.outputs.SLUG }}-${{ steps.get_version.outputs.VERSION }}.zip"
+          echo "Created: $ZIP_NAME"
+          # Rename if needed
+          if [ -f "shahi-template.zip" ]; then
+            mv shahi-template.zip "$ZIP_NAME"
+          fi
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_OUTPUT
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          ls -lh
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Extract changelog for this version from CHANGELOG.md
+          if [ -f "CHANGELOG.md" ]; then
+            sed -n "/## \[${{ steps.get_version.outputs.VERSION }}\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+          else
+            echo "Release version ${{ steps.get_version.outputs.VERSION }}" > release_notes.md
+          fi
+          
+          # PLACEHOLDER: Customize changelog extraction logic if needed
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Version ${{ steps.get_version.outputs.VERSION }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            dist/${{ steps.create_archive.outputs.ZIP_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # PLACEHOLDER: Add deployment to WordPress.org if needed
+      # - name: Deploy to WordPress.org
+      #   uses: 10up/action-wordpress-plugin-deploy@stable
+      #   env:
+      #     SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+      #     SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+      #     SLUG: ${{ steps.plugin_slug.outputs.SLUG }}
+
+      # PLACEHOLDER: Add deployment to CodeCanyon if applicable
+      # This would require custom scripts and API credentials
+
+  notify:
+    name: Notify Release
+    needs: release
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Release notification
+        run: |
+          echo "✅ Release ${{ github.ref_name }} completed successfully!"
+          echo "📦 Plugin package created and uploaded to GitHub Releases"
+          
+          # PLACEHOLDER: Add custom notifications
+          # - Slack webhook
+          # - Discord webhook
+          # - Email notification
+          # - Update documentation site

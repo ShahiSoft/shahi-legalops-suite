@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShahiTemplate Setup - Configure Your Plugin</title>
+    <link rel="stylesheet" href="assets/setup-web.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚀 ShahiTemplate Setup</h1>
+            <p>Configure your new WordPress plugin - All processing happens in your browser</p>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-step active" data-step="1">
+                <span class="step-number">1</span>
+                <span class="step-label">Core Info</span>
+            </div>
+            <div class="progress-step" data-step="2">
+                <span class="step-number">2</span>
+                <span class="step-label">Author</span>
+            </div>
+            <div class="progress-step" data-step="3">
+                <span class="step-number">3</span>
+                <span class="step-label">Technical</span>
+            </div>
+            <div class="progress-step" data-step="4">
+                <span class="step-number">4</span>
+                <span class="step-label">Theme</span>
+            </div>
+            <div class="progress-step" data-step="5">
+                <span class="step-number">5</span>
+                <span class="step-label">Advanced</span>
+            </div>
+            <div class="progress-step" data-step="6">
+                <span class="step-number">6</span>
+                <span class="step-label">Review</span>
+            </div>
+        </div>
+
+        <form id="setup-form" class="setup-form">
+            <!-- Step 1: Core Plugin Info -->
+            <div class="form-step active" data-step="1">
+                <h2>Core Plugin Information</h2>
+                
+                <div class="form-group">
+                    <label for="plugin_name">Plugin Name <span class="required">*</span></label>
+                    <input type="text" id="plugin_name" name="plugin_name" required 
+                           placeholder="My Awesome Plugin" maxlength="50">
+                    <small>Display name of your plugin (3-50 characters)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Short Description <span class="required">*</span></label>
+                    <textarea id="description" name="description" required rows="3" 
+                              placeholder="A powerful WordPress plugin for..." maxlength="150"></textarea>
+                    <small>Brief description for plugin headers (10-150 characters)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="version">Initial Version</label>
+                    <input type="text" id="version" name="version" value="1.0.0" 
+                           pattern="^\d+\.\d+\.\d+$" placeholder="1.0.0">
+                    <small>Semantic versioning (MAJOR.MINOR.PATCH)</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="min_wp_version">Min WordPress Version</label>
+                        <input type="text" id="min_wp_version" name="min_wp_version" value="5.8">
+                    </div>
+                    <div class="form-group">
+                        <label for="min_php_version">Min PHP Version</label>
+                        <input type="text" id="min_php_version" name="min_php_version" value="7.4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Author Information -->
+            <div class="form-step" data-step="2">
+                <h2>Author Information</h2>
+                
+                <div class="form-group">
+                    <label for="author_name">Author Name <span class="required">*</span></label>
+                    <input type="text" id="author_name" name="author_name" required 
+                           placeholder="John Doe">
+                    <small>Your name or company name</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="author_email">Author Email <span class="required">*</span></label>
+                    <input type="email" id="author_email" name="author_email" required 
+                           placeholder="john@example.com">
+                    <small>Contact email address</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="author_url">Author URL</label>
+                    <input type="url" id="author_url" name="author_url" 
+                           placeholder="https://example.com">
+                    <small>Your website or portfolio URL</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="repository_url">Repository URL</label>
+                    <input type="url" id="repository_url" name="repository_url" 
+                           placeholder="https://github.com/username/my-plugin">
+                    <small>Git repository URL (optional)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="license">License Type</label>
+                    <select id="license" name="license">
+                        <option value="GPL-3.0-or-later" selected>GPL v3 or later</option>
+                        <option value="GPL-2.0-or-later">GPL v2 or later</option>
+                        <option value="MIT">MIT</option>
+                        <option value="Commercial">Commercial</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 3: Technical Settings -->
+            <div class="form-step" data-step="3">
+                <h2>Technical Configuration</h2>
+                <p class="info-box">💡 Values are auto-generated from Plugin Name. You can customize them if needed.</p>
+                
+                <div class="form-group">
+                    <label for="plugin_slug">Plugin Slug <span class="required">*</span></label>
+                    <input type="text" id="plugin_slug" name="plugin_slug" required 
+                           pattern="^[a-z0-9-]+$" placeholder="my-awesome-plugin">
+                    <small>Lowercase, hyphens only (used in URLs, file names)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="namespace">PHP Namespace <span class="required">*</span></label>
+                    <input type="text" id="namespace" name="namespace" required 
+                           pattern="^[A-Z][a-zA-Z0-9]*$" placeholder="MyAwesomePlugin">
+                    <small>PascalCase, alphanumeric only</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="text_domain">Text Domain</label>
+                    <input type="text" id="text_domain" name="text_domain" readonly 
+                           placeholder="my-awesome-plugin">
+                    <small>For translations (auto-set to match slug)</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="function_prefix">Function Prefix</label>
+                        <input type="text" id="function_prefix" name="function_prefix" 
+                               pattern="^[a-z_]+_$" placeholder="map_">
+                        <small>Lowercase + underscore</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="constant_prefix">Constant Prefix</label>
+                        <input type="text" id="constant_prefix" name="constant_prefix" 
+                               pattern="^[A-Z_]+_$" placeholder="MAP_">
+                        <small>UPPERCASE + underscore</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="css_prefix">CSS Prefix</label>
+                        <input type="text" id="css_prefix" name="css_prefix" 
+                               pattern="^[a-z-]+-$" placeholder="map-">
+                        <small>Lowercase + hyphen</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="api_namespace">API Namespace</label>
+                        <input type="text" id="api_namespace" name="api_namespace" 
+                               placeholder="my-plugin/v1">
+                        <small>For REST API</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="menu_position">Menu Position</label>
+                        <input type="number" id="menu_position" name="menu_position" 
+                               value="6" min="1" max="100">
+                        <small>Admin menu position</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="menu_icon">Menu Icon</label>
+                        <input type="text" id="menu_icon" name="menu_icon" 
+                               value="dashicons-admin-generic">
+                        <small>Dashicons class</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Theme Selection -->
+            <div class="form-step" data-step="4">
+                <h2>Admin Color Theme</h2>
+                <p class="info-box">🎨 Choose your preferred color scheme for the admin interface</p>
+                
+                <div class="theme-selector">
+                    <div class="theme-option" data-theme="neon-aether">
+                        <div class="theme-preview">
+                            <span class="color-swatch swatch-neon-1"></span>
+                            <span class="color-swatch swatch-neon-2"></span>
+                            <span class="color-swatch swatch-neon-3"></span>
+                        </div>
+                        <h3>Neon Aether</h3>
+                        <p>Electric cyan and violet on dark indigo - the signature futuristic look</p>
+                        <input type="radio" name="theme" value="neon-aether" checked id="theme-neon-aether">
+                        <label for="theme-neon-aether" class="radio-label">Select</label>
+                    </div>
+
+                    <div class="theme-option" data-theme="verdant-brass">
+                        <div class="theme-preview">
+                            <span class="color-swatch swatch-verdant-1"></span>
+                            <span class="color-swatch swatch-verdant-2"></span>
+                            <span class="color-swatch swatch-verdant-3"></span>
+                        </div>
+                        <h3>Verdant Brass</h3>
+                        <p>Deep olive and warm mustard with brass accents - earthy sophistication</p>
+                        <input type="radio" name="theme" value="verdant-brass" id="theme-verdant-brass">
+                        <label for="theme-verdant-brass" class="radio-label">Select</label>
+                    </div>
+
+                    <div class="theme-option" data-theme="sienna-ember">
+                        <div class="theme-preview">
+                            <span class="color-swatch swatch-sienna-1"></span>
+                            <span class="color-swatch swatch-sienna-2"></span>
+                            <span class="color-swatch swatch-sienna-3"></span>
+                        </div>
+                        <h3>Sienna Ember</h3>
+                        <p>Burnt orange and maroon on charcoal - warm industrial energy</p>
+                        <input type="radio" name="theme" value="sienna-ember" id="theme-sienna-ember">
+                        <label for="theme-sienna-ember" class="radio-label">Select</label>
+                    </div>
+
+                    <div class="theme-option" data-theme="aurora-bloom">
+                        <div class="theme-preview">
+                            <span class="color-swatch swatch-aurora-1"></span>
+                            <span class="color-swatch swatch-aurora-2"></span>
+                            <span class="color-swatch swatch-aurora-3"></span>
+                        </div>
+                        <h3>Aurora Bloom</h3>
+                        <p>Magenta and purple on midnight plum - vibrant cosmic beauty</p>
+                        <input type="radio" name="theme" value="aurora-bloom" id="theme-aurora-bloom">
+                        <label for="theme-aurora-bloom" class="radio-label">Select</label>
+                    </div>
+
+                    <div class="theme-option" data-theme="graphite-veil">
+                        <div class="theme-preview">
+                            <span class="color-swatch swatch-graphite-1"></span>
+                            <span class="color-swatch swatch-graphite-2"></span>
+                            <span class="color-swatch swatch-graphite-3"></span>
+                        </div>
+                        <h3>Graphite Veil</h3>
+                        <p>Shades of grey with silver accents - minimalist elegance</p>
+                        <input type="radio" name="theme" value="graphite-veil" id="theme-graphite-veil">
+                        <label for="theme-graphite-veil" class="radio-label">Select</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Advanced Settings -->
+            <div class="form-step" data-step="5">
+                <h2>Advanced Configuration</h2>
+                
+                <h3>Default Features</h3>
+                <p class="info-box">💡 Select which modules should be enabled by default</p>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="features[analytics]" checked>
+                        <span>Analytics Module</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="features[cache]">
+                        <span>Cache Module</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="features[seo]">
+                        <span>SEO Module</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="features[security]" checked>
+                        <span>Security Module</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="features[custom_post_types]">
+                        <span>Custom Post Types Module</span>
+                    </label>
+                </div>
+
+                <h3>Development Options</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dev_options[remove_examples]">
+                        <span>Remove example files after setup</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dev_options[remove_docs]">
+                        <span>Remove documentation files</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dev_options[create_git]" checked>
+                        <span>Initialize Git repository</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="dev_options[composer_install]" checked>
+                        <span>Run composer install automatically</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 6: Review & Export -->
+            <div class="form-step" data-step="6">
+                <h2>Review Configuration</h2>
+                <div id="config-preview" class="config-preview"></div>
+                
+                <div class="actions">
+                    <button type="button" class="btn btn-secondary" id="import-btn">
+                        📂 Import Config
+                    </button>
+                    <button type="button" class="btn btn-primary" id="export-btn">
+                        💾 Download setup-config.json
+                    </button>
+                    <button type="button" class="btn btn-success" id="copy-btn">
+                        📋 Copy to Clipboard
+                    </button>
+                </div>
+
+                <div class="info-box">
+                    <h3>Next Steps:</h3>
+                    <ol>
+                        <li>Download the <code>setup-config.json</code> file</li>
+                        <li>Place it in the <code>bin/</code> directory of your plugin</li>
+                        <li>Run: <code>php bin/setup.php --config=setup-config.json</code></li>
+                        <li>Your plugin will be automatically configured!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button type="button" class="btn btn-secondary hidden" id="prev-btn">
+                    ← Previous
+                </button>
+                <button type="button" class="btn btn-primary" id="next-btn">
+                    Next →
+                </button>
+            </div>
+        </form>
+
+        <input type="file" id="import-file" accept=".json" class="hidden" aria-label="Import configuration file">
+    </div>
+
+    <script src="assets/setup-web.js"></script>
+</body>
+</html>

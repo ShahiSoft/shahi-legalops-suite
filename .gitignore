@@ -1,0 +1,27 @@
+# Build and dev artifacts
+/vendor/
+/node_modules/
+/dist/
+/.cache/
+/composer.lock
+
+# IDE/editor
+/.vscode/
+/.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Tests and docs (excluded from production builds)
+/tests/
+/docs/
+/examples/
+/boilerplates/
+
+# Misc
+*.zip

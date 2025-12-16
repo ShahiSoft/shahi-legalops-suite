@@ -1,0 +1,251 @@
+# ============================================================================
+# ShahiTemplate Build Ignore File
+# ============================================================================
+# Files and directories listed here will be excluded from production builds
+# PLACEHOLDER: Customize this file based on your specific plugin needs
+# ============================================================================
+
+# ====================
+# Version Control
+# ====================
+.git/
+.github/
+.gitignore
+.gitattributes
+.gitmodules
+
+# ====================
+# Development Dependencies
+# ====================
+node_modules/
+vendor/
+bower_components/
+composer.lock
+package-lock.json
+yarn.lock
+
+# ====================
+# Build & Distribution
+# ====================
+dist/
+build/
+releases/
+
+# ====================
+# Documentation (Keep README.md for WordPress.org)
+# ====================
+*.md
+!README.md
+docs/
+wiki/
+
+# Strategic planning and completion documents
+STRATEGIC-IMPLEMENTATION-PLAN.md
+PLUGIN-INFORMATION-REQUIREMENTS.md
+PHASE-*.md
+SECURITY-TESTING-CHECKLIST.md
+TRANSLATION-DOCUMENTATION.md
+SECURITY-DOCUMENTATION.md
+TEMPLATE-USAGE.md
+DEVELOPER-GUIDE.md
+CODECANYON-SUBMISSION*.md
+
+# ====================
+# Examples & Boilerplates (Reduce package size)
+# ====================
+examples/
+boilerplates/
+
+# ====================
+# Tests & Quality Assurance
+# ====================
+tests/
+test/
+specs/
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+.coverage
+
+# ====================
+# Code Quality Tools
+# ====================
+phpcs.xml
+phpcs.xml.dist
+phpstan.neon
+phpstan.neon.dist
+psalm.xml
+.editorconfig
+.php_cs
+.php_cs.dist
+.php-cs-fixer.php
+
+# ====================
+# IDE & Editor Files
+# ====================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+*.swp
+*.swo
+*.swn
+*~
+.project
+.settings/
+.buildpath
+
+# ====================
+# Operating System Files
+# ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ====================
+# Logs & Temporary Files
+# ====================
+*.log
+error_log
+debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.tmp
+*.temp
+tmp/
+temp/
+cache/
+
+# ====================
+# Environment & Configuration
+# ====================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+.htaccess.backup
+wp-config-backup.php
+
+# ====================
+# Backup Files
+# ====================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*~.nib
+backup/
+backups/
+
+# ====================
+# Compiled & Minified Sources (Keep only final versions)
+# ====================
+# PLACEHOLDER: Uncomment if you want to exclude source files
+# Typically you'd keep minified versions and exclude sources
+# src/
+# scss/
+# sass/
+# less/
+
+# Source maps (optional - uncomment to exclude)
+# *.map
+
+# ====================
+# Build Scripts & Tools
+# ====================
+bin/bump-version.sh
+bin/create-module.php
+bin/setup.php
+# Keep bin/build.sh for reference
+
+# ====================
+# CI/CD Files
+# ====================
+.travis.yml
+.gitlab-ci.yml
+circle.yml
+appveyor.yml
+.scrutinizer.yml
+.codeclimate.yml
+.circleci/
+.github/workflows/
+
+# ====================
+# Package Manager Files
+# ====================
+pnpm-lock.yaml
+.pnpm-debug.log
+.npm/
+.yarn/
+.yarn-integrity
+
+# ====================
+# Database Files (Development)
+# ====================
+*.sql
+*.sqlite
+*.db
+
+# ====================
+# Screenshots (Keep only final screenshots)
+# ====================
+# PLACEHOLDER: Adjust based on your screenshot strategy
+screenshot-*.png
+!screenshot-1.png
+!screenshot-2.png
+!screenshot-3.png
+!screenshot-4.png
+
+# ====================
+# Media Files (Development)
+# ====================
+# PLACEHOLDER: Uncomment to exclude development media
+# media-dev/
+# images-dev/
+
+# ====================
+# Localization (Keep .pot, exclude sources)
+# ====================
+# PLACEHOLDER: Uncomment if you have translation sources to exclude
+# languages/src/
+# po/
+
+# ====================
+# Security Files
+# ====================
+.htpasswd
+.ssh/
+*.pem
+*.key
+*.cert
+
+# ====================
+# Archives
+# ====================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# ====================
+# Custom Exclusions
+# ====================
+# PLACEHOLDER: Add your custom exclusions below
+# Example:
+# custom-dev-folder/
+# private-notes.txt

@@ -1,0 +1,108 @@
+{
+    "name": "shahitemplate/shahi-legalops-suite",
+    "description": "LegalOps Suite is an all-in-one WordPress compliance engine that operationalizes privacy, accessibility, and data protection at scale. ",
+    "version": "1.0.0",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "ShahiSoft",
+            "email": "legalops@shahisoft.store"
+        }
+    ],
+    "keywords": [
+        "wordpress",
+        "plugin",
+        "template",
+        "boilerplate",
+        "enterprise",
+        "modular"
+    ],
+    "homepage": "https://shahisoft.store",
+    "support": {
+        "issues": "https://github.com/yourusername/shahi-legalops-suite/issues",
+        "source": "https://github.com/yourusername/shahi-legalops-suite",
+        "docs": "https://github.com/yourusername/shahi-legalops-suite#readme"
+    },
+    "require": {
+        "php": ">=7.4",
+        "composer/installers": "^2.0",
+        "masterminds/html5": "2.8"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7",
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^9.5",
+        "mockery/mockery": "^1.5",
+        "brain/monkey": "^2.6",
+        "yoast/phpunit-polyfills": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ShahiLegalopsSuite\\": "includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ShahiLegalopsSuite\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --colors=always",
+        "test:coverage": "phpunit --colors=always --coverage-html coverage",
+        "sniff": "phpcs --standard=WordPress includes/ shahi-legalops-suite.php",
+        "sniff:verbose": "phpcs -v --standard=WordPress includes/ shahi-legalops-suite.php",
+        "fix": "phpcbf --standard=WordPress includes/ shahi-legalops-suite.php",
+        "analyse": "phpstan analyse includes/ --level=5",
+        "analyse:baseline": "phpstan analyse includes/ --level=5 --generate-baseline",
+        "check-compat": "phpcs -p includes/ shahi-legalops-suite.php --standard=PHPCompatibilityWP --runtime-set testVersion 7.4-",
+        "check-all": [
+            "@sniff",
+            "@analyse",
+            "@check-compat",
+            "@test"
+        ],
+        "bump-version": "bash bin/bump-version.sh",
+        "build": "bash bin/build.sh",
+        "setup": "php bin/setup.php",
+        "create-module": "php bin/create-module.php",
+        "post-install-cmd": [
+            "@php -r \"if (!file_exists('.git/hooks/pre-commit')) { copy('bin/hooks/pre-commit.sample', '.git/hooks/pre-commit'); chmod('.git/hooks/pre-commit', 0755); }\""
+        ],
+        "post-update-cmd": [
+            "@post-install-cmd"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run PHPUnit test suite",
+        "test:coverage": "Run tests with HTML coverage report",
+        "sniff": "Check code against WordPress Coding Standards",
+        "sniff:verbose": "Check code with verbose output",
+        "fix": "Auto-fix coding standards violations",
+        "analyse": "Run PHPStan static analysis",
+        "analyse:baseline": "Generate PHPStan baseline for existing errors",
+        "check-compat": "Check PHP compatibility (7.4+)",
+        "check-all": "Run all quality checks",
+        "bump-version": "Update plugin version across all files (usage: composer bump-version <version>)",
+        "build": "Create production-ready plugin package",
+        "setup": "Interactive setup wizard to customize the template",
+        "create-module": "Generate a new plugin module (usage: composer create-module <ModuleName>)"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "optimize-autoloader": true,
+        "classmap-authoritative": false,
+        "prepend-autoloader": true,
+        "sort-packages": true,
+        "platform": {
+            "php": "7.4"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

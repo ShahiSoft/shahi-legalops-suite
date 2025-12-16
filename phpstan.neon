@@ -1,0 +1,120 @@
+# PHPStan Configuration for ShahiTemplate
+# Static Analysis Tool Configuration
+
+parameters:
+    # Analysis level (0-9, where 9 is the strictest)
+    # Level 5 provides a good balance between strictness and practicality
+    level: 5
+
+    # Paths to analyze
+    paths:
+        - includes
+
+    # Paths to exclude from analysis
+    excludePaths:
+        - includes/vendor
+        - includes/lib/vendor
+
+    # Bootstrap file for loading WordPress functions and constants
+    bootstrapFiles:
+        - tests/bootstrap.php
+
+    # Discover symbols from additional files
+    scanDirectories:
+        - includes
+
+    # Check for missing return types
+    checkMissingReturnTypes: true
+
+    # Check for unused variables
+    checkUnusedVariables: true
+
+    # Check for undefined variables
+    checkUndefinedVariables: true
+
+    # Treat PHP native functions case-insensitively
+    treatPhpDocTypesAsCertain: false
+
+    # PLACEHOLDER: WordPress-specific stubs and extensions
+    # Uncomment after installing szepeviktor/phpstan-wordpress
+    # wordpress:
+    #     constantsPath: wp-config.php
+
+    # Type inference settings
+    inferPrivatePropertyTypeFromConstructor: true
+
+    # Ignore errors from third-party code
+    ignoreErrors:
+        # PLACEHOLDER: Add specific error patterns to ignore
+        # Example:
+        # - '#Call to an undefined method [a-zA-Z0-9\\_]+::some_method\(\)#'
+        
+        # WordPress global variables
+        - '#Undefined variable: \$wpdb#'
+        - '#Undefined variable: \$wp_version#'
+        - '#Undefined variable: \$post#'
+        - '#Undefined variable: \$current_user#'
+        
+        # WordPress functions that may not be defined during static analysis
+        - '#Function __(__)? not found#'
+        - '#Function _e not found#'
+        - '#Function esc_html__ not found#'
+        - '#Function esc_html_e not found#'
+        - '#Function esc_attr__ not found#'
+        - '#Function esc_attr_e not found#'
+        - '#Function add_action not found#'
+        - '#Function add_filter not found#'
+        - '#Function apply_filters not found#'
+        - '#Function do_action not found#'
+        - '#Function get_option not found#'
+        - '#Function update_option not found#'
+        - '#Function delete_option not found#'
+        - '#Function wp_enqueue_script not found#'
+        - '#Function wp_enqueue_style not found#'
+        - '#Function wp_localize_script not found#'
+
+    # Report unmatched ignored errors
+    reportUnmatchedIgnoredErrors: true
+
+    # Custom rules
+    customRulesetUsed: false
+
+    # Bleeding edge features (use latest PHPStan features)
+    polluteScopeWithLoopInitialAssignments: true
+    polluteScopeWithAlwaysIterableForeach: true
+    checkAlwaysTrueCheckTypeFunctionCall: true
+    checkAlwaysTrueInstanceof: true
+    checkAlwaysTrueStrictComparison: true
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: true
+    checkInternalClassCaseSensitivity: true
+    
+    # Parallel processing
+    parallel:
+        # Number of parallel processes (auto-detect by default)
+        # maximumNumberOfProcesses: 4
+        # Minimum number of jobs per process
+        minimumNumberOfJobsPerProcess: 2
+
+    # Cache settings
+    tmpDir: var/cache/phpstan
+
+    # Error format
+    # errorFormat: table
+
+    # Custom includes
+    # includes:
+    #     - vendor/phpstan/phpstan-strict-rules/rules.neon
+    #     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+# PLACEHOLDER: Additional extensions to consider installing
+# - phpstan/extension-installer
+# - phpstan/phpstan-strict-rules
+# - phpstan/phpstan-deprecation-rules
+# - szepeviktor/phpstan-wordpress
+# - phpstan/phpstan-phpunit
+
+# Usage:
+# composer analyse              # Run analysis
+# composer analyse:baseline     # Generate baseline for existing errors
+# vendor/bin/phpstan analyse    # Direct command

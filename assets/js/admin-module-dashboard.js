@@ -1,0 +1,473 @@
+/**
+ * Module Dashboard - Premium JavaScript
+ *
+ * Interactive functionality for the premium module dashboard.
+ * Handles filtering, searching, toggling, and animations.
+ *
+ * @package     ShahiLegalopsSuite
+ * @subpackage  Assets/JS
+ * @version     1.0.0
+ */
+
+(function($) {
+    'use strict';
+
+    /**
+     * Module Dashboard Controller
+     */
+    const ModuleDashboard = {
+        
+        /**
+         * Initialize the dashboard
+         */
+        init() {
+            this.cacheDom();
+            this.bindEvents();
+            this.initAnimations();
+        },
+
+        /**
+         * Cache DOM elements
+         */
+        cacheDom() {
+            this.$grid = $('.shahi-modules-grid-premium');
+            this.$cards = $('.shahi-module-card-premium');
+            this.$search = $('#shahi-module-search');
+            this.$searchClear = $('.shahi-search-clear');
+            this.$filterBtns = $('.shahi-filter-btn');
+            this.$viewBtns = $('.shahi-view-btn');
+            this.$toggles = $('.shahi-module-toggle-input');
+            this.$bulkEnable = $('.shahi-bulk-enable');
+            this.$bulkDisable = $('.shahi-bulk-disable');
+            this.$emptyState = $('.shahi-empty-state');
+            this.$loadingOverlay = $('.shahi-loading-overlay');
+        },
+
+        /**
+         * Bind event handlers
+         */
+        bindEvents() {
+            this.$search.on('input', this.handleSearch.bind(this));
+            this.$searchClear.on('click', this.clearSearch.bind(this));
+            this.$filterBtns.on('click', this.handleFilter.bind(this));
+            this.$viewBtns.on('click', this.handleViewChange.bind(this));
+            this.$toggles.on('change', this.handleToggle.bind(this));
+            this.$bulkEnable.on('click', () => this.handleBulkAction('enable'));
+            this.$bulkDisable.on('click', () => this.handleBulkAction('disable'));
+            
+            // Card hover effect
+            this.$cards.on('mouseenter', this.handleCardHover.bind(this));
+            this.$cards.on('mousemove', this.handleCardMouseMove.bind(this));
+            this.$cards.on('mouseleave', this.handleCardLeave.bind(this));
+        },
+
+        /**
+         * Initialize animations
+         */
+        initAnimations() {
+            // Stagger card entrance animation
+            this.$cards.each((index, card) => {
+                setTimeout(() => {
+                    $(card).css({
+                        opacity: 0,
+                        transform: 'translateY(30px) scale(0.95)'
+                    }).animate({
+                        opacity: 1
+                    }, 400, () => {
+                        $(card).css({
+                            transform: 'translateY(0) scale(1)',
+                            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                        });
+                    });
+                }, index * 50);
+            });
+        },
+
+        /**
+         * Handle search input
+         */
+        handleSearch(e) {
+            const query = $(e.target).val().toLowerCase().trim();
+            
+            // Show/hide clear button
+            this.$searchClear.toggle(query.length > 0);
+            
+            // Filter cards
+            let visibleCount = 0;
+            
+            this.$cards.each((index, card) => {
+                const $card = $(card);
+                const title = $card.find('.shahi-module-title').text().toLowerCase();
+                const description = $card.find('.shahi-module-description').text().toLowerCase();
+                const category = $card.data('category').toLowerCase();
+                
+                const matches = title.includes(query) || 
+                               description.includes(query) || 
+                               category.includes(query);
+                
+                if (matches) {
+                    $card.fadeIn(300);
+                    visibleCount++;
+                } else {
+                    $card.fadeOut(300);
+                }
+            });
+            
+            // Show empty state if no results
+            this.$emptyState.toggle(visibleCount === 0);
+        },
+
+        /**
+         * Clear search
+         */
+        clearSearch() {
+            this.$search.val('').trigger('input');
+            this.$searchClear.hide();
+        },
+
+        /**
+         * Handle filter button click
+         */
+        handleFilter(e) {
+            const $btn = $(e.currentTarget);
+            const filter = $btn.data('filter');
+            
+            // Update active state
+            this.$filterBtns.removeClass('active');
+            $btn.addClass('active');
+            
+            // Apply filter
+            let visibleCount = 0;
+            
+            this.$cards.each((index, card) => {
+                const $card = $(card);
+                const status = $card.data('status');
+                
+                let show = false;
+                
+                if (filter === 'all') {
+                    show = true;
+                } else if (filter === 'active' && status === 'active') {
+                    show = true;
+                } else if (filter === 'inactive' && status === 'inactive') {
+                    show = true;
+                }
+                
+                if (show) {
+                    $card.fadeIn(300);
+                    visibleCount++;
+                } else {
+                    $card.fadeOut(300);
+                }
+            });
+            
+            // Show empty state if no results
+            this.$emptyState.toggle(visibleCount === 0);
+        },
+
+        /**
+         * Handle view change (grid/list)
+         */
+        handleViewChange(e) {
+            const $btn = $(e.currentTarget);
+            const view = $btn.data('view');
+            
+            // Update active state
+            this.$viewBtns.removeClass('active');
+            $btn.addClass('active');
+            
+            // Apply view
+            this.$grid.attr('data-view', view);
+            
+            // Re-trigger entrance animation
+            if (view === 'list') {
+                this.$cards.each((index, card) => {
+                    $(card).css({
+                        animation: `slideInLeft 0.4s ease ${index * 30}ms both`
+                    });
+                });
+            } else {
+                this.$cards.each((index, card) => {
+                    $(card).css({
+                        animation: `fadeInUp 0.4s ease ${index * 30}ms both`
+                    });
+                });
+            }
+        },
+
+        /**
+         * Handle module toggle
+         */
+        handleToggle(e) {
+            const $toggle = $(e.target);
+            const $card = $toggle.closest('.shahi-module-card-premium');
+            const moduleSlug = $toggle.data('module');
+            const isEnabled = $toggle.is(':checked');
+            
+            // Disable toggle during request
+            $toggle.prop('disabled', true);
+            
+            // Show loading
+            this.showLoading();
+            
+            // Send AJAX request
+            $.ajax({
+                url: shahiModuleDashboard.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'shahi_toggle_module_premium',
+                    nonce: shahiModuleDashboard.nonce,
+                    module: moduleSlug,
+                    enabled: isEnabled
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Update card state
+                        if (isEnabled) {
+                            $card.removeClass('inactive').addClass('active');
+                            $card.attr('data-status', 'active');
+                        } else {
+                            $card.removeClass('active').addClass('inactive');
+                            $card.attr('data-status', 'inactive');
+                        }
+                        
+                        // Show success notification
+                        this.showNotification(response.data.message, 'success');
+                        
+                        // Update stats
+                        this.updateStats();
+                    } else {
+                        // Revert toggle on error
+                        $toggle.prop('checked', !isEnabled);
+                        this.showNotification(response.data.message || 'An error occurred', 'error');
+                    }
+                },
+                error: () => {
+                    // Revert toggle on error
+                    $toggle.prop('checked', !isEnabled);
+                    this.showNotification('Connection error. Please try again.', 'error');
+                },
+                complete: () => {
+                    $toggle.prop('disabled', false);
+                    this.hideLoading();
+                }
+            });
+        },
+
+        /**
+         * Handle bulk actions
+         */
+        handleBulkAction(action) {
+            const modulesToToggle = [];
+            const enableAction = (action === 'enable');
+            
+            // Get all modules that need toggling
+            this.$cards.each((index, card) => {
+                const $card = $(card);
+                const status = $card.data('status');
+                const moduleSlug = $card.data('module');
+                
+                // Only toggle if status doesn't match desired action
+                if ((enableAction && status === 'inactive') || (!enableAction && status === 'active')) {
+                    modulesToToggle.push(moduleSlug);
+                }
+            });
+            
+            if (modulesToToggle.length === 0) {
+                this.showNotification(
+                    enableAction ? 'All modules are already enabled' : 'All modules are already disabled',
+                    'info'
+                );
+                return;
+            }
+            
+            // Confirm action
+            const confirmMsg = enableAction 
+                ? `Enable ${modulesToToggle.length} module(s)?`
+                : `Disable ${modulesToToggle.length} module(s)?`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // Show loading
+            this.showLoading();
+            
+            // Send AJAX request
+            $.ajax({
+                url: shahiModuleDashboard.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'shahi_bulk_module_action',
+                    nonce: shahiModuleDashboard.nonce,
+                    action_type: action,
+                    modules: modulesToToggle
+                },
+                success: (response) => {
+                    if (response.success) {
+                        // Update all affected cards
+                        modulesToToggle.forEach(slug => {
+                            const $card = this.$cards.filter(`[data-module="${slug}"]`);
+                            const $toggle = $card.find('.shahi-module-toggle-input');
+                            
+                            if (enableAction) {
+                                $card.removeClass('inactive').addClass('active');
+                                $card.attr('data-status', 'active');
+                                $toggle.prop('checked', true);
+                            } else {
+                                $card.removeClass('active').addClass('inactive');
+                                $card.attr('data-status', 'inactive');
+                                $toggle.prop('checked', false);
+                            }
+                        });
+                        
+                        this.showNotification(response.data.message, 'success');
+                        this.updateStats();
+                    } else {
+                        this.showNotification(response.data.message || 'An error occurred', 'error');
+                    }
+                },
+                error: () => {
+                    this.showNotification('Connection error. Please try again.', 'error');
+                },
+                complete: () => {
+                    this.hideLoading();
+                }
+            });
+        },
+
+        /**
+         * Handle card hover effect
+         */
+        handleCardHover(e) {
+            const $card = $(e.currentTarget);
+            $card.addClass('is-hovered');
+        },
+
+        /**
+         * Handle card mouse move (3D effect)
+         */
+        handleCardMouseMove(e) {
+            const $card = $(e.currentTarget);
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+            
+            $card.css({
+                transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`
+            });
+            
+            // Update glow position
+            const $glow = $card.find('.shahi-card-glow');
+            $glow.css({
+                top: `${y - rect.height}px`,
+                left: `${x - rect.width}px`
+            });
+        },
+
+        /**
+         * Handle card leave
+         */
+        handleCardLeave(e) {
+            const $card = $(e.currentTarget);
+            $card.removeClass('is-hovered');
+            $card.css({
+                transform: ''
+            });
+        },
+
+        /**
+         * Update statistics
+         */
+        updateStats() {
+            const total = this.$cards.length;
+            const active = this.$cards.filter('.active').length;
+            const inactive = total - active;
+            const activationRate = total > 0 ? Math.round((active / total) * 100) : 0;
+            
+            // Update stat cards
+            $('.shahi-stat-total .shahi-stat-value').text(total);
+            $('.shahi-stat-active .shahi-stat-value').text(active);
+            $('.shahi-stat-inactive .shahi-stat-value').text(inactive);
+            
+            // Update progress bars
+            $('.shahi-stat-active .shahi-stat-progress-bar').css('width', activationRate + '%');
+            
+            // Update filter counts
+            $('.shahi-filter-btn[data-filter="all"] .shahi-filter-count').text(total);
+            $('.shahi-filter-btn[data-filter="active"] .shahi-filter-count').text(active);
+            $('.shahi-filter-btn[data-filter="inactive"] .shahi-filter-count').text(inactive);
+        },
+
+        /**
+         * Show loading overlay
+         */
+        showLoading() {
+            this.$loadingOverlay.fadeIn(200);
+        },
+
+        /**
+         * Hide loading overlay
+         */
+        hideLoading() {
+            this.$loadingOverlay.fadeOut(200);
+        },
+
+        /**
+         * Show notification
+         */
+        showNotification(message, type = 'info') {
+            // Create notification element
+            const $notification = $('<div>', {
+                class: `shahi-notification shahi-notification-${type}`,
+                html: `
+                    <span class="shahi-notification-icon dashicons ${this.getNotificationIcon(type)}"></span>
+                    <span class="shahi-notification-message">${message}</span>
+                `
+            });
+            
+            // Add to page
+            $('body').append($notification);
+            
+            // Animate in
+            setTimeout(() => {
+                $notification.addClass('show');
+            }, 10);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                $notification.removeClass('show');
+                setTimeout(() => {
+                    $notification.remove();
+                }, 300);
+            }, 3000);
+        },
+
+        /**
+         * Get notification icon based on type
+         */
+        getNotificationIcon(type) {
+            const icons = {
+                success: 'dashicons-yes-alt',
+                error: 'dashicons-dismiss',
+                warning: 'dashicons-warning',
+                info: 'dashicons-info'
+            };
+            return icons[type] || icons.info;
+        }
+    };
+
+    /**
+     * Initialize on document ready
+     */
+    $(document).ready(() => {
+        if ($('.shahi-module-dashboard').length) {
+            ModuleDashboard.init();
+        }
+    });
+
+})(jQuery);

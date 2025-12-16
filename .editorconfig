@@ -1,0 +1,80 @@
+# EditorConfig - Maintain consistent coding styles across editors and IDEs
+# https://editorconfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# PHP Files
+[*.php]
+indent_style = tab
+indent_size = 4
+
+# JavaScript Files
+[*.js]
+indent_style = space
+indent_size = 2
+
+# JSON Files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# CSS/SCSS Files
+[*.{css,scss,sass,less}]
+indent_style = space
+indent_size = 2
+
+# HTML/XML Files
+[*.{html,xml}]
+indent_style = space
+indent_size = 2
+
+# Markdown Files
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+# YAML Files
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Shell Scripts
+[*.sh]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+
+# Batch Files (Windows)
+[*.{bat,cmd}]
+end_of_line = crlf
+
+# PowerShell Scripts
+[*.ps1]
+end_of_line = crlf
+
+# Configuration Files
+[{composer.json,package.json,bower.json}]
+indent_style = space
+indent_size = 2
+
+# Makefiles
+[{Makefile,makefile,*.mk}]
+indent_style = tab
+
+# .gitignore and similar
+[.{gitignore,gitattributes,editorconfig,eslintrc,prettierrc}]
+indent_style = space
+indent_size = 2
+
+# PLACEHOLDER: Add project-specific configurations as needed

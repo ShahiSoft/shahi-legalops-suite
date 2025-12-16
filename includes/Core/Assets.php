@@ -1,0 +1,906 @@
+<?php
+/**
+ * Assets Management Class
+ *
+ * Handles all CSS and JavaScript enqueuing for the plugin.
+ * Implements conditional loading strategy to load only necessary assets
+ * on each page, improving performance and following WordPress best practices.
+ *
+ * @package     ShahiLegalopsSuite
+ * @subpackage  Core
+ * @version     1.0.0
+ * @since       1.0.0
+ * @author      ShahiLegalopsSuite Team
+ * @license     GPL-3.0+
+ */
+
+namespace ShahiLegalopsSuite\Core;
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Class Assets
+ *
+ * Manages asset enqueuing with conditional loading strategy.
+ *
+ * @since 1.0.0
+ */
+class Assets {
+    
+    /**
+     * Asset version for cache busting.
+     *
+     * @since 1.0.0
+     * @var string
+     */
+    private $version;
+    
+    /**
+     * Whether to load minified assets.
+     *
+     * @since 1.0.0
+     * @var bool
+     */
+    private $use_minified;
+    
+    /**
+     * Assets URL base path.
+     *
+     * @since 1.0.0
+     * @var string
+     */
+    private $assets_url;
+    
+    /**
+     * Constructor.
+     *
+     * @since 1.0.0
+     */
+    public function __construct() {
+        $this->version = SHAHI_LEGALOPS_SUITE_VERSION;
+        $this->use_minified = !defined('SCRIPT_DEBUG') || !SCRIPT_DEBUG;
+        $this->assets_url = SHAHI_LEGALOPS_SUITE_PLUGIN_URL . 'assets/';
+        
+        // Add filter to prevent style caching during development
+        add_filter('style_loader_tag', array($this, 'add_nocache_to_styles'), 10, 4);
+    }
+    
+    /**
+     * Enqueue admin styles.
+     *
+     * Conditionally loads CSS files based on the current admin page.
+     *
+     * @since 1.0.0
+     * @param string $hook The current admin page hook.
+     * @return void
+     */
+    public function enqueue_admin_styles($hook) {
+        // Only load on plugin pages
+        if (!$this->is_plugin_page($hook)) {
+            return;
+        }
+        
+        // Global admin styles (loaded on all plugin pages)
+        $this->enqueue_style(
+            'shahi-admin-global',
+            'css/admin-global',
+            array(),
+            $this->version
+        );
+        
+        // Component library styles (reusable UI components)
+        $this->enqueue_style(
+            'shahi-components',
+            'css/components',
+            array('shahi-admin-global'),
+            $this->version
+        );
+        
+        // Add inline CSS for admin menu highlighting
+        $this->add_admin_menu_style();
+        
+        // Animation library
+        $this->enqueue_style(
+            'shahi-animations',
+            'css/animations',
+            array('shahi-admin-global'),
+            $this->version
+        );
+        
+        // Utility classes
+        $this->enqueue_style(
+            'shahi-utilities',
+            'css/utilities',
+            array('shahi-admin-global'),
+            $this->version
+        );
+        
+        // Onboarding styles (loaded on all plugin pages for modal)
+        $this->enqueue_style(
+            'shahi-onboarding',
+            'css/onboarding',
+            array('shahi-components', 'shahi-animations'),
+            $this->version
+        );
+        
+        // Page-specific styles
+        if ($this->is_dashboard_page($hook)) {
+            $this->enqueue_style(
+                'shahi-admin-dashboard',
+                'css/admin-dashboard',
+                array('shahi-components'),
+                $this->version
+            );
+        } elseif ($this->is_analytics_page($hook)) {
+            $this->enqueue_style(
+                'shahi-admin-analytics',
+                'css/admin-analytics',
+                array('shahi-components'),
+                $this->version
+            );
+        } elseif ($this->is_modules_page($hook)) {
+            $this->enqueue_style(
+                'shahi-admin-modules',
+                'css/admin-modules',
+                array('shahi-components'),
+                $this->version
+            );
+        } elseif ($this->is_module_dashboard_page($hook)) {
+            $this->enqueue_style(
+                'shahi-admin-module-dashboard',
+                'css/admin-module-dashboard',
+                array('shahi-components'),
+                $this->version
+            );
+        } elseif ($this->is_analytics_dashboard_page($hook)) {
+            $this->enqueue_style(
+                'shahi-admin-analytics-dashboard',
+                'css/admin-analytics-dashboard',
+                array('shahi-components'),
+                $this->version
+            );
+        } elseif ($this->is_settings_page($hook)) {
+            $this->enqueue_style(
+                'shahi-admin-settings',
+                'css/admin-settings',
+                array('shahi-components'),
+                $this->version
+            );
+            
+            // Add inline CSS to ensure tabs are visible and bright
+            $this->add_settings_tab_style();
+        }
+    }
+    
+    /**
+     * Add inline CSS for settings tabs.
+     *
+     * Ensures tabs are bright and visible with !important declarations.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function add_settings_tab_style() {
+        $inline_css = "
+        /* Settings tabs - force bright visibility */
+        .shahi-settings-page .shahi-tabs-nav {
+            background: #0a0e27 !important;
+            padding: 20px !important;
+            border-radius: 12px !important;
+            margin-bottom: 20px !important;
+        }
+        
+        .shahi-tab-link,
+        .shahi-settings-tab,
+        a.shahi-tab-link {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 14px 24px !important;
+            color: #ffffff !important;
+            background: #1e2542 !important;
+            text-decoration: none !important;
+            border-radius: 8px !important;
+            font-size: 15px !important;
+            font-weight: 500 !important;
+            border: 2px solid #2d3561 !important;
+            transition: all 0.3s ease !important;
+            margin: 0 4px !important;
+        }
+        
+        .shahi-tab-link .dashicons,
+        .shahi-settings-tab .dashicons {
+            color: #00d4ff !important;
+            font-size: 20px !important;
+        }
+        
+        .shahi-tab-link:hover,
+        .shahi-settings-tab:hover,
+        a.shahi-tab-link:hover {
+            background: #252d50 !important;
+            color: #00d4ff !important;
+            border-color: #00d4ff !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2) !important;
+        }
+        
+        .shahi-tab-link.active,
+        .shahi-settings-tab.active,
+        a.shahi-tab-link.active {
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%) !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border-color: #00d4ff !important;
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(124, 58, 237, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        .shahi-tab-link.active .dashicons,
+        .shahi-settings-tab.active .dashicons {
+            color: #ffffff !important;
+        }
+        ";
+        
+        wp_add_inline_style('shahi-admin-settings', $inline_css);
+    }
+    
+    /**
+     * Add inline CSS for admin menu highlighting.
+     *
+     * Ensures current submenu item is highlighted properly.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function add_admin_menu_style() {
+        $inline_css = "
+        /* WordPress admin menu highlighting */
+        #adminmenu .wp-submenu li.current > a,
+        #adminmenu .wp-submenu li > a.current {
+            color: #00d4ff !important;
+            font-weight: 600 !important;
+        }
+        #adminmenu .wp-submenu li a:hover {
+            color: #00d4ff !important;
+        }
+        ";
+        
+        wp_add_inline_style('shahi-admin-global', $inline_css);
+    }
+    
+    /**
+     * Add inline script for admin menu highlighting.
+     *
+     * Adds JavaScript to properly highlight the current submenu item.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function add_menu_highlight_script() {
+        $inline_script = "
+        jQuery(document).ready(function($) {
+            // Remove all current classes first to avoid conflicts
+            $('#adminmenu .wp-submenu li').removeClass('current');
+            $('#adminmenu .wp-submenu li a').removeClass('current');
+            
+            // Get current page parameter
+            var urlParams = new URLSearchParams(window.location.search);
+            var currentPage = urlParams.get('page');
+            
+            if (currentPage) {
+                // Find and highlight exact match only
+                $('#adminmenu .wp-submenu a').each(function() {
+                    var href = $(this).attr('href');
+                    if (href && href.indexOf('page=' + currentPage) > -1) {
+                        $(this).closest('li').addClass('current');
+                        $(this).addClass('current');
+                        $(this).parent().addClass('current');
+                    }
+                });
+            }
+        });
+        ";
+        
+        wp_add_inline_script('shahi-admin-global', $inline_script);
+    }
+    
+    /**
+     * Enqueue admin scripts.
+     *
+     * Conditionally loads JavaScript files based on the current admin page.
+     *
+     * @since 1.0.0
+     * @param string $hook The current admin page hook.
+     * @return void
+     */
+    public function enqueue_admin_scripts($hook) {
+        // Only load on plugin pages
+        if (!$this->is_plugin_page($hook)) {
+            return;
+        }
+        
+        // Global admin scripts (loaded on all plugin pages)
+        $this->enqueue_script(
+            'shahi-admin-global',
+            'js/admin-global',
+            array('jquery'),
+            $this->version,
+            true
+        );
+        
+        // Add inline script for admin menu highlighting
+        $this->add_menu_highlight_script();
+        
+        // Localize script with common data
+        $this->localize_global_script();
+        
+        // Component library (interactive components)
+        $this->enqueue_script(
+            'shahi-components',
+            'js/components',
+            array('jquery', 'shahi-admin-global'),
+            $this->version,
+            true
+        );
+        
+        // Onboarding script (loaded on all plugin pages for modal)
+        $this->enqueue_script(
+            'shahi-onboarding',
+            'js/onboarding',
+            array('jquery', 'shahi-components'),
+            $this->version,
+            true
+        );
+        
+        $this->localize_onboarding_script();
+        
+        // Page-specific scripts
+        if ($this->is_dashboard_page($hook)) {
+            $this->enqueue_script(
+                'shahi-admin-dashboard',
+                'js/admin-dashboard',
+                array('jquery', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_dashboard_script();
+        } elseif ($this->is_analytics_page($hook)) {
+            // Enqueue Chart.js from CDN (WordPress doesn't include it by default)
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            $this->enqueue_script(
+                'shahi-analytics-charts',
+                'js/analytics-charts',
+                array('jquery', 'chartjs', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_analytics_script();
+        } elseif ($this->is_modules_page($hook)) {
+            $this->enqueue_script(
+                'shahi-admin-modules',
+                'js/admin-modules',
+                array('jquery', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_modules_script();
+        } elseif ($this->is_module_dashboard_page($hook)) {
+            $this->enqueue_script(
+                'shahi-admin-module-dashboard',
+                'js/admin-module-dashboard',
+                array('jquery', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_module_dashboard_script();
+        } elseif ($this->is_analytics_dashboard_page($hook)) {
+            // Enqueue Chart.js from CDN for Analytics Dashboard
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            $this->enqueue_script(
+                'shahi-admin-analytics-dashboard',
+                'js/admin-analytics-dashboard',
+                array('jquery', 'chartjs', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_analytics_dashboard_script();
+        } elseif ($this->is_settings_page($hook)) {
+            $this->enqueue_script(
+                'shahi-admin-settings',
+                'js/admin-settings',
+                array('jquery', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            $this->localize_settings_script();
+        }
+    }
+    
+    /**
+     * Enqueue a stylesheet.
+     *
+     * @since 1.0.0
+     * @param string $handle    Name of the stylesheet.
+     * @param string $file      Path to the file (relative to assets directory, without extension).
+     * @param array  $deps      Array of dependency handles.
+     * @param string $version   Version number.
+     * @param string $media     Media type.
+     * @return void
+     */
+    private function enqueue_style($handle, $file, $deps = array(), $version = null, $media = 'all') {
+        $suffix = $this->use_minified ? '.min' : '';
+        $relative_path = $file . $suffix . '.css';
+        $file_url = $this->assets_url . $relative_path;
+
+        // Aggressive cache-bust: use file modification time + file size for maximum freshness
+        if (!$version) {
+            $file_path = SHAHI_LEGALOPS_SUITE_PLUGIN_DIR . 'assets/' . $relative_path;
+            if (file_exists($file_path)) {
+                // Combine mtime and file size to create unique version
+                $version = filemtime($file_path) . '.' . filesize($file_path);
+            } else {
+                $version = $this->version;
+            }
+        }
+
+        wp_enqueue_style(
+            $handle,
+            $file_url,
+            $deps,
+            $version,
+            $media
+        );
+    }
+    
+    /**
+     * Enqueue a script.
+     *
+     * @since 1.0.0
+     * @param string $handle      Name of the script.
+     * @param string $file        Path to the file (relative to assets directory, without extension).
+     * @param array  $deps        Array of dependency handles.
+     * @param string $version     Version number.
+     * @param bool   $in_footer   Whether to enqueue in footer.
+     * @return void
+     */
+    private function enqueue_script($handle, $file, $deps = array(), $version = null, $in_footer = true) {
+        $suffix = $this->use_minified ? '.min' : '';
+        $file_url = $this->assets_url . $file . $suffix . '.js';
+        
+        wp_enqueue_script(
+            $handle,
+            $file_url,
+            $deps,
+            $version,
+            $in_footer
+        );
+    }
+    
+    /**
+     * Localize global script with common data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_global_script() {
+        wp_localize_script('shahi-admin-global', 'shahiTemplate', array(
+            'ajaxurl'       => admin_url('admin-ajax.php'),
+            'nonce'         => Security::generate_nonce('shahi_legalops_suite_ajax'),
+            'pluginUrl'     => SHAHI_LEGALOPS_SUITE_PLUGIN_URL,
+            'version'       => SHAHI_LEGALOPS_SUITE_VERSION,
+            'i18n'          => array(
+                'confirm'           => I18n::translate('Are you sure?'),
+                'saving'            => I18n::translate('Saving...'),
+                'saved'             => I18n::translate('Saved!'),
+                'error'             => I18n::translate('An error occurred.'),
+                'success'           => I18n::translate('Success'),
+                'loading'           => I18n::translate('Loading...'),
+                'delete_confirm'    => I18n::translate('Are you sure you want to delete this item?'),
+                'cannot_undo'       => I18n::translate('This action cannot be undone.'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize dashboard script with dashboard-specific data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_dashboard_script() {
+        wp_localize_script('shahi-admin-dashboard', 'shahiDashboard', array(
+            'nonce'         => Security::generate_nonce('shahi_dashboard'),
+            'refreshNonce'  => Security::generate_nonce('shahi_refresh_stats'),
+            'i18n'          => array(
+                'refresh'       => I18n::translate('Refresh'),
+                'noData'        => I18n::translate('No data available.'),
+                'total'         => I18n::translate('Total'),
+                'today'         => I18n::translate('Today'),
+                'thisWeek'      => I18n::translate('This Week'),
+                'thisMonth'     => I18n::translate('This Month'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize analytics script with analytics-specific data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_analytics_script() {
+        wp_localize_script('shahi-analytics-charts', 'shahiAnalytics', array(
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'nonce'         => Security::generate_nonce('shahi_analytics'),
+            'exportNonce'   => Security::generate_nonce('shahi_export_analytics'),
+            'i18n'          => array(
+                'events'        => I18n::translate('Events'),
+                'loading'       => I18n::translate('Loading...'),
+                'noData'        => I18n::translate('No data available'),
+                'export'        => I18n::translate('Export'),
+                'exporting'     => I18n::translate('Exporting...'),
+                'exported'      => I18n::translate('Export completed'),
+                'exportError'   => I18n::translate('Export failed'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize onboarding script with onboarding-specific data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_onboarding_script() {
+        wp_localize_script('shahi-onboarding', 'shahiOnboardingData', array(
+            'ajaxUrl'   => admin_url('admin-ajax.php'),
+            'nonce'     => Security::generate_nonce('shahi_onboarding'),
+            'i18n'      => array(
+                'saving'    => I18n::translate('Saving...'),
+                'saved'     => I18n::translate('Setup completed successfully!'),
+                'error'     => I18n::translate('An error occurred. Please try again.'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize modules script with modules-specific data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_modules_script() {
+        wp_localize_script('shahi-admin-modules', 'shahiModulesData', array(
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'toggleNonce'   => Security::generate_nonce('shahi_toggle_module'),
+            'i18n'          => array(
+                'enabling'      => I18n::translate('Enabling...'),
+                'disabling'     => I18n::translate('Disabling...'),
+                'enabled'       => I18n::translate('Module enabled successfully.'),
+                'disabled'      => I18n::translate('Module disabled successfully.'),
+                'error'         => I18n::translate('An error occurred. Please try again.'),
+                'confirmEnableAll' => I18n::translate('Are you sure you want to enable all modules?'),
+                'confirmDisableAll' => I18n::translate('Are you sure you want to disable all modules? Some features may become unavailable.'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize module dashboard script with dashboard-specific data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_module_dashboard_script() {
+        wp_localize_script('shahi-admin-module-dashboard', 'shahiModuleDashboard', array(
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'nonce'         => Security::generate_nonce('shahi_module_dashboard'),
+            'i18n'          => array(
+                'enabling'      => I18n::translate('Activating...'),
+                'disabling'     => I18n::translate('Deactivating...'),
+                'enabled'       => I18n::translate('Module activated successfully.'),
+                'disabled'      => I18n::translate('Module deactivated successfully.'),
+                'error'         => I18n::translate('An error occurred. Please try again.'),
+                'loading'       => I18n::translate('Loading...'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize analytics dashboard script with data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_analytics_dashboard_script() {
+        // Note: Main data (trends, chartsData, dateRange) is passed via inline script in template
+        // This only provides AJAX configuration
+        wp_localize_script('shahi-admin-analytics-dashboard', 'shahiAnalyticsDashboardConfig', array(
+            'ajaxUrl'       => admin_url('admin-ajax.php'),
+            'nonce'         => Security::generate_nonce('shahi_analytics_dashboard'),
+            'i18n'          => array(
+                'loading'       => I18n::translate('Loading analytics...'),
+                'exporting'     => I18n::translate('Exporting data...'),
+                'error'         => I18n::translate('An error occurred. Please try again.'),
+                'success'       => I18n::translate('Operation completed successfully.'),
+            ),
+        ));
+    }
+    
+    /**
+     * Localize settings script with settings-specific data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function localize_settings_script() {
+        wp_localize_script('shahi-admin-settings', 'shahi_settings_vars', array(
+            'ajaxurl'       => admin_url('admin-ajax.php'),
+            'nonce'         => Security::generate_nonce('shahi_settings_ajax'),
+            'i18n'          => array(
+                'exporting'     => I18n::translate('Exporting settings...'),
+                'importing'     => I18n::translate('Importing settings...'),
+                'resetting'     => I18n::translate('Resetting settings...'),
+                'success'       => I18n::translate('Settings saved successfully.'),
+                'error'         => I18n::translate('An error occurred. Please try again.'),
+                'confirmReset'  => I18n::translate('Are you sure you want to reset all settings to defaults? This cannot be undone.'),
+                'confirmImport' => I18n::translate('This will overwrite your current settings. Continue?'),
+            ),
+        ));
+    }
+    
+    /**
+     * Check if current page is a plugin page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if plugin page, false otherwise.
+     */
+    private function is_plugin_page($hook) {
+        // Check if hook contains our plugin slug
+        if (strpos($hook, 'shahi-legalops-suite') !== false) {
+            return true;
+        }
+        
+        // Check if it's a top-level plugin page
+        $plugin_pages = array(
+            'toplevel_page_shahi-legalops-suite',
+            'shahi-legalops-suite_page_shahi-dashboard',
+            'shahi-legalops-suite_page_shahi-modules',
+            'shahi-legalops-suite_page_shahi-settings',
+            'shahi-legalops-suite_page_shahi-analytics',
+        );
+        
+        return in_array($hook, $plugin_pages, true);
+    }
+    
+    /**
+     * Check if current page is the dashboard page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if dashboard page, false otherwise.
+     */
+    private function is_dashboard_page($hook) {
+        return strpos($hook, 'shahi-dashboard') !== false || 
+               $hook === 'toplevel_page_shahi-legalops-suite';
+    }
+    
+    /**
+     * Check if current page is the modules page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if modules page, false otherwise.
+     */
+    private function is_modules_page($hook) {
+        return strpos($hook, 'shahi-modules') !== false && strpos($hook, 'module-dashboard') === false;
+    }
+    
+    /**
+     * Check if current page is the module dashboard page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if module dashboard page, false otherwise.
+     */
+    private function is_module_dashboard_page($hook) {
+        return strpos($hook, 'module-dashboard') !== false;
+    }
+    
+    /**
+     * Check if current page is the analytics page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if analytics page, false otherwise.
+     */
+    private function is_analytics_page($hook) {
+        return strpos($hook, 'shahi-analytics') !== false && strpos($hook, 'analytics-dashboard') === false;
+    }
+    
+    /**
+     * Check if current page is the analytics dashboard page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if analytics dashboard page, false otherwise.
+     */
+    private function is_analytics_dashboard_page($hook) {
+        return strpos($hook, 'analytics-dashboard') !== false;
+    }
+    
+    /**
+     * Check if current page is the settings page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if settings page, false otherwise.
+     */
+    private function is_settings_page($hook) {
+        return strpos($hook, 'shahi-settings') !== false;
+    }
+    
+    /**
+     * Get asset URL.
+     *
+     * Helper method to get full URL for an asset.
+     *
+     * @since 1.0.0
+     * @param string $path Path relative to assets directory.
+     * @return string Full URL to the asset.
+     */
+    public static function get_asset_url($path) {
+        return SHAHI_LEGALOPS_SUITE_PLUGIN_URL . 'assets/' . ltrim($path, '/');
+    }
+    
+    /**
+     * Get minified asset suffix.
+     *
+     * Returns '.min' if minified assets should be used, empty string otherwise.
+     *
+     * @since 1.0.0
+     * @return string The suffix for minified assets.
+     */
+    public static function get_min_suffix() {
+        return (!defined('SCRIPT_DEBUG') || !SCRIPT_DEBUG) ? '.min' : '';
+    }
+    
+    /**
+     * Register additional styles (for manual enqueuing).
+     *
+     * Registers styles without enqueueing them, useful for conditional loading.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function register_styles() {
+        $suffix = $this->use_minified ? '.min' : '';
+        
+        // Analytics page styles (future use)
+        wp_register_style(
+            'shahi-admin-analytics',
+            $this->assets_url . 'css/admin-analytics' . $suffix . '.css',
+            array('shahi-admin-global'),
+            $this->version
+        );
+        
+        // Onboarding styles (future use)
+        wp_register_style(
+            'shahi-admin-onboarding',
+            $this->assets_url . 'css/admin-onboarding' . $suffix . '.css',
+            array('shahi-admin-global'),
+            $this->version
+        );
+    }
+    
+    /**
+     * Register additional scripts (for manual enqueuing).
+     *
+     * Registers scripts without enqueueing them, useful for conditional loading.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function register_scripts() {
+        $suffix = $this->use_minified ? '.min' : '';
+        
+        // Analytics page scripts (future use)
+        wp_register_script(
+            'shahi-admin-analytics',
+            $this->assets_url . 'js/admin-analytics' . $suffix . '.js',
+            array('jquery', 'shahi-admin-global'),
+            $this->version,
+            true
+        );
+        
+        // Onboarding scripts (future use)
+        wp_register_script(
+            'shahi-admin-onboarding',
+            $this->assets_url . 'js/admin-onboarding' . $suffix . '.js',
+            array('jquery', 'shahi-admin-global'),
+            $this->version,
+            true
+        );
+    }
+    
+    /**
+     * Enqueue frontend styles.
+     *
+     * Loads styles for the public-facing side (if needed in the future).
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function enqueue_frontend_styles() {
+        // Frontend styles will be added if public-facing components are created
+        // Currently, this is an admin-only plugin
+    }
+    
+    /**
+     * Enqueue frontend scripts.
+     *
+     * Loads scripts for the public-facing side (if needed in the future).
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function enqueue_frontend_scripts() {
+        // Frontend scripts will be added if public-facing components are created
+        // Currently, this is an admin-only plugin
+    }
+    
+    /**
+     * Add no-cache directive to plugin styles for development.
+     *
+     * Prevents browser and server from caching CSS files during development.
+     *
+     * @since 1.0.0
+     * @param string $tag    The link tag for the enqueued style.
+     * @param string $handle The style's registered handle.
+     * @param string $href   The stylesheet's source URL.
+     * @param string $media  The stylesheet's media attribute.
+     * @return string Modified link tag.
+     */
+    public function add_nocache_to_styles($tag, $handle, $href, $media) {
+        // Only apply to our plugin's styles
+        if (strpos($handle, 'shahi-') === 0) {
+            // Add unique timestamp to force refresh
+            $separator = (strpos($href, '?') !== false) ? '&' : '?';
+            $href = $href . $separator . 't=' . time();
+            
+            // Rebuild tag with no-cache headers
+            $tag = sprintf(
+                '<link rel="stylesheet" id="%s-css" href="%s" type="text/css" media="%s" />' . "\n",
+                esc_attr($handle),
+                esc_url($href),
+                esc_attr($media)
+            );
+        }
+        
+        return $tag;
+    }
+}

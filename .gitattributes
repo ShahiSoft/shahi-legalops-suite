@@ -1,0 +1,199 @@
+# Git Attributes - Control how files are treated in Git operations
+# https://git-scm.com/docs/gitattributes
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.php text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.less text eol=lf
+*.html text eol=lf
+*.htm text eol=lf
+
+# Templates
+*.tpl text eol=lf
+*.tmpl text eol=lf
+
+# Scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+*.fish text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Configuration files
+*.cnf text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitconfig text eol=lf
+.gitignore text eol=lf
+.htaccess text eol=lf
+
+# Documentation
+*.markdown text eol=lf
+*.md text eol=lf
+*.mdwn text eol=lf
+*.mdown text eol=lf
+*.mkd text eol=lf
+*.mkdn text eol=lf
+*.mdtxt text eol=lf
+*.txt text eol=lf
+AUTHORS text eol=lf
+CHANGELOG text eol=lf
+CHANGES text eol=lf
+CONTRIBUTING text eol=lf
+COPYING text eol=lf
+copyright text eol=lf
+*COPYRIGHT* text eol=lf
+INSTALL text eol=lf
+license text eol=lf
+LICENSE text eol=lf
+NEWS text eol=lf
+readme text eol=lf
+*README* text eol=lf
+TODO text eol=lf
+
+# YAML
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# SQL
+*.sql text eol=lf
+
+# Package management
+composer.json text eol=lf
+composer.lock text eol=lf linguist-generated=true
+package.json text eol=lf
+package-lock.json text eol=lf linguist-generated=true
+yarn.lock text eol=lf linguist-generated=true
+
+# Graphics
+*.ai binary
+*.bmp binary
+*.eps binary
+*.gif binary
+*.gifv binary
+*.ico binary
+*.jng binary
+*.jp2 binary
+*.jpg binary
+*.jpeg binary
+*.jpx binary
+*.jxr binary
+*.pdf binary
+*.png binary
+*.psb binary
+*.psd binary
+*.svg text
+*.svgz binary
+*.tif binary
+*.tiff binary
+*.wbmp binary
+*.webp binary
+
+# Audio
+*.kar binary
+*.m4a binary
+*.mid binary
+*.midi binary
+*.mp3 binary
+*.ogg binary
+*.ra binary
+
+# Video
+*.3gpp binary
+*.3gp binary
+*.as binary
+*.asf binary
+*.asx binary
+*.avi binary
+*.fla binary
+*.flv binary
+*.m4v binary
+*.mng binary
+*.mov binary
+*.mp4 binary
+*.mpeg binary
+*.mpg binary
+*.ogv binary
+*.swc binary
+*.swf binary
+*.webm binary
+
+# Archives
+*.7z binary
+*.gz binary
+*.jar binary
+*.rar binary
+*.tar binary
+*.zip binary
+
+# Fonts
+*.ttf binary
+*.eot binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# Executables
+*.exe binary
+*.pyc binary
+
+# RC files (like .babelrc or .eslintrc)
+*.*rc text eol=lf
+
+# Ignore files for linguist
+*.min.js linguist-vendored=true
+*.min.css linguist-vendored=true
+vendor/* linguist-vendored=true
+node_modules/* linguist-vendored=true
+assets/vendor/* linguist-vendored=true
+
+# Export ignore - files not included in distribution archives
+# These files won't be included when creating a release archive
+/.editorconfig export-ignore
+/.git export-ignore
+/.gitattributes export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/tests export-ignore
+/bin export-ignore
+/node_modules export-ignore
+/vendor export-ignore
+/.phpcs.xml export-ignore
+/phpcs.xml export-ignore
+/phpcs.xml.dist export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml export-ignore
+/phpunit.xml.dist export-ignore
+/.distignore export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/composer.json export-ignore
+/composer.lock export-ignore
+/Gruntfile.js export-ignore
+/gulpfile.js export-ignore
+/webpack.config.js export-ignore
+/.travis.yml export-ignore
+/.scrutinizer.yml export-ignore
+/codecov.yml export-ignore
+/CONTRIBUTING.md export-ignore
+/README.md export-ignore
+/CHANGELOG.md export-ignore
+
+# PLACEHOLDER: Add project-specific export-ignore patterns

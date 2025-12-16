@@ -1,0 +1,882 @@
+/**
+ * ShahiLegalopsSuite - Dashboard Page Styles
+ * 
+ * Futuristic dashboard styles with glassmorphism, gradients,
+ * animated stats, hover effects, and responsive layout.
+ *
+ * @package    ShahiLegalopsSuite
+ * @version    1.0.0
+ */
+
+/* ============================================================================
+   DASHBOARD LAYOUT
+   ========================================================================= */
+
+.shahi-dashboard-page {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.shahi-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--shahi-space-lg, 32px);
+    padding: var(--shahi-space-md, 24px);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+    border: 1px solid var(--shahi-border, #2d3561);
+    border-radius: var(--shahi-radius-lg, 16px);
+    position: relative;
+    overflow: hidden;
+}
+
+.shahi-page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 100%);
+}
+
+.shahi-header-content {
+    flex: 1;
+}
+
+.shahi-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--shahi-text-primary, #ffffff);
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.shahi-page-title .dashicons {
+    font-size: 32px;
+    background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shahi-page-description {
+    color: var(--shahi-text-secondary, #a8b2d1);
+    margin: 0;
+    font-size: 14px;
+}
+
+.shahi-header-actions {
+    display: flex;
+    gap: var(--shahi-space-sm, 16px);
+}
+
+/* Dashboard Grid */
+.shahi-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--shahi-space-md, 24px);
+    margin-top: var(--shahi-space-lg, 32px);
+}
+
+/* Dashboard Grid */
+.shahi-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: var(--shahi-space-md, 24px);
+    margin-top: var(--shahi-space-lg, 32px);
+}
+
+.shahi-dashboard-section {
+    background: var(--shahi-bg-secondary, #141834);
+    border-radius: var(--shahi-radius-lg, 16px);
+}
+
+.shahi-quick-actions-section {
+    grid-column: span 12;
+}
+
+.shahi-activity-section {
+    grid-column: span 6;
+}
+
+.shahi-getting-started-section {
+    grid-column: span 6;
+}
+
+.shahi-resources-section {
+    grid-column: span 12;
+}
+
+/* ============================================================================
+   STATS CARDS
+   ========================================================================= */
+
+.shahi-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--shahi-space-md, 24px);
+    margin-bottom: var(--shahi-space-lg, 32px);
+}
+
+.shahi-stat-card {
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.8) 0%, rgba(20, 24, 52, 0.9) 100%);
+    border: 1px solid var(--shahi-border, #2d3561);
+    border-radius: var(--shahi-radius-lg, 16px);
+    padding: var(--shahi-space-lg, 32px) var(--shahi-space-md, 24px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.shahi-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 100%);
+    opacity: 0.8;
+}
+
+.shahi-stat-card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.shahi-stat-card:hover {
+    border-color: var(--shahi-accent-primary, #00d4ff);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(0, 212, 255, 0.25), 
+                0 0 30px rgba(124, 58, 237, 0.15);
+}
+
+.shahi-stat-card:hover::before {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+}
+
+/* Stat Card Color Variants */
+.shahi-stat-primary::before {
+    background: linear-gradient(90deg, #00d4ff 0%, #0095ff 100%);
+}
+
+.shahi-stat-success::before {
+    background: linear-gradient(90deg, #00ff88 0%, #00cc70 100%);
+}
+
+.shahi-stat-accent::before {
+    background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
+}
+
+.shahi-stat-info::before {
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.shahi-stat-card .shahi-stat-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--shahi-radius-md, 12px);
+    font-size: 28px;
+    margin-bottom: var(--shahi-space-sm, 16px);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%);
+    color: #00d4ff;
+    transition: all 0.3s ease;
+}
+
+.shahi-stat-card:hover .shahi-stat-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+}
+
+.shahi-stat-content {
+    position: relative;
+    z-index: 1;
+}
+
+.shahi-stat-title {
+    font-size: 13px;
+    color: var(--shahi-text-secondary, #a8b2d1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.shahi-stat-value {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 0 0 12px 0;
+}
+
+.shahi-stat-number {
+    font-size: 36px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.shahi-stat-suffix {
+    font-size: 20px;
+    color: var(--shahi-text-secondary, #a8b2d1);
+    font-weight: 600;
+}
+
+.shahi-stat-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+}
+
+.shahi-stat-trend .dashicons {
+    font-size: 16px;
+}
+
+.shahi-trend-up {
+    background: rgba(0, 255, 136, 0.1);
+    color: #00ff88;
+}
+
+.shahi-trend-down {
+    background: rgba(255, 64, 129, 0.1);
+    color: #ff4081;
+}
+
+/* ============================================================================
+   CARD COMPONENTS
+   ========================================================================= */
+
+.shahi-card {
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.6) 0%, rgba(20, 24, 52, 0.8) 100%);
+    border: 1px solid var(--shahi-border, #2d3561);
+    border-radius: var(--shahi-radius-lg, 16px);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.shahi-card:hover {
+    border-color: rgba(0, 212, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+}
+
+.shahi-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--shahi-space-md, 24px);
+    border-bottom: 1px solid var(--shahi-border, #2d3561);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.03) 0%, rgba(124, 58, 237, 0.03) 100%);
+}
+
+.shahi-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--shahi-text-primary, #ffffff);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shahi-card-title .dashicons {
+    color: #00d4ff;
+    font-size: 22px;
+}
+
+.shahi-card-action {
+    color: #00d4ff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.shahi-card-action:hover {
+    color: #ffffff;
+    background: rgba(0, 212, 255, 0.1);
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.shahi-card-body {
+    padding: var(--shahi-space-md, 24px);
+}
+
+.shahi-card-body {
+    padding: var(--shahi-space-md, 24px);
+}
+
+/* ============================================================================
+   QUICK ACTIONS
+   ========================================================================= */
+
+.shahi-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--shahi-space-md, 24px);
+}
+
+.shahi-quick-action {
+    display: flex;
+    flex-direction: column;
+    padding: var(--shahi-space-md, 24px);
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.4) 0%, rgba(20, 24, 52, 0.6) 100%);
+    border: 1px solid var(--shahi-border, #2d3561);
+    border-radius: var(--shahi-radius-md, 12px);
+    text-decoration: none;
+    color: var(--shahi-text-primary, #ffffff);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.shahi-quick-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #00d4ff 0%, #7c3aed 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.shahi-quick-action:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: var(--shahi-accent-primary, #00d4ff);
+    box-shadow: 0 12px 32px rgba(0, 212, 255, 0.2);
+}
+
+.shahi-quick-action:hover::before {
+    opacity: 1;
+}
+
+.shahi-action-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--shahi-radius-sm, 8px);
+    margin-bottom: var(--shahi-space-sm, 16px);
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.shahi-quick-action:hover .shahi-action-icon {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+.shahi-action-primary .shahi-action-icon {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 149, 255, 0.2) 100%);
+    color: #00d4ff;
+}
+
+.shahi-action-success .shahi-action-icon {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 204, 112, 0.2) 100%);
+    color: #00ff88;
+}
+
+.shahi-action-accent .shahi-action-icon {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+    color: #7c3aed;
+}
+
+.shahi-action-info .shahi-action-icon {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+    color: #fbbf24;
+}
+
+.shahi-action-content {
+    flex: 1;
+}
+
+.shahi-action-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--shahi-text-primary, #ffffff);
+    margin: 0 0 8px 0;
+}
+
+.shahi-action-description {
+    font-size: 13px;
+    color: var(--shahi-text-secondary, #a8b2d1);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ============================================================================
+   ACTIVITY FEED
+   ========================================================================= */
+
+.shahi-activity-feed {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.shahi-activity-feed::-webkit-scrollbar {
+    width: 6px;
+}
+
+.shahi-activity-feed::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.shahi-activity-feed::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.3);
+    border-radius: 10px;
+}
+
+.shahi-activity-feed::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 255, 0.5);
+}
+
+.shahi-activity-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.shahi-activity-item {
+    display: flex;
+    gap: var(--shahi-space-sm, 16px);
+    padding: var(--shahi-space-sm, 16px);
+    border-bottom: 1px solid var(--shahi-border, #2d3561);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.shahi-activity-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #00d4ff 0%, #7c3aed 100%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.shahi-activity-item:last-child {
+    border-bottom: none;
+}
+
+.shahi-activity-item:hover {
+    background: rgba(0, 212, 255, 0.05);
+}
+
+.shahi-activity-item:hover::before {
+    opacity: 1;
+}
+
+.shahi-activity-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+    border-radius: 50%;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    flex-shrink: 0;
+    color: #00d4ff;
+    font-size: 18px;
+}
+
+.shahi-activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.shahi-activity-title {
+    color: var(--shahi-text-primary, #ffffff);
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0 0 4px 0;
+}
+
+.shahi-activity-description {
+    color: var(--shahi-text-secondary, #a8b2d1);
+    font-size: 13px;
+    margin: 0 0 4px 0;
+}
+
+.shahi-activity-time {
+    font-size: 12px;
+    color: var(--shahi-text-muted, #6b7ba0);
+}
+
+.shahi-empty-state {
+    text-align: center;
+    padding: var(--shahi-space-xl, 48px) var(--shahi-space-md, 24px);
+    color: var(--shahi-text-secondary, #a8b2d1);
+}
+
+.shahi-empty-state .dashicons {
+    font-size: 48px;
+    opacity: 0.3;
+    display: block;
+    margin: 0 auto 16px;
+}
+
+.shahi-empty-state p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ============================================================================
+   GETTING STARTED CHECKLIST
+   ========================================================================= */
+
+.shahi-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: var(--shahi-space-sm, 16px);
+}
+
+.shahi-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--shahi-space-sm, 16px);
+    padding: var(--shahi-space-md, 24px);
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.3) 0%, rgba(20, 24, 52, 0.5) 100%);
+    border: 1px solid var(--shahi-border, #2d3561);
+    border-radius: var(--shahi-radius-md, 12px);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.shahi-checklist-item:hover {
+    border-color: rgba(0, 212, 255, 0.3);
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.5) 0%, rgba(20, 24, 52, 0.7) 100%);
+}
+
+.shahi-checklist-item.shahi-completed {
+    border-color: rgba(0, 255, 136, 0.3);
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 204, 112, 0.05) 100%);
+}
+
+.shahi-checklist-item.shahi-completed::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #00ff88 0%, #00cc70 100%);
+    border-radius: 12px 0 0 12px;
+}
+
+.shahi-checklist-checkbox {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid var(--shahi-border, #2d3561);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.shahi-checklist-item.shahi-completed .shahi-checklist-checkbox {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc70 100%);
+    border-color: #00ff88;
+}
+
+.shahi-checklist-checkbox .dashicons {
+    font-size: 20px;
+    color: var(--shahi-text-muted, #6b7ba0);
+}
+
+.shahi-checklist-item.shahi-completed .shahi-checklist-checkbox .dashicons {
+    color: #0a0e27;
+}
+
+.shahi-checklist-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.shahi-checklist-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--shahi-text-primary, #ffffff);
+    margin: 0 0 4px 0;
+}
+
+.shahi-checklist-description {
+    font-size: 13px;
+    color: var(--shahi-text-secondary, #a8b2d1);
+    margin: 0;
+}
+
+.shahi-checklist-action {
+    flex-shrink: 0;
+}
+
+/* ============================================================================
+   RESOURCES PANEL
+   ========================================================================= */
+
+.shahi-resources-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--shahi-space-sm, 16px);
+}
+
+.shahi-resource-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: var(--shahi-space-sm, 16px);
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.3) 0%, rgba(20, 24, 52, 0.5) 100%);
+    border: 1px solid var(--shahi-border, #2d3561);
+    border-radius: var(--shahi-radius-sm, 8px);
+    color: var(--shahi-text-primary, #ffffff);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.shahi-resource-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.shahi-resource-link:hover {
+    border-color: var(--shahi-accent-primary, #00d4ff);
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.5) 0%, rgba(20, 24, 52, 0.7) 100%);
+    transform: translateX(4px);
+}
+
+.shahi-resource-link:hover::before {
+    left: 100%;
+}
+
+.shahi-resource-link .dashicons {
+    font-size: 20px;
+    color: #00d4ff;
+    flex-shrink: 0;
+}
+
+.shahi-resource-link span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.shahi-resource-link span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ============================================================================
+   BUTTONS
+   ========================================================================= */
+
+.shahi-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--shahi-radius-sm, 8px);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.shahi-btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+.shahi-btn-secondary {
+    background: linear-gradient(135deg, rgba(30, 37, 66, 0.8) 0%, rgba(20, 24, 52, 0.9) 100%);
+    color: var(--shahi-text-primary, #ffffff);
+    border: 1px solid var(--shahi-border, #2d3561);
+}
+
+.shahi-btn-secondary:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%);
+    border-color: var(--shahi-accent-primary, #00d4ff);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+}
+
+.shahi-btn .dashicons {
+    font-size: 18px;
+}
+
+/* ============================================================================
+   LOADING STATES
+   ========================================================================= */
+
+@keyframes shahi-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.shahi-loading .dashicons-update {
+    animation: shahi-spin 1s linear infinite;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ========================================================================= */
+
+@media (max-width: 1200px) {
+    .shahi-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .shahi-activity-section,
+    .shahi-getting-started-section {
+        grid-column: span 12;
+    }
+}
+
+@media (max-width: 1024px) {
+    .shahi-quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .shahi-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--shahi-space-sm, 16px);
+    }
+    
+    .shahi-header-actions {
+        width: 100%;
+    }
+    
+    .shahi-header-actions .shahi-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .shahi-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .shahi-quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .shahi-resources-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .shahi-dashboard-section {
+        grid-column: span 12;
+    }
+}
+
+@media (max-width: 480px) {
+    .shahi-page-title {
+        font-size: 22px;
+    }
+    
+    .shahi-stat-number {
+        font-size: 28px;
+    }
+    
+    .shahi-checklist-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .shahi-checklist-action {
+        width: 100%;
+    }
+    
+    .shahi-checklist-action .shahi-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ========================================================================= */
+
+@keyframes shahi-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.shahi-stat-card {
+    animation: shahi-fade-in 0.5s ease-out backwards;
+}
+
+.shahi-stat-card:nth-child(1) { animation-delay: 0.1s; }
+.shahi-stat-card:nth-child(2) { animation-delay: 0.2s; }
+.shahi-stat-card:nth-child(3) { animation-delay: 0.3s; }
+.shahi-stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.shahi-dashboard-section {
+    animation: shahi-fade-in 0.5s ease-out backwards;
+}
+
+.shahi-quick-actions-section { animation-delay: 0.2s; }
+.shahi-activity-section { animation-delay: 0.3s; }
+.shahi-getting-started-section { animation-delay: 0.4s; }
+.shahi-resources-section { animation-delay: 0.5s; }
+
