@@ -15,6 +15,7 @@ namespace ShahiLegalopsSuite\Modules\AccessibilityScanner;
 
 use ShahiLegalopsSuite\Modules\Module;
 use ShahiLegalopsSuite\Modules\AccessibilityScanner\Admin\Settings;
+use ShahiLegalopsSuite\Modules\AccessibilityScanner\Database\Schema;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -240,146 +241,14 @@ class AccessibilityScanner extends Module {
      * Create database tables
      *
      * Creates all required database tables for the module using dbDelta.
-     * Tables: scans, issues, fixes, ignores, reports, analytics.
+     * Delegates to Schema class for table definitions.
      *
      * @since 1.0.0
      * @return void
      */
     private function create_database_tables() {
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        
-        global $wpdb;
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        $tables_sql = [];
-        
-        // Scans table
-        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_scans (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            post_id BIGINT UNSIGNED NULL,
-            url VARCHAR(500) NOT NULL,
-            scan_type ENUM('manual', 'auto', 'scheduled', 'bulk') DEFAULT 'manual',
-            status ENUM('pending', 'running', 'completed', 'failed') DEFAULT 'pending',
-            total_checks INT UNSIGNED DEFAULT 0,
-            passed_checks INT UNSIGNED DEFAULT 0,
-            failed_checks INT UNSIGNED DEFAULT 0,
-            warning_checks INT UNSIGNED DEFAULT 0,
-            score INT UNSIGNED DEFAULT 0,
-            wcag_level ENUM('A', 'AA', 'AAA') DEFAULT 'AA',
-            started_at DATETIME NULL,
-            completed_at DATETIME NULL,
-            created_by BIGINT UNSIGNED NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY post_id (post_id),
-            KEY status (status),
-            KEY created_at (created_at),
-            KEY created_by (created_by)
-        ) $charset_collate;";
-        
-        // Issues table
-        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_issues (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            scan_id BIGINT UNSIGNED NOT NULL,
-            check_type VARCHAR(100) NOT NULL,
-            check_name VARCHAR(200) NOT NULL,
-            severity ENUM('critical', 'serious', 'moderate', 'minor') DEFAULT 'moderate',
-            wcag_criterion VARCHAR(50) NULL,
-            wcag_level ENUM('A', 'AA', 'AAA') DEFAULT 'AA',
-            element_selector VARCHAR(500) NULL,
-            element_html TEXT NULL,
-            line_number INT UNSIGNED NULL,
-            issue_description TEXT NULL,
-            recommendation TEXT NULL,
-            status ENUM('new', 'in_progress', 'fixed', 'verified', 'closed', 'ignored') DEFAULT 'new',
-            priority ENUM('P0', 'P1', 'P2', 'P3', 'P4') DEFAULT 'P2',
-            assigned_to BIGINT UNSIGNED NULL,
-            due_date DATETIME NULL,
-            fixed_at DATETIME NULL,
-            fixed_by BIGINT UNSIGNED NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY scan_id (scan_id),
-            KEY severity (severity),
-            KEY status (status),
-            KEY assigned_to (assigned_to),
-            KEY wcag_criterion (wcag_criterion)
-        ) $charset_collate;";
-        
-        // Fixes table
-        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_fixes (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            issue_id BIGINT UNSIGNED NULL,
-            fix_type VARCHAR(100) NOT NULL,
-            fix_name VARCHAR(200) NOT NULL,
-            fix_description TEXT NULL,
-            before_html TEXT NULL,
-            after_html TEXT NULL,
-            applied BOOLEAN DEFAULT FALSE,
-            applied_at DATETIME NULL,
-            applied_by BIGINT UNSIGNED NULL,
-            reverted_at DATETIME NULL,
-            reverted_by BIGINT UNSIGNED NULL,
-            success BOOLEAN NULL,
-            error_message TEXT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY issue_id (issue_id),
-            KEY applied (applied),
-            KEY fix_type (fix_type)
-        ) $charset_collate;";
-        
-        // Ignores table
-        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_ignores (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            issue_id BIGINT UNSIGNED NOT NULL,
-            reason TEXT NULL,
-            ignored_by BIGINT UNSIGNED NOT NULL,
-            ignored_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            expires_at DATETIME NULL,
-            reopened_at DATETIME NULL,
-            reopened_by BIGINT UNSIGNED NULL,
-            PRIMARY KEY (id),
-            KEY issue_id (issue_id),
-            KEY ignored_by (ignored_by)
-        ) $charset_collate;";
-        
-        // Reports table
-        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_reports (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            scan_id BIGINT UNSIGNED NULL,
-            report_type ENUM('summary', 'detailed', 'vpat', 'wcag-em', 'csv', 'pdf') DEFAULT 'summary',
-            report_data LONGTEXT NULL,
-            file_path VARCHAR(500) NULL,
-            generated_by BIGINT UNSIGNED NOT NULL,
-            generated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY scan_id (scan_id),
-            KEY report_type (report_type)
-        ) $charset_collate;";
-        
-        // Analytics table
-        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_analytics (
-            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            event_type VARCHAR(100) NOT NULL,
-            event_name VARCHAR(200) NOT NULL,
-            event_data TEXT NULL,
-            user_id BIGINT UNSIGNED NULL,
-            ip_address VARCHAR(45) NULL,
-            user_agent VARCHAR(500) NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY event_type (event_type),
-            KEY user_id (user_id),
-            KEY created_at (created_at)
-        ) $charset_collate;";
-        
-        // Execute table creation
-        foreach ($tables_sql as $sql) {
-            dbDelta($sql);
-        }
+        $schema = new Schema();
+        $schema->create_tables();
     }
     
     /**
