@@ -15,7 +15,7 @@ namespace ShahiLegalopsSuite\Modules\AccessibilityScanner;
 
 use ShahiLegalopsSuite\Modules\Module;
 use ShahiLegalopsSuite\Modules\AccessibilityScanner\Admin\Settings;
-use ShahiLegalopsSuite\Modules\AccessibilityScanner\Database\Schema;
+use ShahiLegalopsSuite\Modules\AccessibilityScanner\Database\MigrationRunner;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -240,15 +240,15 @@ class AccessibilityScanner extends Module {
     /**
      * Create database tables
      *
-     * Creates all required database tables for the module using dbDelta.
-     * Delegates to Schema class for table definitions.
+     * Creates all required database tables for the module using migrations.
+     * Delegates to MigrationRunner to execute all pending migrations.
      *
      * @since 1.0.0
      * @return void
      */
     private function create_database_tables() {
-        $schema = new Schema();
-        $schema->create_tables();
+        $runner = new MigrationRunner();
+        $runner->run_migrations();
     }
     
     /**
