@@ -707,4 +707,46 @@ class AccessibilityScanner extends Module {
         }
         return $default;
     }
+    
+    /**
+     * Get module data as array for Module Dashboard
+     *
+     * Overrides parent to_array() method to include accessibility scanner statistics.
+     *
+     * @since 1.0.0
+     * @return array Module data with stats
+     */
+    public function to_array() {
+        $base_data = parent::to_array();
+        $stats = $this->get_stats();
+        
+        // Add module statistics for Module Dashboard card
+        $base_data['stats'] = [
+            'scans_run' => $stats['scans_run'],
+            'issues_found' => $stats['issues_found'],
+            'fixes_applied' => $stats['fixes_applied'],
+            'avg_score' => $stats['performance_score'],
+        ];
+        
+        // Add quick actions for Module Dashboard card
+        $base_data['quick_actions'] = [
+            [
+                'label' => __('Run Scan', 'shahi-legalops-suite'),
+                'url' => admin_url('admin.php?page=shahi-accessibility-results&action=new-scan'),
+                'icon' => 'dashicons-search',
+            ],
+            [
+                'label' => __('View Results', 'shahi-legalops-suite'),
+                'url' => admin_url('admin.php?page=shahi-accessibility-results'),
+                'icon' => 'dashicons-analytics',
+            ],
+            [
+                'label' => __('Settings', 'shahi-legalops-suite'),
+                'url' => admin_url('admin.php?page=shahi-accessibility-settings'),
+                'icon' => 'dashicons-admin-settings',
+            ],
+        ];
+        
+        return $base_data;
+    }
 }
