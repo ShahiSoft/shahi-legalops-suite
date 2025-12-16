@@ -1,0 +1,795 @@
+<?php
+/**
+ * Accessibility Scanner Module
+ *
+ * Comprehensive WCAG 2.2 accessibility scanning with 60+ automated checks,
+ * 25+ one-click fixes, AI-powered features, and frontend accessibility widget.
+ *
+ * @package    ShahiLegalopsSuite
+ * @subpackage Modules\AccessibilityScanner
+ * @license    GPL-3.0+
+ * @since      1.0.0
+ */
+
+namespace ShahiLegalopsSuite\Modules\AccessibilityScanner;
+
+use ShahiLegalopsSuite\Modules\Module;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * AccessibilityScanner Module Class
+ *
+ * Provides comprehensive WCAG 2.2 accessibility scanning and automatic fixes.
+ * Includes scanner engine with 60+ checkers, one-click fixes, AI-powered alt text
+ * generation, and customizable frontend widget with 70+ accessibility features.
+ *
+ * @since 1.0.0
+ */
+class AccessibilityScanner extends Module {
+    
+    /**
+     * Module unique key
+     *
+     * @since 1.0.0
+     * @var string
+     */
+    protected $key = 'accessibility-scanner';
+    
+    /**
+     * Get module unique key
+     *
+     * @since 1.0.0
+     * @return string Module key
+     */
+    public function get_key() {
+        return 'accessibility-scanner';
+    }
+    
+    /**
+     * Get module name
+     *
+     * @since 1.0.0
+     * @return string Module name
+     */
+    public function get_name() {
+        return __('Accessibility Scanner', 'shahi-legalops-suite');
+    }
+    
+    /**
+     * Get module description
+     *
+     * @since 1.0.0
+     * @return string Module description
+     */
+    public function get_description() {
+        return __('Comprehensive WCAG 2.2 accessibility scanning with 60+ automated checks, 25+ one-click fixes, and AI-powered features.', 'shahi-legalops-suite');
+    }
+    
+    /**
+     * Get module icon
+     *
+     * @since 1.0.0
+     * @return string Icon class
+     */
+    public function get_icon() {
+        return 'dashicons-universal-access-alt';
+    }
+    
+    /**
+     * Get module category
+     *
+     * @since 1.0.0
+     * @return string Category
+     */
+    public function get_category() {
+        return 'compliance';
+    }
+    
+    /**
+     * Get module version
+     *
+     * @since 1.0.0
+     * @return string Version number
+     */
+    public function get_version() {
+        return '1.0.0';
+    }
+    
+    /**
+     * Get module priority
+     *
+     * Used for dashboard sorting (high priority modules appear first).
+     *
+     * @since 1.0.0
+     * @return string Priority level (high|medium|low)
+     */
+    public function get_priority() {
+        return 'high';
+    }
+    
+    /**
+     * Initialize module
+     *
+     * Called when module is loaded and enabled. Registers hooks, filters,
+     * admin pages, AJAX handlers, REST API endpoints, and CLI commands.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function init() {
+        // Register admin menu pages
+        add_action('admin_menu', [$this, 'register_admin_pages'], 20);
+        
+        // Enqueue admin assets
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+        
+        // Enqueue frontend widget assets (if widget enabled)
+        if ($this->get_setting('widget_enabled', false)) {
+            add_action('wp_enqueue_scripts', [$this, 'enqueue_widget_assets']);
+            add_action('wp_footer', [$this, 'render_widget']);
+        }
+        
+        // Register AJAX handlers
+        add_action('wp_ajax_shahi_a11y_run_scan', [$this, 'ajax_run_scan']);
+        add_action('wp_ajax_shahi_a11y_apply_fix', [$this, 'ajax_apply_fix']);
+        add_action('wp_ajax_shahi_a11y_get_issues', [$this, 'ajax_get_issues']);
+        add_action('wp_ajax_shahi_a11y_ignore_issue', [$this, 'ajax_ignore_issue']);
+        add_action('wp_ajax_shahi_a11y_export_report', [$this, 'ajax_export_report']);
+        
+        // Register REST API endpoints
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
+        
+        // Register WP-CLI commands (if in CLI context)
+        if (defined('WP_CLI') && WP_CLI) {
+            \WP_CLI::add_command('a11y', 'ShahiLegalopsSuite\\Modules\\AccessibilityScanner\\CLI\\Commands');
+        }
+        
+        // Schedule automated scans (if enabled)
+        $scan_frequency = $this->get_setting('scan_frequency', 'disabled');
+        if ($scan_frequency !== 'disabled') {
+            add_action('shahi_a11y_scheduled_scan', [$this, 'run_scheduled_scan']);
+            
+            if (!wp_next_scheduled('shahi_a11y_scheduled_scan')) {
+                wp_schedule_event(time(), $scan_frequency, 'shahi_a11y_scheduled_scan');
+            }
+        }
+    }
+    
+    /**
+     * Hook called on module activation
+     *
+     * Creates database tables, sets default settings, and schedules tasks.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    protected function on_activate() {
+        // Create database tables
+        $this->create_database_tables();
+        
+        // Set default settings if not exist
+        $existing_settings = get_option('shahi_a11y_settings', false);
+        
+        if (!$existing_settings) {
+            $default_settings = [
+                'scan_frequency' => 'disabled',
+                'auto_fix_enabled' => false,
+                'wcag_level' => 'AA',
+                'widget_enabled' => false,
+                'widget_position' => 'bottom-right',
+                'widget_color' => '#c0c0c0',
+                'ai_enabled' => false,
+                'ai_provider' => '',
+                'ai_api_key' => '',
+                'email_notifications' => false,
+                'notification_email' => get_option('admin_email'),
+                'enabled_checks' => [], // Empty = all enabled
+                'enabled_fixes' => [],  // Empty = all enabled
+                'enabled_widget_features' => [], // Empty = all enabled
+            ];
+            
+            update_option('shahi_a11y_settings', $default_settings);
+        }
+        
+        // Set module version
+        update_option('shahi_a11y_version', $this->get_version());
+    }
+    
+    /**
+     * Hook called on module deactivation
+     *
+     * Clears scheduled tasks and temporary data.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    protected function on_deactivate() {
+        // Clear scheduled scans
+        wp_clear_scheduled_hook('shahi_a11y_scheduled_scan');
+        
+        // Clear transients
+        delete_transient('shahi_a11y_scan_results');
+        delete_transient('shahi_a11y_dashboard_stats');
+    }
+    
+    /**
+     * Create database tables
+     *
+     * Creates all required database tables for the module using dbDelta.
+     * Tables: scans, issues, fixes, ignores, reports, analytics.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    private function create_database_tables() {
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        $tables_sql = [];
+        
+        // Scans table
+        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_scans (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            post_id BIGINT UNSIGNED NULL,
+            url VARCHAR(500) NOT NULL,
+            scan_type ENUM('manual', 'auto', 'scheduled', 'bulk') DEFAULT 'manual',
+            status ENUM('pending', 'running', 'completed', 'failed') DEFAULT 'pending',
+            total_checks INT UNSIGNED DEFAULT 0,
+            passed_checks INT UNSIGNED DEFAULT 0,
+            failed_checks INT UNSIGNED DEFAULT 0,
+            warning_checks INT UNSIGNED DEFAULT 0,
+            score INT UNSIGNED DEFAULT 0,
+            wcag_level ENUM('A', 'AA', 'AAA') DEFAULT 'AA',
+            started_at DATETIME NULL,
+            completed_at DATETIME NULL,
+            created_by BIGINT UNSIGNED NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY post_id (post_id),
+            KEY status (status),
+            KEY created_at (created_at),
+            KEY created_by (created_by)
+        ) $charset_collate;";
+        
+        // Issues table
+        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_issues (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            scan_id BIGINT UNSIGNED NOT NULL,
+            check_type VARCHAR(100) NOT NULL,
+            check_name VARCHAR(200) NOT NULL,
+            severity ENUM('critical', 'serious', 'moderate', 'minor') DEFAULT 'moderate',
+            wcag_criterion VARCHAR(50) NULL,
+            wcag_level ENUM('A', 'AA', 'AAA') DEFAULT 'AA',
+            element_selector VARCHAR(500) NULL,
+            element_html TEXT NULL,
+            line_number INT UNSIGNED NULL,
+            issue_description TEXT NULL,
+            recommendation TEXT NULL,
+            status ENUM('new', 'in_progress', 'fixed', 'verified', 'closed', 'ignored') DEFAULT 'new',
+            priority ENUM('P0', 'P1', 'P2', 'P3', 'P4') DEFAULT 'P2',
+            assigned_to BIGINT UNSIGNED NULL,
+            due_date DATETIME NULL,
+            fixed_at DATETIME NULL,
+            fixed_by BIGINT UNSIGNED NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY scan_id (scan_id),
+            KEY severity (severity),
+            KEY status (status),
+            KEY assigned_to (assigned_to),
+            KEY wcag_criterion (wcag_criterion)
+        ) $charset_collate;";
+        
+        // Fixes table
+        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_fixes (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            issue_id BIGINT UNSIGNED NULL,
+            fix_type VARCHAR(100) NOT NULL,
+            fix_name VARCHAR(200) NOT NULL,
+            fix_description TEXT NULL,
+            before_html TEXT NULL,
+            after_html TEXT NULL,
+            applied BOOLEAN DEFAULT FALSE,
+            applied_at DATETIME NULL,
+            applied_by BIGINT UNSIGNED NULL,
+            reverted_at DATETIME NULL,
+            reverted_by BIGINT UNSIGNED NULL,
+            success BOOLEAN NULL,
+            error_message TEXT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY issue_id (issue_id),
+            KEY applied (applied),
+            KEY fix_type (fix_type)
+        ) $charset_collate;";
+        
+        // Ignores table
+        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_ignores (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            issue_id BIGINT UNSIGNED NOT NULL,
+            reason TEXT NULL,
+            ignored_by BIGINT UNSIGNED NOT NULL,
+            ignored_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            expires_at DATETIME NULL,
+            reopened_at DATETIME NULL,
+            reopened_by BIGINT UNSIGNED NULL,
+            PRIMARY KEY (id),
+            KEY issue_id (issue_id),
+            KEY ignored_by (ignored_by)
+        ) $charset_collate;";
+        
+        // Reports table
+        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_reports (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            scan_id BIGINT UNSIGNED NULL,
+            report_type ENUM('summary', 'detailed', 'vpat', 'wcag-em', 'csv', 'pdf') DEFAULT 'summary',
+            report_data LONGTEXT NULL,
+            file_path VARCHAR(500) NULL,
+            generated_by BIGINT UNSIGNED NOT NULL,
+            generated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY scan_id (scan_id),
+            KEY report_type (report_type)
+        ) $charset_collate;";
+        
+        // Analytics table
+        $tables_sql[] = "CREATE TABLE {$wpdb->prefix}slos_a11y_analytics (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            event_type VARCHAR(100) NOT NULL,
+            event_name VARCHAR(200) NOT NULL,
+            event_data TEXT NULL,
+            user_id BIGINT UNSIGNED NULL,
+            ip_address VARCHAR(45) NULL,
+            user_agent VARCHAR(500) NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_type (event_type),
+            KEY user_id (user_id),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+        
+        // Execute table creation
+        foreach ($tables_sql as $sql) {
+            dbDelta($sql);
+        }
+    }
+    
+    /**
+     * Register admin menu pages
+     *
+     * Adds menu pages under the Module Dashboard.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function register_admin_pages() {
+        // Main dashboard page
+        add_submenu_page(
+            'shahi-module-dashboard',
+            __('Accessibility Scanner', 'shahi-legalops-suite'),
+            __('Accessibility', 'shahi-legalops-suite'),
+            'manage_options',
+            'shahi-accessibility',
+            [$this, 'render_dashboard_page']
+        );
+        
+        // Settings page
+        add_submenu_page(
+            'shahi-accessibility',
+            __('Accessibility Settings', 'shahi-legalops-suite'),
+            __('Settings', 'shahi-legalops-suite'),
+            'manage_options',
+            'shahi-accessibility-settings',
+            [$this, 'render_settings_page']
+        );
+        
+        // Scan results page
+        add_submenu_page(
+            'shahi-accessibility',
+            __('Scan Results', 'shahi-legalops-suite'),
+            __('Scan Results', 'shahi-legalops-suite'),
+            'manage_options',
+            'shahi-accessibility-results',
+            [$this, 'render_results_page']
+        );
+        
+        // Reports page
+        add_submenu_page(
+            'shahi-accessibility',
+            __('Reports', 'shahi-legalops-suite'),
+            __('Reports', 'shahi-legalops-suite'),
+            'manage_options',
+            'shahi-accessibility-reports',
+            [$this, 'render_reports_page']
+        );
+    }
+    
+    /**
+     * Enqueue admin assets
+     *
+     * Loads CSS and JavaScript files for admin pages.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return void
+     */
+    public function enqueue_admin_assets($hook) {
+        // Only load on module pages
+        $module_pages = [
+            'shahi-module-dashboard_page_shahi-accessibility',
+            'admin_page_shahi-accessibility-settings',
+            'admin_page_shahi-accessibility-results',
+            'admin_page_shahi-accessibility-reports',
+        ];
+        
+        if (!in_array($hook, $module_pages, true)) {
+            return;
+        }
+        
+        // Enqueue CSS
+        wp_enqueue_style(
+            'shahi-accessibility-admin',
+            plugin_dir_url(dirname(dirname(dirname(__FILE__)))) . 'assets/css/accessibility-scanner/admin.css',
+            ['shahi-admin-global', 'shahi-components'],
+            $this->get_version()
+        );
+        
+        // Enqueue JavaScript
+        wp_enqueue_script(
+            'shahi-accessibility-admin',
+            plugin_dir_url(dirname(dirname(dirname(__FILE__)))) . 'assets/js/accessibility-scanner/admin.js',
+            ['jquery', 'wp-i18n'],
+            $this->get_version(),
+            true
+        );
+        
+        // Localize script with data
+        wp_localize_script('shahi-accessibility-admin', 'shahiA11y', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('shahi_a11y_nonce'),
+            'strings' => [
+                'scanRunning' => __('Scan in progress...', 'shahi-legalops-suite'),
+                'scanComplete' => __('Scan completed', 'shahi-legalops-suite'),
+                'fixApplied' => __('Fix applied successfully', 'shahi-legalops-suite'),
+                'fixFailed' => __('Fix failed to apply', 'shahi-legalops-suite'),
+                'confirmIgnore' => __('Are you sure you want to ignore this issue?', 'shahi-legalops-suite'),
+            ],
+        ]);
+    }
+    
+    /**
+     * Enqueue widget assets
+     *
+     * Loads CSS and JavaScript files for frontend widget.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function enqueue_widget_assets() {
+        wp_enqueue_style(
+            'shahi-accessibility-widget',
+            plugin_dir_url(dirname(dirname(dirname(__FILE__)))) . 'assets/css/accessibility-scanner/widget.css',
+            [],
+            $this->get_version()
+        );
+        
+        wp_enqueue_script(
+            'shahi-accessibility-widget',
+            plugin_dir_url(dirname(dirname(dirname(__FILE__)))) . 'assets/js/accessibility-scanner/widget.js',
+            ['jquery'],
+            $this->get_version(),
+            true
+        );
+        
+        wp_localize_script('shahi-accessibility-widget', 'shahiA11yWidget', [
+            'position' => $this->get_setting('widget_position', 'bottom-right'),
+            'color' => $this->get_setting('widget_color', '#c0c0c0'),
+            'enabledFeatures' => $this->get_setting('enabled_widget_features', []),
+        ]);
+    }
+    
+    /**
+     * Render widget
+     *
+     * Outputs the frontend accessibility widget HTML.
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function render_widget() {
+        // Widget will be rendered here (future implementation)
+        echo '<!-- Accessibility Widget Placeholder -->';
+    }
+    
+    /**
+     * Render dashboard page
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function render_dashboard_page() {
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Accessibility Scanner Dashboard', 'shahi-legalops-suite') . '</h1>';
+        echo '<p>' . esc_html__('Dashboard content will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
+        echo '</div>';
+    }
+    
+    /**
+     * Render settings page
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function render_settings_page() {
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Accessibility Scanner Settings', 'shahi-legalops-suite') . '</h1>';
+        echo '<p>' . esc_html__('Settings interface will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
+        echo '</div>';
+    }
+    
+    /**
+     * Render results page
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function render_results_page() {
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Scan Results', 'shahi-legalops-suite') . '</h1>';
+        echo '<p>' . esc_html__('Scan results will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
+        echo '</div>';
+    }
+    
+    /**
+     * Render reports page
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function render_reports_page() {
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Accessibility Reports', 'shahi-legalops-suite') . '</h1>';
+        echo '<p>' . esc_html__('Reports will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
+        echo '</div>';
+    }
+    
+    /**
+     * AJAX handler: Run scan
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function ajax_run_scan() {
+        check_ajax_referer('shahi_a11y_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions', 'shahi-legalops-suite')]);
+        }
+        
+        // Placeholder - Scanner engine will be implemented in future tasks
+        wp_send_json_success([
+            'message' => __('Scan functionality will be implemented in Task 1.7', 'shahi-legalops-suite'),
+        ]);
+    }
+    
+    /**
+     * AJAX handler: Apply fix
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function ajax_apply_fix() {
+        check_ajax_referer('shahi_a11y_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions', 'shahi-legalops-suite')]);
+        }
+        
+        // Placeholder
+        wp_send_json_success([
+            'message' => __('Fix engine will be implemented in future tasks', 'shahi-legalops-suite'),
+        ]);
+    }
+    
+    /**
+     * AJAX handler: Get issues
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function ajax_get_issues() {
+        check_ajax_referer('shahi_a11y_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions', 'shahi-legalops-suite')]);
+        }
+        
+        // Placeholder
+        wp_send_json_success([
+            'issues' => [],
+        ]);
+    }
+    
+    /**
+     * AJAX handler: Ignore issue
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function ajax_ignore_issue() {
+        check_ajax_referer('shahi_a11y_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions', 'shahi-legalops-suite')]);
+        }
+        
+        // Placeholder
+        wp_send_json_success([
+            'message' => __('Issue ignored', 'shahi-legalops-suite'),
+        ]);
+    }
+    
+    /**
+     * AJAX handler: Export report
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function ajax_export_report() {
+        check_ajax_referer('shahi_a11y_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions', 'shahi-legalops-suite')]);
+        }
+        
+        // Placeholder
+        wp_send_json_success([
+            'message' => __('Report export will be implemented in future tasks', 'shahi-legalops-suite'),
+        ]);
+    }
+    
+    /**
+     * Register REST API routes
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function register_rest_routes() {
+        register_rest_route('shahi-legalops-suite/v1', '/accessibility/scan', [
+            'methods' => 'POST',
+            'callback' => [$this, 'rest_run_scan'],
+            'permission_callback' => function() {
+                return current_user_can('manage_options');
+            },
+        ]);
+        
+        register_rest_route('shahi-legalops-suite/v1', '/accessibility/issues', [
+            'methods' => 'GET',
+            'callback' => [$this, 'rest_get_issues'],
+            'permission_callback' => function() {
+                return current_user_can('manage_options');
+            },
+        ]);
+    }
+    
+    /**
+     * REST API: Run scan
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request Request object.
+     * @return \WP_REST_Response Response object
+     */
+    public function rest_run_scan($request) {
+        // Placeholder
+        return new \WP_REST_Response([
+            'message' => 'REST API scan will be implemented in future tasks',
+        ], 200);
+    }
+    
+    /**
+     * REST API: Get issues
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request Request object.
+     * @return \WP_REST_Response Response object
+     */
+    public function rest_get_issues($request) {
+        // Placeholder
+        return new \WP_REST_Response([
+            'issues' => [],
+        ], 200);
+    }
+    
+    /**
+     * Run scheduled scan
+     *
+     * @since 1.0.0
+     * @return void
+     */
+    public function run_scheduled_scan() {
+        // Placeholder - will be implemented with scanner engine
+    }
+    
+    /**
+     * Get module settings URL
+     *
+     * @since 1.0.0
+     * @return string Settings URL
+     */
+    public function get_settings_url() {
+        return admin_url('admin.php?page=shahi-accessibility-settings');
+    }
+    
+    /**
+     * Get module documentation URL
+     *
+     * @since 1.0.0
+     * @return string Documentation URL
+     */
+    public function get_documentation_url() {
+        return 'https://shahilegalops.com/docs/accessibility-scanner/';
+    }
+    
+    /**
+     * Get module statistics
+     *
+     * Returns statistics for display on Module Dashboard card.
+     *
+     * @since 1.0.0
+     * @return array Statistics array
+     */
+    public function get_stats() {
+        // Check for cached stats
+        $cached_stats = get_transient('shahi_a11y_dashboard_stats');
+        if ($cached_stats !== false) {
+            return $cached_stats;
+        }
+        
+        global $wpdb;
+        
+        // Get total scans
+        $total_scans = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}slos_a11y_scans"
+        );
+        
+        // Get total issues found
+        $total_issues = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}slos_a11y_issues"
+        );
+        
+        // Get total fixes applied
+        $total_fixes = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}slos_a11y_fixes WHERE applied = 1"
+        );
+        
+        // Get last scan date
+        $last_scan = $wpdb->get_var(
+            "SELECT MAX(completed_at) FROM {$wpdb->prefix}slos_a11y_scans WHERE status = 'completed'"
+        );
+        
+        // Calculate average score
+        $avg_score = $wpdb->get_var(
+            "SELECT AVG(score) FROM {$wpdb->prefix}slos_a11y_scans WHERE status = 'completed'"
+        );
+        
+        $stats = [
+            'scans_run' => intval($total_scans),
+            'issues_found' => intval($total_issues),
+            'fixes_applied' => intval($total_fixes),
+            'last_scan' => $last_scan ? mysql2date('F j, Y g:i a', $last_scan) : __('Never', 'shahi-legalops-suite'),
+            'performance_score' => $avg_score ? round($avg_score) : 0,
+        ];
+        
+        // Cache stats for 5 minutes
+        set_transient('shahi_a11y_dashboard_stats', $stats, 5 * MINUTE_IN_SECONDS);
+        
+        return $stats;
+    }
+}

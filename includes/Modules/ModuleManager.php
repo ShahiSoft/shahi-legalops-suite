@@ -352,6 +352,11 @@ class ModuleManager {
             $this->register(new CustomPostType_Module());
         }
         
+        // Accessibility Scanner Module
+        if (class_exists('ShahiLegalopsSuite\Modules\AccessibilityScanner\AccessibilityScanner')) {
+            $this->register(new \ShahiLegalopsSuite\Modules\AccessibilityScanner\AccessibilityScanner());
+        }
+        
         /**
          * Allow third-party code to register custom modules
          *
