@@ -15,6 +15,7 @@ namespace ShahiLegalopsSuite\Modules\AccessibilityScanner;
 
 use ShahiLegalopsSuite\Modules\Module;
 use ShahiLegalopsSuite\Modules\AccessibilityScanner\Admin\Settings;
+use ShahiLegalopsSuite\Modules\AccessibilityScanner\Admin\ScanResults;
 use ShahiLegalopsSuite\Modules\AccessibilityScanner\Database\MigrationRunner;
 
 if (!defined('ABSPATH')) {
@@ -49,7 +50,18 @@ class AccessibilityScanner extends Module {
     private $settings;
     
     /**
+     * Scan Results instance
+     *
+     * @since 1.0.0
+     * @var ScanResults
+     */
+    private $scan_results;
+    
+    /**
      * Constructor
+        
+        // Initialize scan results
+        $this->scan_results = new ScanResults();
      *
      * @since 1.0.0
      */
@@ -420,21 +432,18 @@ class AccessibilityScanner extends Module {
     public function render_settings_page() {
         echo '<div class="wrap">';
         echo '<h1>' . esc_html__('Accessibility Scanner Settings', 'shahi-legalops-suite') . '</h1>';
-        echo '<p>' . esc_html__('Settings interface will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
+        echo '<p>' . esc_html__('Settings will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
         echo '</div>';
     }
     
     /**
-     * Render results page
+     * Render scan results page
      *
      * @since 1.0.0
      * @return void
      */
     public function render_results_page() {
-        echo '<div class="wrap">';
-        echo '<h1>' . esc_html__('Scan Results', 'shahi-legalops-suite') . '</h1>';
-        echo '<p>' . esc_html__('Scan results will be implemented in future tasks.', 'shahi-legalops-suite') . '</p>';
-        echo '</div>';
+        $this->scan_results->render_page();
     }
     
     /**
