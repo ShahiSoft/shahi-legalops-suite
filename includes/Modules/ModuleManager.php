@@ -327,34 +327,19 @@ class ModuleManager {
             }
         }
         
-        // SEO Module
-        if (class_exists('ShahiLegalopsSuite\Modules\SEO_Module')) {
-            $this->register(new SEO_Module());
-        }
-        
-        // Analytics Module
-        if (class_exists('ShahiLegalopsSuite\Modules\Analytics_Module')) {
-            $this->register(new Analytics_Module());
-        }
-        
-        // Cache Module
-        if (class_exists('ShahiLegalopsSuite\Modules\Cache_Module')) {
-            $this->register(new Cache_Module());
-        }
-        
-        // Security Module
+        // Security Module (Keep - relevant for legal compliance & data protection)
         if (class_exists('ShahiLegalopsSuite\Modules\Security_Module')) {
             $this->register(new Security_Module());
         }
         
-        // Custom Post Type Module
-        if (class_exists('ShahiLegalopsSuite\Modules\CustomPostType_Module')) {
-            $this->register(new CustomPostType_Module());
-        }
-        
-        // Accessibility Scanner Module
+        // Accessibility Scanner Module (Keep - legal requirement for ADA/WCAG compliance)
         if (class_exists('ShahiLegalopsSuite\Modules\AccessibilityScanner\AccessibilityScanner')) {
             $this->register(new \ShahiLegalopsSuite\Modules\AccessibilityScanner\AccessibilityScanner());
+        }
+
+        // Consent Management Module (Keep - core legal requirement for GDPR/CCPA)
+        if (class_exists('ShahiLegalopsSuite\Modules\Consent_Module')) {
+            $this->register(new \ShahiLegalopsSuite\Modules\Consent_Module());
         }
         
         /**

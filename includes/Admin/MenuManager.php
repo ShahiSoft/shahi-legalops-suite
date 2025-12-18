@@ -79,14 +79,6 @@ class MenuManager {
     private $settings;
     
     /**
-     * Support page instance
-     *
-     * @since 1.0.0
-     * @var Support
-     */
-    private $support;
-    
-    /**
      * Initialize the menu manager
      *
      * @since 1.0.0
@@ -99,7 +91,6 @@ class MenuManager {
         $this->module_dashboard = new ModuleDashboard();
         $this->analytics_dashboard = new AnalyticsDashboard();
         $this->settings = new Settings();
-        $this->support = new Support();
     }
     
     /**
@@ -158,16 +149,6 @@ class MenuManager {
             'edit_shahi_settings',
             self::MENU_SLUG . '-settings',
             [$this->settings, 'render']
-        );
-        
-        // Support & Docs submenu
-        add_submenu_page(
-            self::MENU_SLUG,
-            __('Support & Docs', 'shahi-legalops-suite'),
-            __('Support & Docs', 'shahi-legalops-suite'),
-            'manage_shahi_template',
-            self::MENU_SLUG . '-support',
-            [$this->support, 'render']
         );
         
         // Debug Onboarding page (hidden from menu, accessible via Settings → Advanced tab)

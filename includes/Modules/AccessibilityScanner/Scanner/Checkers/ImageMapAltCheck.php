@@ -1,0 +1,51 @@
+<?php
+namespace ShahiLegalopsSuite\Modules\AccessibilityScanner\Scanner\Checkers;
+
+use ShahiLegalopsSuite\Modules\AccessibilityScanner\Scanner\AbstractCheck;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class ImageMapAltCheck extends AbstractCheck {
+    
+    public function get_id() {
+        return 'image-map-alt';
+    }
+    
+    public function get_description() {
+        return 'Image map areas must have alternate text.';
+    }
+    
+    public function get_severity() {
+        return 'critical';
+    }
+
+    public function get_wcag_criteria() {
+        return '1.1.1';
+    }
+    
+    public function check($content) {
+        $issues = [];
+        $areas = $this->get_elements($content, 'area');
+        
+        foreach ($areas as $area) {
+            $alt = $area->getAttribute('alt');
+            $href = $area->getAttribute('href');
+            
+            if ($href && empty($alt)) {
+                $issues[] = [
+                    'element' => 'area',
+                    'context' => $this->get_element_html($area),
+                    'message' => 'Image map area with href is missing alt text.'
+                ];
+            }
+        }
+        
+        return $issues;
+    }
+
+    private function get_element_html($node) {
+        return $node->ownerDocument->saveHTML($node);
+    }
+}

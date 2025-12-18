@@ -155,6 +155,14 @@ class Assets {
                 array('shahi-components'),
                 $this->version
             );
+        } elseif ($this->is_accessibility_dashboard_page($hook)) {
+            // Accessibility Dashboard - use the same modern styling as Module Dashboard
+            $this->enqueue_style(
+                'shahi-admin-module-dashboard',
+                'css/admin-module-dashboard',
+                array('shahi-components'),
+                $this->version
+            );
         } elseif ($this->is_analytics_dashboard_page($hook)) {
             $this->enqueue_style(
                 'shahi-admin-analytics-dashboard',
@@ -415,6 +423,29 @@ class Assets {
             );
             
             $this->localize_module_dashboard_script();
+        } elseif ($this->is_accessibility_dashboard_page($hook)) {
+            // Accessibility Dashboard - use the same scripts as Module Dashboard
+            $this->enqueue_script(
+                'shahi-admin-module-dashboard',
+                'js/admin-module-dashboard',
+                array('jquery', 'shahi-components'),
+                $this->version,
+                true
+            );
+            
+            // Also add accessibility-specific scripts if needed
+            $this->enqueue_script(
+                'slos-scanner-admin',
+                'js/slos-scanner-admin',
+                array('jquery'),
+                $this->version,
+                true
+            );
+            
+            wp_localize_script('slos-scanner-admin', 'slosScanner', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('slos_scanner_nonce')
+            ]);
         } elseif ($this->is_analytics_dashboard_page($hook)) {
             // Enqueue Chart.js from CDN for Analytics Dashboard
             wp_enqueue_script(
@@ -507,7 +538,19 @@ class Assets {
      */
     private function enqueue_script($handle, $file, $deps = array(), $version = null, $in_footer = true) {
         $suffix = $this->use_minified ? '.min' : '';
-        $file_url = $this->assets_url . $file . $suffix . '.js';
+        $relative_path = $file . $suffix . '.js';
+        $file_url = $this->assets_url . $relative_path;
+        
+        // Aggressive cache-bust: use file modification time + file size for maximum freshness
+        if (!$version) {
+            $file_path = SHAHI_LEGALOPS_SUITE_PLUGIN_DIR . 'assets/' . $relative_path;
+            if (file_exists($file_path)) {
+                // Combine mtime and file size to create unique version
+                $version = filemtime($file_path) . '.' . filesize($file_path);
+            } else {
+                $version = $this->version;
+            }
+        }
         
         wp_enqueue_script(
             $handle,
@@ -701,6 +744,11 @@ class Assets {
     private function is_plugin_page($hook) {
         // Check if hook contains our plugin slug
         if (strpos($hook, 'shahi-legalops-suite') !== false) {
+            return true;
+        }
+        
+        // Check if hook contains slos (module pages)
+        if (strpos($hook, 'slos-') !== false) {
             return true;
         }
         
@@ -934,8 +982,17 @@ class Assets {
         return strpos($hook, 'shahi-accessibility') !== false;
     }
     
-    /**
-     * Localize script data for Accessibility Scanner.
+    /**     * Check if current page is the accessibility dashboard page.
+     *
+     * @since 1.0.0
+     * @param string $hook Current admin page hook.
+     * @return bool True if accessibility dashboard page, false otherwise.
+     */
+    private function is_accessibility_dashboard_page($hook) {
+        return strpos($hook, 'slos-accessibility-dashboard') !== false;
+    }
+    
+    /**     * Localize script data for Accessibility Scanner.
      *
      * @since 1.0.0
      * @return void

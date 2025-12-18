@@ -6,7 +6,12 @@
  */
 
 // Load WordPress
-require_once('../../../wp-load.php');
+$wp_load_path = dirname(dirname(dirname(__DIR__))) . '/wp-load.php';
+if (file_exists($wp_load_path)) {
+    require_once($wp_load_path);
+} else {
+    die('Could not find wp-load.php at: ' . $wp_load_path);
+}
 
 // Security check - only admin can access
 if (!current_user_can('manage_options')) {

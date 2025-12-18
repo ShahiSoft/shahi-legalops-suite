@@ -53,11 +53,9 @@ class WidgetManager {
      * @return void
      */
     private function init_widgets() {
-        // Register widget classes
+        // Register widget classes (keeping only QuickActionsWidget for legal operations dashboard)
         $this->widgets = array(
-            'ShahiLegalopsSuite\Widgets\StatsWidget',
             'ShahiLegalopsSuite\Widgets\QuickActionsWidget',
-            'ShahiLegalopsSuite\Widgets\RecentActivityWidget',
         );
     }
     

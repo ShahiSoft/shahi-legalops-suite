@@ -53,11 +53,9 @@ class ShortcodeManager {
      * @return void
      */
     private function init_shortcodes() {
-        // Register shortcode instances
+        // Register shortcode instances (keeping only module-related shortcodes for legal operations)
         $this->shortcodes = array(
-            'stats' => new StatsShortcode(),
             'module' => new ModuleShortcode(),
-            'button' => new ButtonShortcode(),
         );
     }
     

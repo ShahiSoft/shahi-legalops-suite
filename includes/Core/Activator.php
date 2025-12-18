@@ -65,7 +65,7 @@ class Activator {
         
         $charset_collate = $wpdb->get_charset_collate();
         
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         
         // Analytics table
         $table_analytics = $wpdb->prefix . 'shahi_analytics';
@@ -113,6 +113,43 @@ class Activator {
         ) {$charset_collate};";
         
         dbDelta($sql_onboarding);
+
+        // Accessibility Scanner tables (Option C - high performance storage)
+        $table_scans = $wpdb->prefix . 'slos_a11y_scans';
+        $sql_scans = "CREATE TABLE IF NOT EXISTS {$table_scans} (
+            post_id bigint(20) UNSIGNED NOT NULL,
+            page_title varchar(255) NOT NULL,
+            url text NULL,
+            score int(11) NOT NULL DEFAULT 100,
+            issues_count int(11) NOT NULL DEFAULT 0,
+            critical_count int(11) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'passed',
+            last_scan datetime NULL,
+            autofix_enabled tinyint(1) NOT NULL DEFAULT 0,
+            updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (post_id),
+            KEY status (status),
+            KEY score (score)
+        ) {$charset_collate};";
+        
+        dbDelta($sql_scans);
+
+        $table_issues = $wpdb->prefix . 'slos_a11y_issues';
+        $sql_issues = "CREATE TABLE IF NOT EXISTS {$table_issues} (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            post_id bigint(20) UNSIGNED NOT NULL,
+            checker_id varchar(100) NOT NULL,
+            severity varchar(20) NOT NULL DEFAULT 'warning',
+            message text NULL,
+            element text NULL,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY post_id (post_id),
+            KEY checker_id (checker_id),
+            KEY severity (severity)
+        ) {$charset_collate};";
+
+        dbDelta($sql_issues);
     }
     
     /**

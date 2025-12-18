@@ -233,9 +233,24 @@ if (!defined('ABSPATH')) {
                         <button class="shahi-action-btn" title="<?php echo esc_attr__('Module Info', 'shahi-legalops-suite'); ?>">
                             <span class="dashicons dashicons-info-outline"></span>
                         </button>
-                        <button class="shahi-action-btn" title="<?php echo esc_attr__('Module Settings', 'shahi-legalops-suite'); ?>">
-                            <span class="dashicons dashicons-admin-generic"></span>
-                        </button>
+                        <?php
+                        // Prefer module-provided settings URL when available.
+                        $settings_url = isset($module['settings_url']) ? $module['settings_url'] : '';
+
+                        // Backward-compatible special case for Accessibility Scanner.
+                        if (empty($settings_url) && ($module['slug'] ?? '') === 'accessibility-scanner') {
+                            $settings_url = admin_url('admin.php?page=slos-accessibility-settings');
+                        }
+                        ?>
+                        <?php if (!empty($settings_url)): ?>
+                            <a href="<?php echo esc_url($settings_url); ?>" class="shahi-action-btn" title="<?php echo esc_attr__('Module Settings', 'shahi-legalops-suite'); ?>">
+                                <span class="dashicons dashicons-admin-generic"></span>
+                            </a>
+                        <?php else: ?>
+                            <button class="shahi-action-btn" title="<?php echo esc_attr__('Module Settings', 'shahi-legalops-suite'); ?>">
+                                <span class="dashicons dashicons-admin-generic"></span>
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
