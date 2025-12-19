@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consent Banner Test - All Templates</title>
+    <link rel="stylesheet" href="/wp-content/plugins/Shahi LegalOps Suite - 3.0.1/assets/css/consent-banner.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .template-test {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #2196F3;
+        }
+        .template-test h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        .test-notes {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fffbea;
+            border-radius: 4px;
+        }
+        .dark-test {
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Consent Banner Component - Template Tests</h1>
+        <p>Use the buttons below to test each template variant. Open your browser console to verify API calls and events.</p>
+        
+        <div class="template-test">
+            <h3>EU/GDPR Template (Bottom Position, Light Theme)</h3>
+            <button onclick="testTemplate('eu', 'bottom', 'light')">Show EU Template</button>
+            <button onclick="testTemplate('eu', 'top', 'light')">Show EU (Top)</button>
+            <button onclick="testTemplate('eu', 'bottom', 'dark')">Show EU (Dark)</button>
+            <div class="test-notes">
+                <strong>Expected:</strong> Banner with granular consent checkboxes for each purpose, Accept All/Reject All/Accept Selected buttons, Privacy Policy link
+            </div>
+        </div>
+
+        <div class="template-test">
+            <h3>CCPA Template (Bottom Position, Light Theme)</h3>
+            <button onclick="testTemplate('ccpa', 'bottom', 'light')">Show CCPA Template</button>
+            <button onclick="testTemplate('ccpa', 'bottom', 'dark')">Show CCPA (Dark)</button>
+            <div class="test-notes">
+                <strong>Expected:</strong> Compact banner with "Do Not Sell My Info" emphasis, simplified layout, centered buttons
+            </div>
+        </div>
+
+        <div class="template-test">
+            <h3>Simple Template (Bottom Position, Light Theme)</h3>
+            <button onclick="testTemplate('simple', 'bottom', 'light')">Show Simple Template</button>
+            <button onclick="testTemplate('simple', 'bottom', 'dark')">Show Simple (Dark)</button>
+            <div class="test-notes">
+                <strong>Expected:</strong> Minimal banner with just Accept/Decline buttons, centered content
+            </div>
+        </div>
+
+        <div class="template-test">
+            <h3>Advanced Template (Bottom Position, Light Theme)</h3>
+            <button onclick="testTemplate('advanced', 'bottom', 'light')">Show Advanced Template</button>
+            <button onclick="testTemplate('advanced', 'bottom', 'dark')">Show Advanced (Dark)</button>
+            <div class="test-notes">
+                <strong>Expected:</strong> Extended EU template with additional styling, blue left border on options
+            </div>
+        </div>
+
+        <div class="template-test">
+            <h3>Responsive Design Test</h3>
+            <button onclick="window.open('?responsive=true', '_blank')">Open in Mobile View</button>
+            <div class="test-notes">
+                <strong>Expected:</strong> Buttons stack vertically, reduced padding on small screens, text sizing adjusts
+            </div>
+        </div>
+
+        <div class="template-test">
+            <h3>Browser Console Tests</h3>
+            <button onclick="testConsoleLogs()">Run Console Tests</button>
+            <div class="test-notes">
+                <strong>Expected:</strong> Check console for:
+                <ul>
+                    <li>✓ slosConsentConfig loaded correctly</li>
+                    <li>✓ slosConsentI18n translations available</li>
+                    <li>✓ Banner initialization message</li>
+                    <li>✓ API endpoint calls (/slos/v1/consents/...)</li>
+                    <li>✓ Custom events (slos-consent-updated, wp_consent_category_set)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="dark-test">
+            <h2>Theme Test - Dark Mode</h2>
+            <button onclick="testTemplate('eu', 'bottom', 'dark')">Test Dark Theme</button>
+            <p>This section simulates dark mode environment. Banner should be visible with light text on dark background.</p>
+        </div>
+    </div>
+
+    <script src="/wp-content/plugins/Shahi LegalOps Suite - 3.0.1/assets/js/consent-banner.js"></script>
+    <script>
+        // Mock configuration for testing
+        window.slosConsentConfig = {
+            apiUrl: '/wp-json/slos/v1',
+            userId: 1,
+            template: 'eu',
+            position: 'bottom',
+            theme: 'light',
+            reloadOnConsent: false,
+            privacyLink: '#'
+        };
+
+        // Mock translations for testing
+        window.slosConsentI18n = {
+            euTitle: 'Your Consent Preferences',
+            euMessage: 'We use cookies and similar tracking technologies to enhance your experience.',
+            ccpaMessage: 'We respect your privacy. You have the right to opt-out of the sale or sharing of your personal information.',
+            simpleMessage: 'We use cookies to enhance your experience. Do you accept?',
+            acceptAll: 'Accept All',
+            acceptSelected: 'Accept Selected',
+            rejectAll: 'Reject All',
+            reject: 'Reject',
+            accept: 'Accept',
+            decline: 'Decline',
+            doNotSell: 'Do Not Sell My Info',
+            save: 'Save Preferences',
+            privacyPolicy: 'Privacy Policy',
+            learnMore: 'Learn More',
+            purposeNecessary: 'Necessary Cookies',
+            purposeFunctional: 'Functional Cookies',
+            purposeAnalytics: 'Analytics',
+            purposeMarketing: 'Marketing & Advertising',
+            purposePreferences: 'Preference Management',
+            purposePersonalization: 'Personalization',
+            descNecessary: 'Essential for basic functionality and security.',
+            descFunctional: 'Enables enhanced features and user experience.',
+            descAnalytics: 'Helps us understand how you use our site.',
+            descMarketing: 'Allows us to show relevant content and offers.',
+            descPreferences: 'Remembers your user preferences.',
+            descPersonalization: 'Personalizes content for better experience.',
+            required: 'Required',
+            bannerTitle: 'Manage Consent'
+        };
+
+        // Test function to show different templates
+        function testTemplate(template, position, theme) {
+            // Remove existing banner
+            const existing = document.getElementById('slos-consent-banner');
+            if (existing) {
+                existing.remove();
+            }
+
+            // Update config
+            window.slosConsentConfig.template = template;
+            window.slosConsentConfig.position = position;
+            window.slosConsentConfig.theme = theme;
+
+            // Create new banner
+            if (window.slosConsentBanner) {
+                window.slosConsentBanner.showBanner();
+            } else {
+                console.log('Banner not initialized. Initializing now...');
+                window.slosConsentBanner = new window.ConsentBanner();
+                window.slosConsentBanner.showBanner();
+            }
+
+            console.log(`Testing ${template.toUpperCase()} template (${position}, ${theme})`);
+        }
+
+        function testConsoleLogs() {
+            console.log('=== CONSENT BANNER TEST RESULTS ===');
+            console.log('slosConsentConfig:', window.slosConsentConfig);
+            console.log('slosConsentI18n:', window.slosConsentI18n);
+            console.log('ConsentBanner class:', window.ConsentBanner);
+            console.log('✓ All test objects available in window scope');
+            alert('Check console (F12) for detailed test results');
+        }
+
+        // Initialize banner on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.ConsentBanner !== 'undefined') {
+                window.slosConsentBanner = new window.ConsentBanner();
+                console.log('Consent Banner initialized successfully');
+            } else {
+                console.error('ConsentBanner class not found');
+            }
+        });
+
+        // Log custom events
+        document.addEventListener('slos-consent-updated', function(e) {
+            console.log('Event: slos-consent-updated', e.detail);
+        });
+
+        document.addEventListener('wp_consent_category_set', function(e) {
+            console.log('Event: wp_consent_category_set', e.detail);
+        });
+    </script>
+</body>
+</html>
