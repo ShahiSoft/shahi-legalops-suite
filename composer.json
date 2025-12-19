@@ -45,7 +45,8 @@
         "psr-4": {
             "ShahiLegalopsSuite\\": "includes/",
             "ShahiLegalopsSuite\\Database\\Repositories\\": "includes/Database/Repositories/",
-            "ShahiLegalopsSuite\\Database\\Migrations\\": "includes/Database/Migrations/"
+            "ShahiLegalopsSuite\\Database\\Migrations\\": "includes/Database/Migrations/",
+            "ShahiLegalopsSuite\\Services\\": "includes/Services/"
         }
     },
     "autoload-dev": {
