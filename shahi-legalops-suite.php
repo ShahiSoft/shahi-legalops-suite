@@ -165,3 +165,31 @@ function enqueue_slos_consent_banner() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'enqueue_slos_consent_banner', 100 );
+
+/**
+ * Enqueue Cookie Scanner Script
+ */
+function enqueue_slos_cookie_scanner() {
+	wp_enqueue_script(
+		'slos-cookie-scanner',
+		SHAHI_LEGALOPS_SUITE_PLUGIN_URL . 'assets/js/cookie-scanner.js',
+		array(),
+		SHAHI_LEGALOPS_SUITE_VERSION,
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'enqueue_slos_cookie_scanner', 110 );
+
+/**
+ * Initialize Script Blocker
+ */
+function init_slos_script_blocker() {
+	try {
+		$blocker = new ShahiLegalopsSuite\Services\Script_Blocker_Service();
+		$blocker->init();
+	} catch ( \Throwable $e ) {
+		// Fail-safe: do not break site if blocker fails
+		error_log( 'SLOS Script Blocker init error: ' . $e->getMessage() );
+	}
+}
+add_action( 'init', 'init_slos_script_blocker', 0 );
