@@ -81,6 +81,7 @@ class RestAPI {
 			'onboarding' => new OnboardingController(),
 			'system'     => new SystemController(),
 			'consents'   => new Consent_REST_Controller(),
+			'cookies'    => new Cookie_REST_Controller(),
 		);
 	}
 
