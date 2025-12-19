@@ -701,4 +701,39 @@ class Consent_Service extends Base_Service {
 
 		return $exported;
 	}
+
+	/**
+	 * Get valid consent purposes/types
+	 *
+	 * Returns list of valid consent types available in the system.
+	 *
+	 * @since 3.0.1
+	 * @return array Array of valid purpose types
+	 */
+	public function get_valid_purposes(): array {
+		/**
+		 * Filter valid consent purposes
+		 *
+		 * @since 3.0.1
+		 * @param array $types Default allowed types
+		 * @return array Filtered types
+		 */
+		return apply_filters( 'slos_valid_consent_purposes', $this->allowed_types );
+	}
+
+	/**
+	 * Get consent breakdown by purpose/type
+	 *
+	 * Returns statistics grouped by consent type.
+	 *
+	 * @since 3.0.1
+	 * @return array Breakdown of consents by type
+	 */
+	public function get_purpose_breakdown(): array {
+		$this->clear_errors();
+
+		$stats = $this->get_statistics();
+
+		return isset( $stats['by_type'] ) ? $stats['by_type'] : array();
+	}
 }

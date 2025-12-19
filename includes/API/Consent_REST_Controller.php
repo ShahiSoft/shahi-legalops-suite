@@ -185,6 +185,35 @@ class Consent_REST_Controller extends Base_REST_Controller {
 				),
 			)
 		);
+
+		// Get valid purposes
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/purposes',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_purposes' ),
+				'permission_callback' => '__return_true', // Public endpoint
+			)
+		);
+
+		// Export user consent data (GDPR Article 15)
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/export/(?P<user_id>[\d]+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'export_user_data' ),
+				'permission_callback' => array( $this, 'check_user_or_admin' ),
+				'args'                => array(
+					'user_id' => array(
+						'description' => __( 'User ID', 'shahi-legalops-suite' ),
+						'type'        => 'integer',
+						'required'    => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -517,6 +546,79 @@ class Consent_REST_Controller extends Base_REST_Controller {
 				'user_id'     => $user_id,
 				'type'        => $type,
 			)
+		);
+	}
+
+	/**
+	 * Get valid consent purposes
+	 *
+	 * @since 3.0.1
+	 * @param WP_REST_Request $request Request object
+	 * @return WP_REST_Response Response object
+	 */
+	public function get_purposes( $request ) {
+		$this->log_request( $request, 'Get Consent Purposes' );
+
+		$purposes = $this->service->get_valid_purposes();
+
+		return $this->success_response(
+			array(
+				'purposes' => $purposes,
+			)
+		);
+	}
+
+	/**
+	 * Export user consent data
+	 *
+	 * @since 3.0.1
+	 * @param WP_REST_Request $request Request object
+	 * @return WP_REST_Response Response object
+	 */
+	public function export_user_data( $request ) {
+		$this->log_request( $request, 'Export User Consent Data' );
+
+		$user_id = absint( $request->get_param( 'user_id' ) );
+
+		$export = $this->service->export_user_consents( $user_id );
+
+		if ( $this->service->has_errors() ) {
+			$errors = $this->service->get_errors();
+			return $this->error_response(
+				$errors[0]['code'] ?? 'export_failed',
+				$errors[0]['message'] ?? __( 'Failed to export consent data', 'shahi-legalops-suite' ),
+				403
+			);
+		}
+
+		return $this->success_response(
+			array(
+				'user_id'     => $user_id,
+				'consents'    => $export,
+				'exported_at' => current_time( 'mysql' ),
+			)
+		);
+	}
+
+	/**
+	 * Check if current user is the target user or admin
+	 *
+	 * @since 3.0.1
+	 * @param WP_REST_Request $request Request object
+	 * @return bool|WP_Error True if allowed
+	 */
+	public function check_user_or_admin( $request ) {
+		$user_id = absint( $request->get_param( 'user_id' ) );
+		$current_user = get_current_user_id();
+
+		if ( $user_id === $current_user || current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return $this->error_response(
+			'rest_forbidden',
+			__( 'You are not allowed to access this data', 'shahi-legalops-suite' ),
+			403
 		);
 	}
 
