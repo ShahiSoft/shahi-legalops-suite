@@ -1,7 +1,7 @@
 {
     "name": "shahitemplate/shahi-legalops-suite",
     "description": "LegalOps Suite is an all-in-one WordPress compliance engine that operationalizes privacy, accessibility, and data protection at scale. ",
-    "version": "1.0.0",
+    "version": "3.0.1",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -43,7 +43,9 @@
     },
     "autoload": {
         "psr-4": {
-            "ShahiLegalopsSuite\\": "includes/"
+            "ShahiLegalopsSuite\\": "includes/",
+            "ShahiLegalopsSuite\\Database\\Repositories\\": "includes/Database/Repositories/",
+            "ShahiLegalopsSuite\\Database\\Migrations\\": "includes/Database/Migrations/"
         }
     },
     "autoload-dev": {
