@@ -444,4 +444,261 @@ class Consent_Service extends Base_Service {
 	public function get_allowed_statuses(): array {
 		return $this->allowed_statuses;
 	}
+
+	/**
+	 * Get user's consent preferences (convenience method)
+	 *
+	 * Returns the current consent status for each type for a specific user.
+	 * Most recent consent of each type is returned.
+	 *
+	 * @since 3.0.1
+	 * @param int    $user_id User ID
+	 * @param string $ip_hash Optional IP hash for anonymous users
+	 * @return array Array of preferences indexed by type (necessary, analytics, marketing, preferences, accepted, rejected, withdrawn, not_asked)
+	 */
+	public function get_user_preferences( int $user_id = 0, string $ip_hash = '' ): array {
+		$this->clear_errors();
+
+		// If no user and no IP hash, return defaults
+		if ( ! $user_id && empty( $ip_hash ) ) {
+			return $this->get_default_preferences();
+		}
+
+		// Get consents from repository
+		if ( $user_id ) {
+			$consents = $this->repository->find_by_user( $user_id );
+		} elseif ( ! empty( $ip_hash ) ) {
+			$consents = $this->repository->find_by_ip_hash( $ip_hash );
+		} else {
+			return $this->get_default_preferences();
+		}
+
+		// Build preferences array
+		$preferences = array();
+
+		foreach ( $this->allowed_types as $type ) {
+			// Find most recent consent for this type
+			$recent_consent = null;
+
+			foreach ( $consents as $consent ) {
+				if ( $consent->type === $type ) {
+					// Keep the most recent one
+					if ( ! $recent_consent || strtotime( $consent->updated_at ) > strtotime( $recent_consent->updated_at ) ) {
+						$recent_consent = $consent;
+					}
+				}
+			}
+
+			if ( $recent_consent ) {
+				$preferences[ $type ] = $recent_consent->status;
+			} else {
+				// Never asked about this type
+				$preferences[ $type ] = 'not_asked';
+			}
+		}
+
+		return $preferences;
+	}
+
+	/**
+	 * Get default consent preferences
+	 *
+	 * Returns default consent state for new users (necessary is pre-accepted per GDPR).
+	 *
+	 * @since 3.0.1
+	 * @return array Array of default preferences
+	 */
+	public function get_default_preferences(): array {
+		$preferences = array();
+
+		foreach ( $this->allowed_types as $type ) {
+			// 'necessary' is always pre-consented per GDPR
+			$preferences[ $type ] = ( 'necessary' === $type ) ? 'accepted' : 'not_asked';
+		}
+
+		/**
+		 * Filter default consent preferences
+		 *
+		 * @since 3.0.1
+		 * @param array $preferences Default preferences array
+		 * @return array Filtered preferences
+		 */
+		return apply_filters( 'slos_default_consent_preferences', $preferences );
+	}
+
+	/**
+	 * Check if user needs to be shown consent banner
+	 *
+	 * User needs banner if they haven't been asked about non-necessary consents yet.
+	 *
+	 * @since 3.0.1
+	 * @param int    $user_id User ID
+	 * @param string $ip_hash Optional IP hash for anonymous users
+	 * @return bool True if user should see consent banner
+	 */
+	public function should_show_banner( int $user_id = 0, string $ip_hash = '' ): bool {
+		$this->clear_errors();
+
+		// Get user's preferences
+		$preferences = $this->get_user_preferences( $user_id, $ip_hash );
+
+		// Check if user has made a choice about non-necessary consents
+		foreach ( $this->allowed_types as $type ) {
+			if ( 'necessary' !== $type && 'not_asked' === ( $preferences[ $type ] ?? 'not_asked' ) ) {
+				// User hasn't been asked about this type yet
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Record multiple consents at once (bulk operation)
+	 *
+	 * @since 3.0.1
+	 * @param array $data {
+	 *     @type int    $user_id User ID
+	 *     @type string $ip_address IP address to hash
+	 *     @type array  $consents Array of type => status pairs
+	 * }
+	 * @return array Response with count of created records
+	 */
+	public function record_multiple_consents( array $data ): array {
+		$this->clear_errors();
+
+		// Validate user identification
+		$user_id = $data['user_id'] ?? 0;
+		$ip_address = $data['ip_address'] ?? $this->get_user_ip();
+		$ip_hash = $this->hash_ip( $ip_address );
+
+		if ( ! $user_id && empty( $ip_hash ) ) {
+			$this->add_error( 'invalid_identifier', 'Either user_id or ip_address is required' );
+			return array(
+				'success' => false,
+				'error'   => 'Either user_id or ip_address is required',
+			);
+		}
+
+		// Validate consents array
+		if ( ! isset( $data['consents'] ) || ! is_array( $data['consents'] ) || empty( $data['consents'] ) ) {
+			$this->add_error( 'invalid_consents', 'Consents array is required and cannot be empty' );
+			return array(
+				'success' => false,
+				'error'   => 'Consents array is required',
+			);
+		}
+
+		$created_count = 0;
+		$failed_count = 0;
+		$failed_types = array();
+
+		// Record each consent
+		foreach ( $data['consents'] as $type => $status ) {
+			$consent_data = array(
+				'user_id'     => $user_id ?: null,
+				'ip_hash'     => $ip_hash,
+				'type'        => $type,
+				'status'      => $status,
+				'ip_address'  => $ip_address,
+				'user_agent'  => $this->get_user_agent(),
+			);
+
+			$result = $this->record_consent( $consent_data );
+
+			if ( $result ) {
+				$created_count++;
+			} else {
+				$failed_count++;
+				$failed_types[] = $type;
+			}
+		}
+
+		$message = sprintf( 'Recorded %d consent(s)', $created_count );
+		if ( $failed_count > 0 ) {
+			$message .= sprintf( '; Failed: %d (%s)', $failed_count, implode( ', ', $failed_types ) );
+		}
+
+		return array(
+			'success'         => $failed_count === 0,
+			'created_count'   => $created_count,
+			'failed_count'    => $failed_count,
+			'failed_types'    => $failed_types,
+			'message'         => $message,
+		);
+	}
+
+	/**
+	 * Get anonymized consent summary
+	 *
+	 * Returns aggregated statistics without identifying individual users.
+	 * Useful for privacy-respecting analytics.
+	 *
+	 * @since 3.0.1
+	 * @return array Summary statistics
+	 */
+	public function get_anonymized_summary(): array {
+		$this->clear_errors();
+
+		$stats = $this->get_statistics();
+
+		return array(
+			'total_consents'      => array_sum( $stats['by_status'] ?? array() ),
+			'accepted_percentage' => $this->calculate_acceptance_rate(),
+			'type_distribution'   => $stats['by_type'] ?? array(),
+			'status_distribution' => $stats['by_status'] ?? array(),
+		);
+	}
+
+	/**
+	 * Calculate acceptance rate as percentage
+	 *
+	 * @since 3.0.1
+	 * @return float Acceptance rate (0-100)
+	 */
+	public function calculate_acceptance_rate(): float {
+		$stats = $this->get_statistics();
+		$total = array_sum( $stats['by_status'] ?? array() );
+
+		if ( $total === 0 ) {
+			return 0.0;
+		}
+
+		$accepted = $stats['by_status']['accepted'] ?? 0;
+		return round( ( $accepted / $total ) * 100, 2 );
+	}
+
+	/**
+	 * Export user consents as array
+	 *
+	 * Used for data export requests (GDPR Article 15).
+	 *
+	 * @since 3.0.1
+	 * @param int $user_id User ID
+	 * @return array User's consent records
+	 */
+	public function export_user_consents( int $user_id ): array {
+		$this->clear_errors();
+
+		if ( ! $this->validate_capability( 'manage_options' ) && get_current_user_id() !== $user_id ) {
+			$this->add_error( 'unauthorized', 'You do not have permission to export this user\'s consents' );
+			return array();
+		}
+
+		$consents = $this->get_user_consent_history( $user_id );
+		$exported = array();
+
+		foreach ( $consents as $consent ) {
+			$exported[] = array(
+				'id'         => $consent->id,
+				'type'       => $consent->type,
+				'status'     => $consent->status,
+				'created_at' => $consent->created_at,
+				'updated_at' => $consent->updated_at,
+				'metadata'   => is_string( $consent->metadata ) ? json_decode( $consent->metadata, true ) : $consent->metadata,
+			);
+		}
+
+		return $exported;
+	}
 }
