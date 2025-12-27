@@ -292,7 +292,7 @@
         confetti: function($container, count) {
             count = count || 50;
             
-            var colors = ['#00d4ff', '#7c3aed', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+            var colors = ['#60a5fa', '#93c5fd', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
             
             for (var i = 0; i < count; i++) {
                 var $piece = $('<div class="shahi-confetti-piece"></div>');
@@ -528,3 +528,4 @@
         document.head.insertAdjacentHTML('beforeend', styles);
     }
 })();
+

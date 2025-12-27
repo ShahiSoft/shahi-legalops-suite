@@ -69,7 +69,7 @@
 
 		const labels = Object.keys(state.stats.by_type || {});
 		const values = Object.values(state.stats.by_type || {});
-		const colors = ['#7c3aed', '#10b981', '#f59e0b', '#38bdf8', '#ec4899', '#a3e635'];
+		const colors = ['#93c5fd', '#10b981', '#f59e0b', '#38bdf8', '#ec4899', '#a3e635'];
 
 		if (state.chart) {
 			state.chart.destroy();

@@ -201,4 +201,79 @@ class Consent_Repository extends Base_Repository {
 	public function count_by_user( int $user_id ): int {
 		return $this->count( array( 'user_id' => $user_id ) );
 	}
+
+	/**
+	 * Find consents for export with filters
+	 *
+	 * @since 3.0.1
+	 * @param array $args {
+	 *     Export filters
+	 *
+	 *     @type int    $user_id   Filter by user ID
+	 *     @type string $type      Filter by consent type
+	 *     @type string $status    Filter by status
+	 *     @type string $date_from Start date (Y-m-d format)
+	 *     @type string $date_to   End date (Y-m-d format)
+	 *     @type int    $limit     Maximum records to export (default: 10000)
+	 * }
+	 * @return array Array of consent records for export
+	 */
+	public function find_export( array $args = array() ): array {
+		$defaults = array(
+			'user_id'   => null,
+			'type'      => null,
+			'status'    => null,
+			'date_from' => null,
+			'date_to'   => null,
+			'limit'     => 10000,
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+
+		$where_clauses = array( '1=1' );
+		$where_values  = array();
+
+		// User ID filter
+		if ( ! empty( $args['user_id'] ) ) {
+			$where_clauses[] = 'user_id = %d';
+			$where_values[]  = (int) $args['user_id'];
+		}
+
+		// Type filter
+		if ( ! empty( $args['type'] ) ) {
+			$where_clauses[] = 'type = %s';
+			$where_values[]  = sanitize_text_field( $args['type'] );
+		}
+
+		// Status filter
+		if ( ! empty( $args['status'] ) ) {
+			$where_clauses[] = 'status = %s';
+			$where_values[]  = sanitize_text_field( $args['status'] );
+		}
+
+		// Date from filter
+		if ( ! empty( $args['date_from'] ) ) {
+			$where_clauses[] = 'created_at >= %s';
+			$where_values[]  = sanitize_text_field( $args['date_from'] ) . ' 00:00:00';
+		}
+
+		// Date to filter
+		if ( ! empty( $args['date_to'] ) ) {
+			$where_clauses[] = 'created_at <= %s';
+			$where_values[]  = sanitize_text_field( $args['date_to'] ) . ' 23:59:59';
+		}
+
+		$where = implode( ' AND ', $where_clauses );
+		$limit = absint( $args['limit'] );
+
+		$sql = "SELECT * FROM {$this->table} WHERE {$where} ORDER BY created_at DESC LIMIT {$limit}";
+
+		if ( ! empty( $where_values ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$sql = $this->wpdb->prepare( $sql, $where_values );
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $this->wpdb->get_results( $sql, ARRAY_A );
+	}
 }

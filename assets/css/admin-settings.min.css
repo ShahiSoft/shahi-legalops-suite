@@ -4,7 +4,7 @@
  * Styles for the settings page with tabs and forms.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version     3.0.1
  */
 
 /* ============================================================================
@@ -47,14 +47,14 @@
     align-items: center;
     gap: 8px;
     padding: 14px 24px;
-    color: #ffffff;
-    background: #1e2542;
+    color: #f8fafc;
+    background: #1e293b;
     text-decoration: none;
     border-radius: var(--shahi-radius-md);
     transition: all var(--shahi-transition-fast);
     font-size: 15px;
     font-weight: 500;
-    border: 2px solid #2d3561;
+    border: 2px solid #334155;
     white-space: nowrap;
 }
 
@@ -68,11 +68,11 @@
 
 .shahi-tab-link:hover,
 .shahi-settings-tab:hover {
-    background: #252d50;
-    color: #00d4ff;
-    border-color: #00d4ff;
+    background: #334155;
+    color: var(--shahi-accent-primary, #3b82f6);
+    border-color: var(--shahi-accent-primary, #3b82f6);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .shahi-tab-link.active,
@@ -81,7 +81,7 @@
     color: #ffffff;
     font-weight: 700;
     border-color: var(--shahi-accent-primary);
-    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4), 0 0 40px rgba(147, 197, 253, 0.3);
     transform: translateY(-2px);
 }
 
@@ -285,28 +285,28 @@
 }
 
 .shahi-alert-info {
-    background: #e3f2fd;
+    background: rgba(59, 130, 246, 0.1);
     border-left: 4px solid #2196f3;
-    color: #1565c0;
+    color: #60a5fa;
 }
 
 .shahi-alert-success {
-    background: #e8f5e9;
+    background: rgba(34, 197, 94, 0.1);
     border-left: 4px solid #4caf50;
-    color: #2e7d32;
+    color: #22c55e;
 }
 
 .shahi-alert-warning {
-    background: #fff3e0;
+    background: rgba(245, 158, 11, 0.1);
     border-left: 4px solid #ff9800;
-    color: #e65100;
+    color: #f59e0b;
 }
 
 .shahi-alert-danger,
 .shahi-alert-error {
-    background: #ffebee;
+    background: rgba(239, 68, 68, 0.1);
     border-left: 4px solid #f44336;
-    color: #c62828;
+    color: #ef4444;
 }
 
 .shahi-badge {
@@ -320,26 +320,26 @@
 }
 
 .shahi-badge-warning {
-    background: #fff3e0;
-    color: #e65100;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
 }
 
 .shahi-badge-success {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
 }
 
 .shahi-badge-secondary {
-    background: #e0e0e0;
-    color: #424242;
+    background: rgba(100, 116, 139, 0.2);
+    color: #94a3b8;
 }
 
 .shahi-text-danger {
-    color: #c62828 !important;
+    color: #ef4444 !important;
 }
 
 .shahi-text-warning {
-    color: #e65100 !important;
+    color: #f59e0b !important;
 }
 
 /* ============================================================================
@@ -505,3 +505,4 @@
         align-items: flex-start;
     }
 }
+

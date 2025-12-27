@@ -5,7 +5,7 @@
  * Provides common functionality and helpers.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version    3.0.1
  */
 
 (function($) {
@@ -359,3 +359,4 @@
     });
 
 })(jQuery);
+

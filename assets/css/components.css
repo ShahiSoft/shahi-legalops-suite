@@ -14,80 +14,7 @@
    CSS VARIABLES - DESIGN SYSTEM
    =================================== */
 
-:root {
-    /* Dark Theme Colors */
-    --shahi-bg-primary: #0a0e27;
-    --shahi-bg-secondary: #141834;
-    --shahi-bg-tertiary: #1e2542;
-    --shahi-bg-card: rgba(30, 37, 66, 0.6);
-    
-    /* Accent Colors */
-    --shahi-accent-primary: #00d4ff;
-    --shahi-accent-secondary: #7c3aed;
-    --shahi-accent-tertiary: #f59e0b;
-    --shahi-accent-success: #10b981;
-    --shahi-accent-warning: #f59e0b;
-    --shahi-accent-error: #ef4444;
-    --shahi-accent-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
-    --shahi-accent-gradient-reverse: linear-gradient(135deg, #7c3aed 0%, #00d4ff 100%);
-    
-    /* Text Colors */
-    --shahi-text-primary: #ffffff;
-    --shahi-text-secondary: #a8b2d1;
-    --shahi-text-muted: #6b7ba0;
-    --shahi-text-inverse: #0a0e27;
-    
-    /* UI Elements */
-    --shahi-border: #2d3561;
-    --shahi-border-light: rgba(45, 53, 97, 0.5);
-    --shahi-border-glow: rgba(0, 212, 255, 0.3);
-    --shahi-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
-    --shahi-shadow-lg: 0 8px 30px rgba(0, 212, 255, 0.2);
-    --shahi-shadow-xl: 0 12px 40px rgba(0, 212, 255, 0.3);
-    --shahi-glow: 0 0 20px rgba(0, 212, 255, 0.5);
-    --shahi-glow-lg: 0 0 30px rgba(0, 212, 255, 0.6);
-    
-    /* Typography */
-    --shahi-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --shahi-font-mono: 'JetBrains Mono', 'Courier New', monospace;
-    --shahi-font-size-xs: 12px;
-    --shahi-font-size-sm: 14px;
-    --shahi-font-size-base: 16px;
-    --shahi-font-size-lg: 18px;
-    --shahi-font-size-xl: 20px;
-    --shahi-font-size-2xl: 24px;
-    --shahi-font-size-3xl: 30px;
-    --shahi-font-size-4xl: 36px;
-    
-    /* Spacing */
-    --shahi-space-xs: 8px;
-    --shahi-space-sm: 16px;
-    --shahi-space-md: 24px;
-    --shahi-space-lg: 32px;
-    --shahi-space-xl: 48px;
-    --shahi-space-2xl: 64px;
-    
-    /* Border Radius */
-    --shahi-radius-sm: 6px;
-    --shahi-radius-md: 12px;
-    --shahi-radius-lg: 16px;
-    --shahi-radius-xl: 24px;
-    --shahi-radius-full: 9999px;
-    
-    /* Animations */
-    --shahi-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --shahi-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-    --shahi-transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Z-Index Layers */
-    --shahi-z-dropdown: 1000;
-    --shahi-z-sticky: 1020;
-    --shahi-z-fixed: 1030;
-    --shahi-z-modal-backdrop: 1040;
-    --shahi-z-modal: 1050;
-    --shahi-z-popover: 1060;
-    --shahi-z-tooltip: 1070;
-}
+
 
 /* ===================================
    CARDS - GLASSMORPHISM EFFECT
@@ -157,15 +84,15 @@
 /* Card Variants */
 .shahi-card-accent {
     border: 2px solid var(--shahi-accent-primary);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
 }
 
 .shahi-card-gradient {
     background: linear-gradient(135deg, 
-        rgba(0, 212, 255, 0.1) 0%, 
-        rgba(124, 58, 237, 0.1) 100%
+        rgba(96, 165, 250, 0.1) 0%, 
+        rgba(147, 197, 253, 0.1) 100%
     );
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 /* ===================================
@@ -452,11 +379,11 @@
 
 .shahi-toggle-input:checked + .shahi-toggle-slider::before {
     left: 26px;
-    background: white;
+    background: var(--shahi-bg-card);
 }
 
 .shahi-toggle-input:focus + .shahi-toggle-slider {
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .shahi-toggle-input:disabled + .shahi-toggle-slider {
@@ -595,7 +522,7 @@
 }
 
 .shahi-badge-primary {
-    background: rgba(0, 212, 255, 0.2);
+    background: rgba(96, 165, 250, 0.2);
     color: var(--shahi-accent-primary);
     border-color: var(--shahi-accent-primary);
 }
@@ -725,7 +652,7 @@
 
 .shahi-notification-info {
     border-left: 4px solid var(--shahi-accent-primary);
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(96, 165, 250, 0.1);
 }
 
 .shahi-notification-info .shahi-notification-icon {
@@ -783,7 +710,7 @@
     width: 40px;
     height: 40px;
     border-radius: var(--shahi-radius-md);
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(96, 165, 250, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -841,7 +768,7 @@
 .shahi-input:focus {
     outline: none;
     border-color: var(--shahi-accent-primary);
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
     background: rgba(255, 255, 255, 0.08);
 }
 
@@ -882,7 +809,7 @@
 .shahi-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(0, 212, 255, 0.2);
+    border: 3px solid rgba(96, 165, 250, 0.2);
     border-top-color: var(--shahi-accent-primary);
     border-radius: 50%;
     animation: shahi-spin 0.8s linear infinite;
@@ -964,3 +891,4 @@
         padding: var(--shahi-space-md);
     }
 }
+

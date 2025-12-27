@@ -1,0 +1,465 @@
+/**
+ * Consent Banner Styles
+ *
+ * Responsive, animated styles for consent banner component.
+ * Supports light/dark themes and multiple templates.
+ *
+ * @package ShahiLegalopsSuite
+ * @version 3.0.1
+ */
+
+/* ============================================
+   Banner Container & Base Styles
+   ============================================ */
+
+#slos-consent-banner {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 999999;
+    background: #fff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-in-out;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+}
+
+#slos-consent-banner.slos-banner-visible {
+    transform: translateY(0);
+}
+
+/* Position Variants */
+.slos-banner-bottom {
+    bottom: 0;
+}
+
+.slos-banner-top {
+    top: 0;
+    bottom: auto;
+    transform: translateY(-100%);
+    border-bottom: 1px solid #e5e7eb;
+    border-top: none;
+}
+
+.slos-banner-top.slos-banner-visible {
+    transform: translateY(0);
+}
+
+/* Theme Variants */
+.slos-banner-dark {
+    background: #1a1a1a;
+    color: #f0f0f0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.slos-banner-light {
+    background: #fff;
+    color: #333;
+}
+
+/* ============================================
+   Banner Content Layout
+   ============================================ */
+
+.slos-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.slos-banner-header {
+    margin-bottom: 15px;
+}
+
+.slos-banner-title {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: inherit;
+}
+
+.slos-banner-body {
+    margin-bottom: 20px;
+}
+
+.slos-banner-message {
+    margin: 0 0 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: inherit;
+    opacity: 0.9;
+}
+
+/* ============================================
+   Consent Options (Checkboxes)
+   ============================================ */
+
+.slos-consent-options {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+.slos-banner-dark .slos-consent-options {
+    background: #2a2a2a;
+}
+
+.slos-consent-option {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.slos-banner-dark .slos-consent-option {
+    border-bottom-color: #444;
+}
+
+.slos-consent-option:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.slos-consent-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.slos-consent-checkbox {
+    margin-right: 10px;
+    margin-top: 3px;
+    cursor: pointer;
+    accent-color: #4CAF50;
+}
+
+.slos-consent-checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.slos-purpose-label {
+    font-weight: 500;
+    display: block;
+}
+
+.slos-required {
+    margin-left: 10px;
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+}
+
+.slos-banner-dark .slos-required {
+    color: #aaa;
+}
+
+.slos-purpose-description {
+    margin: 5px 0 0 30px;
+    font-size: 13px;
+    color: #666;
+}
+
+.slos-banner-dark .slos-purpose-description {
+    color: #999;
+}
+
+/* ============================================
+   Banner Footer & Actions
+   ============================================ */
+
+.slos-banner-footer {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+/* Buttons */
+.slos-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+/* Accept All Button */
+.slos-btn-accept-all,
+.slos-btn-accept,
+.slos-btn-accept-selected {
+    background: #4CAF50;
+    color: white;
+}
+
+.slos-btn-accept-all:hover,
+.slos-btn-accept:hover,
+.slos-btn-accept-selected:hover {
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slos-btn-accept-all:active,
+.slos-btn-accept:active,
+.slos-btn-accept-selected:active {
+    transform: translateY(0);
+}
+
+/* Accept Selected Button (blue variant) */
+.slos-btn-accept-selected {
+    background: #2196F3;
+}
+
+.slos-btn-accept-selected:hover {
+    background: #0b7dda;
+}
+
+/* Reject/Decline Buttons */
+.slos-btn-reject-all,
+.slos-btn-reject {
+    background: #f44336;
+    color: white;
+}
+
+.slos-btn-reject-all:hover,
+.slos-btn-reject:hover {
+    background: #da190b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slos-btn-reject-all:active,
+.slos-btn-reject:active {
+    transform: translateY(0);
+}
+
+/* Links */
+.slos-privacy-link,
+.slos-settings-link,
+.slos-learn-more {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: auto;
+    transition: color 0.2s;
+}
+
+.slos-banner-dark .slos-privacy-link,
+.slos-banner-dark .slos-settings-link,
+.slos-banner-dark .slos-learn-more {
+    color: #64b5f6;
+}
+
+.slos-privacy-link:hover,
+.slos-settings-link:hover,
+.slos-learn-more:hover {
+    text-decoration: underline;
+    color: #1976d2;
+}
+
+.slos-banner-dark .slos-privacy-link:hover,
+.slos-banner-dark .slos-settings-link:hover,
+.slos-banner-dark .slos-learn-more:hover {
+    color: #90caf9;
+}
+
+/* ============================================
+   Template-Specific Styles
+   ============================================ */
+
+/* CCPA Template */
+.slos-template-ccpa .slos-banner-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.slos-template-ccpa .slos-banner-body {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.slos-template-ccpa .slos-banner-footer {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+/* Simple Template */
+.slos-template-simple .slos-banner-content {
+    text-align: center;
+}
+
+.slos-template-simple .slos-banner-body {
+    margin-bottom: 15px;
+}
+
+.slos-template-simple .slos-banner-footer {
+    justify-content: center;
+}
+
+/* Advanced Template (extends EU) */
+.slos-template-advanced .slos-consent-options {
+    background: #f9f9f9;
+    border-left: 4px solid #2196F3;
+}
+
+.slos-banner-dark .slos-template-advanced .slos-consent-options {
+    background: #222;
+    border-left-color: #64b5f6;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+    #slos-consent-banner {
+        padding: 15px;
+    }
+
+    .slos-banner-title {
+        font-size: 16px;
+    }
+
+    .slos-banner-message {
+        font-size: 13px;
+    }
+
+    .slos-banner-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .slos-btn {
+        width: 100%;
+        padding: 12px 16px;
+    }
+
+    .slos-privacy-link,
+    .slos-settings-link,
+    .slos-learn-more {
+        margin: 10px 0 0;
+        text-align: center;
+        width: 100%;
+        display: block;
+    }
+
+    .slos-template-ccpa .slos-banner-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .slos-template-ccpa .slos-banner-body {
+        margin-right: 0;
+    }
+
+    .slos-template-simple .slos-banner-footer {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    #slos-consent-banner {
+        padding: 12px;
+    }
+
+    .slos-banner-title {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+
+    .slos-banner-message {
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .slos-consent-options {
+        padding: 12px;
+        margin: 15px 0;
+    }
+
+    .slos-consent-option {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+    }
+
+    .slos-btn {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+
+    .slos-purpose-description {
+        font-size: 12px;
+        margin-left: 26px;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+#slos-consent-banner:focus {
+    outline: 2px solid #2196F3;
+    outline-offset: -2px;
+}
+
+.slos-btn:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.slos-consent-checkbox:focus {
+    outline: 2px solid #2196F3;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+    .slos-btn {
+        border: 1px solid currentColor;
+    }
+
+    .slos-consent-checkbox {
+        border: 1px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    #slos-consent-banner {
+        transition: none;
+    }
+
+    .slos-btn {
+        transition: none;
+    }
+}
+
+/* Dark mode preference (system) */
+@media (prefers-color-scheme: dark) {
+    #slos-consent-banner.slos-banner-light {
+        background: #1a1a1a;
+        color: #f0f0f0;
+    }
+
+    .slos-banner-light .slos-consent-options {
+        background: #2a2a2a;
+    }
+
+    .slos-banner-light .slos-purpose-description {
+        color: #999;
+    }
+}

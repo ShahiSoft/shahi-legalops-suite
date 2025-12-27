@@ -66,6 +66,21 @@ class Consent {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'shahi-legalops-suite' ) );
 		}
 
+		?>
+		<div class="wrap slos-consent-page">
+			<h1><?php esc_html_e( 'Consent & Compliance', 'shahi-legalops-suite' ); ?></h1>
+			<?php $this->render_content(); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render just the content (for use in tabbed interface)
+	 *
+	 * @since 3.0.2
+	 * @return void
+	 */
+	public function render_content() {
 		$stats            = $this->normalize_stats( $this->service->get_statistics() );
 		$recent_consents  = $this->format_consent_records( $this->service->get_recent_consents( 10 ) );
 		$allowed_types    = $this->service->get_allowed_types();

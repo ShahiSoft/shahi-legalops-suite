@@ -33,6 +33,10 @@ $withdrawn_total = $stats['by_status']['withdrawn'] ?? 0;
 				<span class="dashicons dashicons-update"></span>
 				<?php echo esc_html__( 'Refresh Data', 'shahi-legalops-suite' ); ?>
 			</button>
+			<a class="shahi-btn shahi-btn-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=shahi-legalops-suite-banner-settings' ) ); ?>">
+				<span class="dashicons dashicons-format-image"></span>
+				<?php echo esc_html__( 'Banner Settings', 'shahi-legalops-suite' ); ?>
+			</a>
 			<a class="shahi-btn shahi-btn-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=shahi-legalops-suite-settings&tab=security' ) ); ?>">
 				<span class="dashicons dashicons-shield"></span>
 				<?php echo esc_html__( 'Security Settings', 'shahi-legalops-suite' ); ?>

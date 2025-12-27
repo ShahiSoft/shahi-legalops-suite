@@ -93,13 +93,6 @@ if (!defined('ABSPATH')) {
                             ?>
                         </div>
                     <?php endif; ?>
-                    
-                    <?php if (isset($module['is_premium']) && $module['is_premium']): ?>
-                        <span class="shahi-module-pro-badge">
-                            <span class="dashicons dashicons-star-filled"></span>
-                            <?php echo esc_html__('PRO', 'shahi-legalops-suite'); ?>
-                        </span>
-                    <?php endif; ?>
                 </div>
                 
                 <div class="shahi-module-footer">
@@ -146,3 +139,4 @@ if (!defined('ABSPATH')) {
     <?php endif; ?>
 
 </div>
+

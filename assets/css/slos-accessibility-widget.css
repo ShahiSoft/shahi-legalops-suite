@@ -40,7 +40,7 @@
     bottom: 70px;
     right: 0;
     width: 300px;
-    background: #fff;
+    background: var(--shahi-bg-card);
     border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     display: none;
@@ -59,7 +59,7 @@
 }
 
 .slos-aw-header {
-    background: #f0f0f1;
+    background: var(--shahi-bg-secondary);
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -109,7 +109,7 @@
     width: 100%;
     padding: 10px;
     margin-bottom: 8px;
-    background: #fff;
+    background: var(--shahi-bg-card);
     border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
@@ -119,7 +119,7 @@
 }
 
 .slos-aw-btn:hover {
-    background: #f6f7f7;
+    background: var(--shahi-bg-secondary);
     border-color: #0073aa;
 }
 
@@ -343,7 +343,7 @@ body.slos-aw-tooltip-hover *[alt]:hover:after {
 }
 
 .slos-aw-modal-content {
-    background: #fff;
+    background: var(--shahi-bg-card);
     padding: 20px;
     border-radius: 8px;
     width: 80%;
@@ -420,7 +420,7 @@ body.slos-aw-smart-contrast iframe {
 }
 .slos-aw-vk-key {
     padding: 10px;
-    background: #fff;
+    background: var(--shahi-bg-card);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -435,7 +435,7 @@ body.slos-aw-smart-contrast iframe {
 .slos-aw-vk-key[data-key='Backspace'],
 .slos-aw-vk-key[data-key='Enter'] {
     grid-column: span 2;
-    background: #f0f0f0;
+    background: var(--shahi-bg-secondary);
 }
 
 /* Dictionary Modal */
@@ -474,7 +474,7 @@ body.slos-aw-reader-mode article {
 
 /* Accessibility Profiles */
 .slos-aw-profiles {
-    background: #f0f0f1;
+    background: var(--shahi-bg-secondary);
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 15px;
@@ -484,7 +484,7 @@ body.slos-aw-reader-mode article {
     color: #2271b1;
 }
 .slos-aw-profile-btn {
-    background: #fff;
+    background: var(--shahi-bg-card);
     border: 1px solid #ccc;
     color: #333;
     width: 100%;
@@ -495,7 +495,7 @@ body.slos-aw-reader-mode article {
     transition: all 0.2s;
 }
 .slos-aw-profile-btn:hover {
-    background: #f6f7f7;
+    background: var(--shahi-bg-secondary);
     border-color: #2271b1;
 }
 .slos-aw-profile-btn.is-active {
@@ -506,4 +506,5 @@ body.slos-aw-reader-mode article {
 .slos-aw-profile-btn .dashicons {
     margin-right: 8px;
 }
+
 

@@ -6,7 +6,7 @@
  *
  * @package     ShahiLegalopsSuite
  * @subpackage  Shortcodes
- * @version     1.0.0
+ * @version     3.0.1
  * @since       1.0.0
  * @author      ShahiLegalopsSuite Team
  * @license     GPL-3.0+
@@ -15,8 +15,8 @@
 namespace ShahiLegalopsSuite\Shortcodes;
 
 // Exit if accessed directly
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
@@ -27,95 +27,101 @@ if (!defined('ABSPATH')) {
  * @since 1.0.0
  */
 class ShortcodeManager {
-    
-    /**
-     * Registered shortcodes
-     *
-     * @since 1.0.0
-     * @var array
-     */
-    private $shortcodes = array();
-    
-    /**
-     * Constructor
-     *
-     * @since 1.0.0
-     */
-    public function __construct() {
-        $this->init_shortcodes();
-        $this->register_hooks();
-    }
-    
-    /**
-     * Initialize shortcodes
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    private function init_shortcodes() {
-        // Register shortcode instances (keeping only module-related shortcodes for legal operations)
+
+	/**
+	 * Registered shortcodes
+	 *
+	 * @since 1.0.0
+	 * @var array
+	 */
+	private $shortcodes = array();
+
+	/**
+	 * Constructor
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct() {
+		$this->init_shortcodes();
+		$this->register_hooks();
+	}
+
+	/**
+	 * Initialize shortcodes
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	private function init_shortcodes() {
+		// Register shortcode instances (keeping only module-related shortcodes for legal operations)
         $this->shortcodes = array(
-            'module' => new ModuleShortcode(),
+            'module'     => new ModuleShortcode(),
+            'dsr_form'   => new DSR_Form_Shortcode(),
+            'dsr_verify' => new DSR_Verify_Shortcode(),
+            'dsr_status' => new DSR_Status_Shortcode(),
         );
-    }
-    
-    /**
-     * Register WordPress hooks
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    private function register_hooks() {
-        add_action('init', array($this, 'register_shortcodes'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_shortcode_assets'));
-        add_filter('widget_text', 'do_shortcode');
-    }
-    
-    /**
-     * Register all shortcodes
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    public function register_shortcodes() {
-        foreach ($this->shortcodes as $key => $shortcode) {
-            if (method_exists($shortcode, 'register')) {
-                $shortcode->register();
-            }
-        }
-    }
-    
-    /**
-     * Enqueue shortcode assets
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    public function enqueue_shortcode_assets() {
-        // Check if any ShahiLegalopsSuite shortcodes are present in the content
-        global $post;
-        
-        if (!is_a($post, 'WP_Post')) {
-            return;
-        }
-        
-        // Check if shortcodes are present
-        $has_shortcodes = false;
-        $shortcode_tags = array('shahi_stats', 'shahi_module', 'shahi_button');
-        
-        foreach ($shortcode_tags as $tag) {
-            if (has_shortcode($post->post_content, $tag)) {
-                $has_shortcodes = true;
-                break;
-            }
-        }
-        
-        if (!$has_shortcodes) {
-            return;
-        }
-        
-        // Add inline CSS for shortcodes
-        $css = "
+		// Consent shortcodes are now registered by the ConsentManagement module
+	}
+
+	/**
+	 * Register WordPress hooks
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	private function register_hooks() {
+		add_action( 'init', array( $this, 'register_shortcodes' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_shortcode_assets' ) );
+		add_filter( 'widget_text', 'do_shortcode' );
+	}
+
+	/**
+	 * Register all shortcodes
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function register_shortcodes() {
+		foreach ( $this->shortcodes as $key => $shortcode ) {
+			if ( method_exists( $shortcode, 'register' ) ) {
+				$shortcode->register();
+			} elseif ( method_exists( $shortcode, 'init' ) ) {
+				$shortcode->init();
+			}
+		}
+	}
+
+	/**
+	 * Enqueue shortcode assets
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function enqueue_shortcode_assets() {
+		// Check if any ShahiLegalopsSuite shortcodes are present in the content
+		global $post;
+
+		if ( ! is_a( $post, 'WP_Post' ) ) {
+			return;
+		}
+
+		// Check if shortcodes are present
+		$has_shortcodes = false;
+		$shortcode_tags = array( 'shahi_stats', 'shahi_module', 'shahi_button' );
+
+		foreach ( $shortcode_tags as $tag ) {
+			if ( has_shortcode( $post->post_content, $tag ) ) {
+				$has_shortcodes = true;
+				break;
+			}
+		}
+
+		if ( ! $has_shortcodes ) {
+			return;
+		}
+
+		// Add inline CSS for shortcodes
+		$css = '
         /* ShahiLegalopsSuite Shortcodes Styling */
         .shahi-shortcode {
             display: inline-block;
@@ -264,21 +270,22 @@ class ShortcodeManager {
                 margin: 10px 0;
             }
         }
-        ";
-        
-        wp_add_inline_style('wp-block-library', $css);
-        
-        // Enqueue dashicons for button icons
-        wp_enqueue_style('dashicons');
-    }
-    
-    /**
-     * Get registered shortcodes
-     *
-     * @since 1.0.0
-     * @return array Registered shortcodes.
-     */
-    public function get_shortcodes() {
-        return $this->shortcodes;
-    }
+        ';
+
+		wp_add_inline_style( 'wp-block-library', $css );
+
+		// Enqueue dashicons for button icons
+		wp_enqueue_style( 'dashicons' );
+	}
+
+	/**
+	 * Get registered shortcodes
+	 *
+	 * @since 1.0.0
+	 * @return array Registered shortcodes.
+	 */
+	public function get_shortcodes() {
+		return $this->shortcodes;
+	}
 }
+

@@ -15,37 +15,37 @@
    =================================== */
 
 :root {
-    /* Dark Theme Colors */
-    --shahi-bg-primary: #0a0e27;
-    --shahi-bg-secondary: #141834;
-    --shahi-bg-tertiary: #1e2542;
-    --shahi-bg-card: rgba(30, 37, 66, 0.6);
+    /* Mac Slate Liquid Theme Colors */
+    --shahi-bg-primary: #0f172a;
+    --shahi-bg-secondary: #1e293b;
+    --shahi-bg-tertiary: #334155;
+    --shahi-bg-card: rgba(30, 41, 59, 0.6);
     
     /* Accent Colors */
-    --shahi-accent-primary: #00d4ff;
-    --shahi-accent-secondary: #7c3aed;
+    --shahi-accent-primary: var(--shahi-accent-primary, #3b82f6);
+    --shahi-accent-secondary: var(--shahi-accent-secondary, #60a5fa);
     --shahi-accent-tertiary: #f59e0b;
-    --shahi-accent-success: #10b981;
+    --shahi-accent-success: #22c55e;
     --shahi-accent-warning: #f59e0b;
     --shahi-accent-error: #ef4444;
-    --shahi-accent-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
-    --shahi-accent-gradient-reverse: linear-gradient(135deg, #7c3aed 0%, #00d4ff 100%);
+    --shahi-accent-gradient: linear-gradient(135deg, var(--shahi-accent-primary, #3b82f6) 0%, var(--shahi-accent-secondary, #60a5fa) 100%);
+    --shahi-accent-gradient-reverse: linear-gradient(135deg, var(--shahi-accent-secondary, #60a5fa) 0%, var(--shahi-accent-primary, #3b82f6) 100%);
     
     /* Text Colors */
-    --shahi-text-primary: #ffffff;
-    --shahi-text-secondary: #a8b2d1;
-    --shahi-text-muted: #6b7ba0;
-    --shahi-text-inverse: #0a0e27;
+    --shahi-text-primary: #f8fafc;
+    --shahi-text-secondary: #94a3b8;
+    --shahi-text-muted: #64748b;
+    --shahi-text-inverse: #0f172a;
     
     /* UI Elements */
-    --shahi-border: #2d3561;
-    --shahi-border-light: rgba(45, 53, 97, 0.5);
-    --shahi-border-glow: rgba(0, 212, 255, 0.3);
-    --shahi-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
-    --shahi-shadow-lg: 0 8px 30px rgba(0, 212, 255, 0.2);
-    --shahi-shadow-xl: 0 12px 40px rgba(0, 212, 255, 0.3);
-    --shahi-glow: 0 0 20px rgba(0, 212, 255, 0.5);
-    --shahi-glow-lg: 0 0 30px rgba(0, 212, 255, 0.6);
+    --shahi-border: #334155;
+    --shahi-border-light: rgba(51, 65, 85, 0.5);
+    --shahi-border-glow: rgba(59, 130, 246, 0.3);
+    --shahi-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+    --shahi-shadow-lg: 0 8px 30px rgba(59, 130, 246, 0.2);
+    --shahi-shadow-xl: 0 12px 40px rgba(59, 130, 246, 0.3);
+    --shahi-glow: 0 0 20px rgba(59, 130, 246, 0.5);
+    --shahi-glow-lg: 0 0 30px rgba(59, 130, 246, 0.6);
     
     /* Typography */
     --shahi-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -157,15 +157,15 @@
 /* Card Variants */
 .shahi-card-accent {
     border: 2px solid var(--shahi-accent-primary);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
 }
 
 .shahi-card-gradient {
     background: linear-gradient(135deg, 
-        rgba(0, 212, 255, 0.1) 0%, 
-        rgba(124, 58, 237, 0.1) 100%
+        rgba(96, 165, 250, 0.1) 0%, 
+        rgba(147, 197, 253, 0.1) 100%
     );
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 /* ===================================
@@ -456,7 +456,7 @@
 }
 
 .shahi-toggle-input:focus + .shahi-toggle-slider {
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .shahi-toggle-input:disabled + .shahi-toggle-slider {
@@ -595,7 +595,7 @@
 }
 
 .shahi-badge-primary {
-    background: rgba(0, 212, 255, 0.2);
+    background: rgba(96, 165, 250, 0.2);
     color: var(--shahi-accent-primary);
     border-color: var(--shahi-accent-primary);
 }
@@ -725,7 +725,7 @@
 
 .shahi-notification-info {
     border-left: 4px solid var(--shahi-accent-primary);
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(96, 165, 250, 0.1);
 }
 
 .shahi-notification-info .shahi-notification-icon {
@@ -783,7 +783,7 @@
     width: 40px;
     height: 40px;
     border-radius: var(--shahi-radius-md);
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(96, 165, 250, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -841,7 +841,7 @@
 .shahi-input:focus {
     outline: none;
     border-color: var(--shahi-accent-primary);
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
     background: rgba(255, 255, 255, 0.08);
 }
 
@@ -882,7 +882,7 @@
 .shahi-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(0, 212, 255, 0.2);
+    border: 3px solid rgba(96, 165, 250, 0.2);
     border-top-color: var(--shahi-accent-primary);
     border-radius: 50%;
     animation: shahi-spin 0.8s linear infinite;
@@ -964,3 +964,4 @@
         padding: var(--shahi-space-md);
     }
 }
+

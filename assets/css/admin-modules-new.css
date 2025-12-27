@@ -1,0 +1,694 @@
+/**
+ * Module Dashboard V3 Styles
+ *
+ * Modern module management interface with clean design matching Dashboard V3.
+ *
+ * @package    ShahiLegalopsSuite
+ * @subpackage Assets/CSS
+ * @since      3.0.1
+ * @version    1.0.0
+ */
+
+/* ============================================
+   MODULES V3 CONTAINER
+   ============================================ */
+.shahi-modules-v3 {
+    max-width: 1600px;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e1b4b 100%);
+    min-height: 100vh;
+}
+
+/* Reuse Dashboard V3 top bar and hero styles */
+.shahi-modules-v3 .shahi-v3-topbar,
+.shahi-modules-v3 .shahi-v3-hero,
+.shahi-modules-v3 .shahi-v3-stats-row,
+.shahi-modules-v3 .shahi-v3-stat-card {
+    /* Inherit from admin-dashboard-new.css */
+}
+
+/* ============================================
+   CONTROLS BAR
+   ============================================ */
+.shahi-v3-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 2rem 1.5rem 2rem;
+    flex-wrap: wrap;
+}
+
+.shahi-v3-search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.shahi-v3-search-wrapper .dashicons {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.shahi-v3-search-input {
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 3rem;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.shahi-v3-search-input:focus {
+    outline: none;
+    border-color: rgba(96, 165, 250, 0.4);
+    background: rgba(30, 41, 59, 0.8);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.shahi-v3-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.shahi-search-clear {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.shahi-search-clear:hover {
+    color: #fff;
+}
+
+.shahi-v3-filter-group {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(30, 41, 59, 0.6);
+    padding: 0.35rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shahi-v3-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shahi-v3-filter-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.shahi-v3-filter-btn.active {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(147, 197, 253, 0.2));
+    color: var(--shahi-accent-primary, #60a5fa);
+}
+
+.shahi-v3-filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 0.4rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 11px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.shahi-v3-filter-btn.active .shahi-v3-filter-count {
+    background: rgba(96, 165, 250, 0.3);
+}
+
+.shahi-v3-view-toggle {
+    display: flex;
+    gap: 0.35rem;
+    background: rgba(30, 41, 59, 0.6);
+    padding: 0.35rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shahi-v3-view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shahi-v3-view-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.shahi-v3-view-btn.active {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(147, 197, 253, 0.2));
+    color: var(--shahi-accent-primary, #60a5fa);
+}
+
+.shahi-v3-view-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* ============================================
+   MODULES CONTAINER
+   ============================================ */
+.shahi-v3-modules-container {
+    padding: 0 2rem 2rem 2rem;
+    position: relative;
+}
+
+.shahi-v3-modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.25rem;
+}
+
+.shahi-v3-modules-grid[data-view="list"] {
+    grid-template-columns: 1fr;
+}
+
+/* ============================================
+   MODULE CARD
+   ============================================ */
+.shahi-v3-module-card {
+    position: relative;
+    background: rgba(30, 41, 59, 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.shahi-v3-module-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(96, 165, 250, 0.3);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.shahi-v3-module-status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    transition: background 0.3s ease;
+}
+
+.shahi-v3-module-card.active .shahi-v3-module-status-bar {
+    background: linear-gradient(90deg, var(--shahi-accent-primary, #60a5fa), var(--shahi-accent-secondary, #93c5fd));
+}
+
+.shahi-v3-module-content {
+    padding: 1.5rem;
+    padding-top: 1.25rem;
+}
+
+/* ============================================
+   MODULE HEADER
+   ============================================ */
+.shahi-v3-module-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.shahi-v3-module-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(147, 197, 253, 0.15));
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.shahi-v3-module-icon-wrap .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: var(--shahi-accent-primary, #60a5fa);
+}
+
+.shahi-v3-module-badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+}
+
+.shahi-v3-module-category {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.shahi-v3-module-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.shahi-v3-module-status-badge.active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.shahi-v3-module-status-badge.inactive {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.shahi-v3-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.shahi-v3-module-status-badge.active .shahi-v3-status-dot {
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================
+   MODULE BODY
+   ============================================ */
+.shahi-v3-module-body {
+    margin-bottom: 1.25rem;
+}
+
+.shahi-v3-module-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.shahi-v3-module-desc {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+}
+
+.shahi-v3-module-mini-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+}
+
+.shahi-v3-mini-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.shahi-v3-mini-stat-item .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--shahi-accent-primary, #60a5fa);
+}
+
+.shahi-v3-mini-stat-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.shahi-v3-mini-stat-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.shahi-v3-mini-stat-divider {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.shahi-v3-module-deps {
+    padding: 0.75rem;
+    background: rgba(147, 197, 253, 0.1);
+    border: 1px solid rgba(147, 197, 253, 0.2);
+    border-radius: 8px;
+}
+
+.shahi-v3-deps-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.shahi-v3-deps-label .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--shahi-accent-secondary, #93c5fd);
+}
+
+.shahi-v3-deps-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.shahi-v3-dep-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(147, 197, 253, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+}
+
+/* ============================================
+   MODULE FOOTER
+   ============================================ */
+.shahi-v3-module-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Toggle Switch */
+.shahi-v3-toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.shahi-v3-toggle-switch input[type="checkbox"] {
+    display: none;
+}
+
+.shahi-v3-toggle-slider {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.shahi-v3-toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.shahi-v3-toggle-switch input:checked + .shahi-v3-toggle-slider {
+    background: linear-gradient(90deg, var(--shahi-accent-primary, #60a5fa), var(--shahi-accent-secondary, #93c5fd));
+}
+
+.shahi-v3-toggle-switch input:checked + .shahi-v3-toggle-slider .shahi-v3-toggle-knob {
+    transform: translateX(24px);
+    background: var(--shahi-bg-card);
+}
+
+.shahi-v3-toggle-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.shahi-v3-toggle-switch input:checked ~ .shahi-v3-toggle-label {
+    color: var(--shahi-accent-primary, #60a5fa);
+}
+
+/* Action Buttons */
+.shahi-v3-module-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.shahi-v3-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shahi-v3-action-btn:hover {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.3);
+    color: var(--shahi-accent-primary, #60a5fa);
+}
+
+.shahi-v3-action-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.shahi-v3-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.shahi-v3-empty-state .dashicons {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 1rem;
+}
+
+.shahi-v3-empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+}
+
+.shahi-v3-empty-state p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+/* ============================================
+   LOADING OVERLAY
+   ============================================ */
+.shahi-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.shahi-v3-spinner {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.shahi-v3-spinner-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid transparent;
+    border-top-color: var(--shahi-accent-primary, #60a5fa);
+    border-radius: 50%;
+    animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.shahi-v3-spinner-ring:nth-child(1) {
+    animation-delay: -0.45s;
+}
+
+.shahi-v3-spinner-ring:nth-child(2) {
+    animation-delay: -0.3s;
+}
+
+.shahi-v3-spinner-ring:nth-child(3) {
+    animation-delay: -0.15s;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   LIST VIEW
+   ============================================ */
+.shahi-v3-modules-grid[data-view="list"] .shahi-v3-module-card {
+    display: flex;
+}
+
+.shahi-v3-modules-grid[data-view="list"] .shahi-v3-module-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.shahi-v3-modules-grid[data-view="list"] .shahi-v3-module-header {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.shahi-v3-modules-grid[data-view="list"] .shahi-v3-module-body {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.shahi-v3-modules-grid[data-view="list"] .shahi-v3-module-footer {
+    border-top: none;
+    padding-top: 0;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    padding-left: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1200px) {
+    .shahi-v3-modules-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .shahi-v3-modules-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .shahi-v3-controls {
+        padding: 0 1rem 1.5rem 1rem;
+    }
+    
+    .shahi-v3-modules-container {
+        padding: 0 1rem 1rem 1rem;
+    }
+    
+    .shahi-v3-modules-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .shahi-v3-search-wrapper {
+        max-width: 100%;
+    }
+    
+    .shahi-v3-filter-group {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .shahi-v3-module-mini-stats {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .shahi-v3-mini-stat-divider {
+        width: 100%;
+        height: 1px;
+    }
+}

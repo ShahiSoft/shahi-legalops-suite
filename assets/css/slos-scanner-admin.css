@@ -1,6 +1,6 @@
 .slos-scanner-card, .slos-scanner-results-card {
-    background: #fff;
-    border: 1px solid #ccd0d4;
+    background: var(--shahi-bg-card);
+    border: 1px solid #334155;
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
     padding: 20px;
     max-width: 800px;
@@ -20,3 +20,4 @@
     font-weight: bold;
     font-size: 12px;
 }
+

@@ -7112,3 +7112,4 @@ class Container_4c0f0c280a extends _PHPStan_b22655c3f\Nette\DI\Container
 		return parent::getParameters();
 	}
 }
+

@@ -169,8 +169,8 @@
 }
 
 .shahi-step-icon.shahi-icon-success .dashicons {
-    color: #00ff88;
-    filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.5));
+    color: var(--shahi-success, #10b981);
+    filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.5));
 }
 
 .shahi-step-title {
@@ -726,8 +726,8 @@
 }
 
 .shahi-completion-message {
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid rgba(0, 255, 136, 0.3);
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 12px;
     padding: 25px;
     margin-bottom: 30px;
@@ -880,13 +880,13 @@
 
 .confetti-piece:nth-child(1) { left: 10%; animation-delay: 0s; background: #00ffff; }
 .confetti-piece:nth-child(2) { left: 20%; animation-delay: 0.2s; background: #0099ff; }
-.confetti-piece:nth-child(3) { left: 30%; animation-delay: 0.4s; background: #00ff88; }
+.confetti-piece:nth-child(3) { left: 30%; animation-delay: 0.4s; background: var(--shahi-success, #10b981); }
 .confetti-piece:nth-child(4) { left: 40%; animation-delay: 0.6s; background: #ff00ff; }
 .confetti-piece:nth-child(5) { left: 50%; animation-delay: 0.8s; background: #ffff00; }
 .confetti-piece:nth-child(6) { left: 60%; animation-delay: 1s; background: #ff0099; }
 .confetti-piece:nth-child(7) { left: 70%; animation-delay: 1.2s; background: #00ffff; }
 .confetti-piece:nth-child(8) { left: 80%; animation-delay: 1.4s; background: #0099ff; }
-.confetti-piece:nth-child(9) { left: 90%; animation-delay: 1.6s; background: #00ff88; }
+.confetti-piece:nth-child(9) { left: 90%; animation-delay: 1.6s; background: var(--shahi-success, #10b981); }
 
 /* ===================================
    Responsive Design
@@ -982,3 +982,4 @@
 .shahi-onboarding-modal::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 255, 255, 0.5);
 }
+

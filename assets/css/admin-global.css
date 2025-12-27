@@ -8,49 +8,54 @@
  * are loaded separately via Assets.php for modular architecture.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version    3.0.1
+ * @version     3.0.1
  */
 
 /* ============================================================================
-   CSS VARIABLES - DARK FUTURISTIC THEME
+   CSS VARIABLES - ACCESSIBILITY SCANNER GLOBAL DESIGN SYSTEM
+   Based on Accessibility Scanner interface for unified design
    ========================================================================= */
 
 :root {
-    /* Background Colors */
-    --shahi-bg-primary: #1a1a1a;
-    --shahi-bg-secondary: #242424;
-    --shahi-bg-tertiary: #2e2e2e;
-    --shahi-bg-elevated: #383838;
+    /* Background Colors - Dark Navy Blue Theme */
+    --shahi-bg-primary: #0f172a;
+    --shahi-bg-secondary: #1e293b;
+    --shahi-bg-tertiary: #334155;
+    --shahi-bg-elevated: #475569;
+    --shahi-bg-card: #1e293b;
+    --shahi-bg-input: #0f172a;
     
-    /* Accent Colors */
-    --shahi-accent-primary: #c0c0c0;
-    --shahi-accent-secondary: #696969;
-    --shahi-accent-tertiary: #a9a9a9;
-    --shahi-accent-success: #90ee90;
-    --shahi-accent-warning: #ffd700;
-    --shahi-accent-error: #ff6b6b;
+    /* Accent Colors - Clean Blue System */
+    --shahi-accent-primary: #3b82f6;
+    --shahi-accent-secondary: #60a5fa;
+    --shahi-accent-tertiary: #93c5fd;
+    --shahi-success: #22c55e;
+    --shahi-warning: #f59e0b;
+    --shahi-error: #ef4444;
+    --shahi-info: #06b6d4;
     
     /* Gradients */
-    --shahi-gradient-primary: linear-gradient(135deg, #c0c0c0 0%, #696969 100%);
-    --shahi-gradient-secondary: linear-gradient(135deg, #696969 0%, #505050 100%);
-    --shahi-gradient-success: linear-gradient(135deg, #90ee90 0%, #7dda7d 100%);
+    --shahi-gradient-primary: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    --shahi-gradient-secondary: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
+    --shahi-gradient-success: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
     
     /* Text Colors */
     --shahi-text-primary: #ffffff;
-    --shahi-text-secondary: #d3d3d3;
-    --shahi-text-muted: #909090;
-    --shahi-text-accent: #c0c0c0;
+    --shahi-text-secondary: #cbd5e1;
+    --shahi-text-muted: #94a3b8;
+    --shahi-text-accent: #3b82f6;
     
     /* Border & Lines */
-    --shahi-border-color: #383838;
-    --shahi-border-light: #484848;
-    --shahi-border-accent: #c0c0c0;
+    --shahi-border: #334155;
+    --shahi-border-light: #475569;
+    --shahi-border-accent: #3b82f6;
     
-    /* Shadows */
-    --shahi-shadow-sm: 0 2px 8px rgba(0, 212, 255, 0.1);
-    --shahi-shadow-md: 0 4px 20px rgba(0, 212, 255, 0.15);
-    --shahi-shadow-lg: 0 8px 30px rgba(0, 212, 255, 0.2);
-    --shahi-shadow-glow: 0 0 20px rgba(0, 212, 255, 0.4);
+    /* Shadows - Blue Glow System */
+    --shahi-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+    --shahi-shadow-md: 0 8px 30px rgba(59, 130, 246, 0.15);
+    --shahi-shadow-lg: 0 12px 40px rgba(59, 130, 246, 0.2);
+    --shahi-hover-shadow: 0 8px 30px rgba(59, 130, 246, 0.25);
     
     /* Typography */
     --shahi-font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
@@ -64,12 +69,13 @@
     --shahi-space-xl: 48px;
     
     /* Border Radius */
-    --shahi-radius-sm: 4px;
+    --shahi-radius-sm: 6px;
     --shahi-radius-md: 8px;
     --shahi-radius-lg: 12px;
     --shahi-radius-xl: 16px;
     
     /* Transitions */
+    --shahi-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --shahi-transition-fast: 150ms ease;
     --shahi-transition-base: 250ms ease;
     --shahi-transition-slow: 350ms ease;
@@ -92,10 +98,15 @@
    WORDPRESS ADMIN MENU HIGHLIGHTING
    ========================================================================= */
 
+/* Position context for submenu items */
+#adminmenu .wp-submenu li {
+    position: relative;
+}
+
 /* Highlight active submenu item */
 #adminmenu .wp-submenu li.current a,
 #adminmenu .wp-submenu li a.current {
-    color: #00d4ff !important;
+    color: var(--shahi-accent-primary, #60a5fa) !important;
     font-weight: 600 !important;
 }
 
@@ -109,13 +120,13 @@
     transform: translateY(-50%);
     width: 3px;
     height: 16px;
-    background: #00d4ff;
+    background: var(--shahi-accent-primary, #60a5fa);
     border-radius: 0 2px 2px 0;
 }
 
 /* Hover effect for submenu items */
 #adminmenu .wp-submenu li a:hover {
-    color: #00d4ff !important;
+    color: var(--shahi-accent-primary, #60a5fa) !important;
 }
 
 /* Main container */
@@ -237,7 +248,7 @@
 
 .shahi-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
 }
 
 /* Primary Button */
@@ -326,7 +337,7 @@
 .shahi-select:focus {
     outline: none;
     border-color: var(--shahi-accent-primary);
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .shahi-textarea {
@@ -394,7 +405,7 @@
 }
 
 .shahi-badge-primary {
-    background: rgba(0, 212, 255, 0.2);
+    background: rgba(96, 165, 250, 0.2);
     color: var(--shahi-accent-primary);
 }
 
@@ -443,7 +454,7 @@
 }
 
 .shahi-alert-info {
-    background: rgba(0, 212, 255, 0.1);
+    background: rgba(96, 165, 250, 0.1);
     border-color: var(--shahi-accent-primary);
     color: var(--shahi-accent-primary);
 }
@@ -456,7 +467,7 @@
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 2px solid rgba(0, 212, 255, 0.2);
+    border: 2px solid rgba(96, 165, 250, 0.2);
     border-top-color: var(--shahi-accent-primary);
     border-radius: 50%;
     animation: shahi-spin 0.6s linear infinite;
@@ -578,4 +589,317 @@
 .shahi-select:focus-visible {
     outline: 2px solid var(--shahi-accent-primary);
     outline-offset: 2px;
+}
+
+
+/* ============================================================================
+   UNIFIED COMPONENT LIBRARY - ACCESSIBILITY SCANNER DESIGN
+   Applied globally to all admin interfaces
+   ========================================================================= */
+
+/* Cards - Unified Design */
+.shahi-card, .slos-card, [class*="-card"] {
+    background: var(--shahi-bg-card, #1e293b) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+    border-radius: var(--shahi-radius-lg, 12px) !important;
+    padding: var(--shahi-space-md, 24px) !important;
+    box-shadow: var(--shahi-shadow, 0 4px 20px rgba(59, 130, 246, 0.1)) !important;
+    transition: var(--shahi-transition, all 0.3s cubic-bezier(0.4, 0, 0.2, 1)) !important;
+}
+
+.shahi-card:hover, .slos-card:hover {
+    box-shadow: var(--shahi-hover-shadow, 0 8px 30px rgba(59, 130, 246, 0.25)) !important;
+    border-color: var(--shahi-accent-primary, #3b82f6) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Stat Cards */
+.shahi-stat-card, .slos-stat-card {
+    background: var(--shahi-bg-card, #1e293b) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+    border-radius: var(--shahi-radius-lg, 12px) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.shahi-stat-card::before, .slos-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--shahi-gradient-primary, linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)) !important;
+}
+
+/* Buttons - Unified Blue Design */
+.shahi-btn, .slos-btn, [class*="-button"], button[class*="shahi"], button[class*="slos"] {
+    background: var(--shahi-gradient-primary, linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)) !important;
+    border: none !important;
+    border-radius: var(--shahi-radius-md, 8px) !important;
+    padding: 12px 24px !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: var(--shahi-transition, all 0.3s cubic-bezier(0.4, 0, 0.2, 1)) !important;
+}
+
+.shahi-btn:hover, .slos-btn:hover {
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Inputs - Unified Dark Design */
+.shahi-input, .slos-input, input[type="text"].shahi, input[type="text"].slos,
+input[type="email"].shahi, input[type="url"].slos {
+    background: var(--shahi-bg-input, #0f172a) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+    border-radius: var(--shahi-radius-md, 8px) !important;
+    padding: 12px 16px !important;
+    color: var(--shahi-text-primary, #ffffff) !important;
+    font-size: 14px !important;
+    transition: var(--shahi-transition, all 0.3s cubic-bezier(0.4, 0, 0.2, 1)) !important;
+}
+
+.shahi-input:focus, .slos-input:focus {
+    outline: none !important;
+    border-color: var(--shahi-accent-primary, #3b82f6) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Progress Circles */
+.shahi-progress-circle, .slos-progress-circle {
+    stroke: var(--shahi-accent-primary, #3b82f6) !important;
+}
+
+/* Status Badges */
+.shahi-badge, .slos-badge, [class*="-badge"] {
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.shahi-badge-success, .slos-badge-success {
+    background: rgba(34, 197, 94, 0.1) !important;
+    color: var(--shahi-success, #22c55e) !important;
+    border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+.shahi-badge-warning, .slos-badge-warning {
+    background: rgba(245, 158, 11, 0.1) !important;
+    color: var(--shahi-warning, #f59e0b) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.shahi-badge-error, .slos-badge-error {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: var(--shahi-error, #ef4444) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.shahi-badge-info, .slos-badge-info {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: var(--shahi-accent-primary, #3b82f6) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Tables - Unified Design */
+table.shahi-table, table.slos-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.shahi-table th, table.slos-table th {
+    background: var(--shahi-bg-tertiary, #334155) !important;
+    color: var(--shahi-text-primary, #ffffff) !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid var(--shahi-border, #334155) !important;
+}
+
+table.shahi-table td, table.slos-table td {
+    padding: 12px 16px !important;
+    color: var(--shahi-text-secondary, #cbd5e1) !important;
+    border-bottom: 1px solid var(--shahi-border, #334155) !important;
+}
+
+table.shahi-table tr:hover, table.slos-table tr:hover {
+    background: var(--shahi-bg-tertiary, #334155) !important;
+}
+
+
+/* ==================================================
+   GLOBAL THEME OVERRIDE - ACCESSIBILITY SCANNER DESIGN
+   Applied to ALL admin pages for unified appearance
+   ================================================== */
+
+/* Force dark backgrounds everywhere */
+body.wp-admin, .wrap, [class*="shahi-"], [class*="slos-"] {
+    background: var(--shahi-bg-primary, #0f172a) !important;
+}
+
+/* Unified page wrapper */
+.wrap {
+    background: var(--shahi-bg-primary, #0f172a) !important;
+    color: var(--shahi-text-primary, #ffffff) !important;
+}
+
+/* All headings use unified colors */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--shahi-text-primary, #ffffff) !important;
+}
+
+/* All text uses unified colors */
+p, span, div, td, th, li {
+    color: var(--shahi-text-secondary, #cbd5e1);
+}
+
+/* Stats cards unified */
+[class*="-stat"], [class*="-metric"], [class*="-kpi"] {
+    background: var(--shahi-bg-card, #1e293b) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+    border-radius: var(--shahi-radius-lg, 12px) !important;
+    box-shadow: var(--shahi-shadow, 0 4px 20px rgba(59, 130, 246, 0.1)) !important;
+}
+
+/* All icons use blue accent */
+.dashicons, [class*="-icon"] {
+    color: var(--shahi-accent-primary, #3b82f6) !important;
+}
+
+/* Progress circles unified */
+circle[class*="progress"], svg[class*="circle"] circle {
+    stroke: var(--shahi-accent-primary, #3b82f6) !important;
+}
+
+/* Tabs unified */
+[class*="-tab"], [class*="-nav"] a {
+    color: var(--shahi-text-secondary, #cbd5e1) !important;
+}
+
+[class*="-tab"].active, [class*="-tab"]:hover,
+[class*="-nav"] a.active, [class*="-nav"] a:hover {
+    color: var(--shahi-accent-primary, #3b82f6) !important;
+    border-color: var(--shahi-accent-primary, #3b82f6) !important;
+}
+
+
+/* ============================================================================
+   GLOBAL THEME ENFORCEMENT - Unified Dark Theme
+   These rules enforce consistent dark theme across ALL plugin interfaces
+   ========================================================================= */
+
+/* Plugin wrapper - dark navy background */
+.shahi-legalops-suite-admin,
+.slos-wrapper,
+.slos-page-wrap,
+.slos-admin-page,
+.slos-dsr-wrapper,
+.shahi-dashboard-wrap,
+.shahi-compliance-page,
+.shahi-accessibility-wrap,
+.shahi-settings-page,
+.shahi-document-hub-wrap,
+.shahi-legal-docs-wrap {
+    background: var(--shahi-bg-primary, #0f172a) !important;
+    color: var(--shahi-text-primary, #ffffff) !important;
+}
+
+/* All admin containers */
+.wrap[class*="shahi"],
+.wrap[class*="slos"],
+.toplevel_page_shahi-legalops-suite .wrap,
+[class*="shahi_page_"] .wrap,
+[class*="slos_page_"] .wrap {
+    background: var(--shahi-bg-primary, #0f172a) !important;
+}
+
+/* Force all cards/panels to dark slate */
+[class*="-card"],
+[class*="-panel"],
+[class*="-box"],
+[class*="-container"],
+.postbox {
+    background: var(--shahi-bg-card, #1e293b) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+}
+
+/* Force all text to be white/gray */
+.wrap,
+[class*="shahi-"],
+[class*="slos-"],
+[class*="admin-"],
+.postbox,
+h1, h2, h3, h4, h5, h6,
+p, span, div, td, th, li {
+    color: var(--shahi-text-primary, #ffffff) !important;
+}
+
+/* Force inputs to dark theme */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+textarea,
+select {
+    background: var(--shahi-bg-input, #0f172a) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+    color: var(--shahi-text-primary, #ffffff) !important;
+}
+
+/* Force buttons to blue gradient */
+button:not(.slos-modal-close),
+.button,
+[class*="-btn"],
+input[type="submit"],
+input[type="button"] {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+}
+
+/* Force tables to dark theme */
+table,
+.widefat,
+[class*="-table"] {
+    background: var(--shahi-bg-card, #1e293b) !important;
+    border: 1px solid var(--shahi-border, #334155) !important;
+}
+
+table th,
+.widefat th {
+    background: var(--shahi-bg-secondary, #1e293b) !important;
+    color: var(--shahi-text-primary, #ffffff) !important;
+    border-bottom: 2px solid var(--shahi-accent-primary, #3b82f6) !important;
+}
+
+table td,
+.widefat td {
+    background: var(--shahi-bg-card, #1e293b) !important;
+    color: var(--shahi-text-secondary, #cbd5e1) !important;
+    border-bottom: 1px solid var(--shahi-border, #334155) !important;
+}
+
+/* Remove any light-colored backgrounds */
+*[style*="background:#fff"],
+*[style*="background: #fff"],
+*[style*="background:white"],
+*[style*="background: white"] {
+    background: var(--shahi-bg-card) !important;
+}
+
+/* Remove any black text */
+*[style*="color:#000"],
+*[style*="color: #000"],
+*[style*="color:black"],
+*[style*="color: black"] {
+    color: var(--shahi-text-primary) !important;
 }

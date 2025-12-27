@@ -5,7 +5,7 @@
  * bar charts, pie charts, and interactive visualizations.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version     3.0.1
  */
 
 (function($) {
@@ -61,17 +61,17 @@
                     datasets: [{
                         label: 'Events',
                         data: values,
-                        borderColor: '#00d4ff',
-                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        borderColor: '#60a5fa',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4,
                         pointRadius: 4,
-                        pointBackgroundColor: '#00d4ff',
+                        pointBackgroundColor: '#60a5fa',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,
                         pointHoverRadius: 6,
-                        pointHoverBackgroundColor: '#00d4ff',
+                        pointHoverBackgroundColor: '#60a5fa',
                         pointHoverBorderColor: '#ffffff',
                         pointHoverBorderWidth: 3
                     }]
@@ -85,9 +85,9 @@
                         },
                         tooltip: {
                             backgroundColor: 'rgba(10, 14, 39, 0.95)',
-                            titleColor: '#00d4ff',
+                            titleColor: '#60a5fa',
                             bodyColor: '#ffffff',
-                            borderColor: '#00d4ff',
+                            borderColor: '#60a5fa',
                             borderWidth: 1,
                             padding: 12,
                             displayColors: false,
@@ -155,11 +155,11 @@
                     datasets: [{
                         label: 'Events',
                         data: values,
-                        backgroundColor: 'rgba(124, 58, 237, 0.8)',
-                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(147, 197, 253, 0.8)',
+                        borderColor: '#93c5fd',
                         borderWidth: 2,
                         borderRadius: 6,
-                        hoverBackgroundColor: 'rgba(124, 58, 237, 1)',
+                        hoverBackgroundColor: 'rgba(147, 197, 253, 1)',
                         hoverBorderColor: '#a855f7'
                     }]
                 },
@@ -172,9 +172,9 @@
                         },
                         tooltip: {
                             backgroundColor: 'rgba(10, 14, 39, 0.95)',
-                            titleColor: '#7c3aed',
+                            titleColor: '#93c5fd',
                             bodyColor: '#ffffff',
-                            borderColor: '#7c3aed',
+                            borderColor: '#93c5fd',
                             borderWidth: 1,
                             padding: 12,
                             displayColors: false,
@@ -240,12 +240,12 @@
                     datasets: [{
                         data: values,
                         backgroundColor: [
-                            'rgba(0, 212, 255, 0.8)',
-                            'rgba(0, 255, 136, 0.8)'
+                            'rgba(96, 165, 250, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
                         ],
                         borderColor: [
-                            '#00d4ff',
-                            '#00ff88'
+                            '#60a5fa',
+                            '#10b981'
                         ],
                         borderWidth: 3,
                         hoverOffset: 10
@@ -270,9 +270,9 @@
                         },
                         tooltip: {
                             backgroundColor: 'rgba(10, 14, 39, 0.95)',
-                            titleColor: '#00d4ff',
+                            titleColor: '#60a5fa',
                             bodyColor: '#ffffff',
-                            borderColor: '#00d4ff',
+                            borderColor: '#60a5fa',
                             borderWidth: 1,
                             padding: 12,
                             callbacks: {
@@ -405,3 +405,4 @@
     window.ShahiAnalyticsCharts = ShahiAnalyticsCharts;
 
 })(jQuery);
+

@@ -5,7 +5,7 @@
  * animated toggles, and instant AJAX feedback.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version    3.0.1
  */
 
 /* ============================================================================
@@ -23,7 +23,7 @@
     align-items: flex-start;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(45, 53, 97, 0.3);
+    border-bottom: 1px solid var(--shahi-border-light);
 }
 
 .shahi-header-actions {
@@ -48,8 +48,8 @@
 }
 
 .shahi-stat-card {
-    background: linear-gradient(135deg, rgba(45, 53, 97, 0.8) 0%, rgba(28, 33, 61, 0.9) 100%);
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: var(--shahi-gradient-primary);
+    border: 1px solid var(--shahi-border-color);
     border-radius: 12px;
     padding: 25px;
     text-align: center;
@@ -64,7 +64,8 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, var(--shahi-accent-primary), transparent);
+    opacity: 0.1;
     transition: left 0.5s;
 }
 
@@ -75,23 +76,23 @@
 .shahi-stat-value {
     font-size: 36px;
     font-weight: 700;
-    color: #00d4ff;
+    color: var(--shahi-accent-primary);
     margin-bottom: 8px;
 }
 
 .shahi-stat-label {
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--shahi-text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .shahi-stat-success .shahi-stat-value {
-    color: #00ff88;
+    color: var(--shahi-accent-success);
 }
 
 .shahi-stat-secondary .shahi-stat-value {
-    color: #7c3aed;
+    color: var(--shahi-accent-secondary);
 }
 
 /* ============================================================================
@@ -112,8 +113,8 @@
 
 .shahi-module-card {
     position: relative;
-    background: linear-gradient(135deg, rgba(45, 53, 97, 0.95) 0%, rgba(28, 33, 61, 0.98) 100%);
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: var(--shahi-bg-elevated);
+    border: 1px solid var(--shahi-border-color);
     border-radius: 16px;
     padding: 20px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -131,15 +132,15 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 100%);
+    background: var(--shahi-gradient-primary);
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 .shahi-module-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(0, 212, 255, 0.5);
-    box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+    border-color: var(--shahi-border-accent);
+    box-shadow: var(--shahi-shadow);
 }
 
 .shahi-module-card:hover::before {
@@ -147,12 +148,12 @@
 }
 
 .shahi-module-card.shahi-module-active {
-    border-color: rgba(0, 255, 136, 0.4);
-    background: linear-gradient(135deg, rgba(45, 53, 97, 0.95) 0%, rgba(0, 64, 44, 0.4) 100%);
+    border-color: var(--shahi-accent-success);
+    background: var(--shahi-gradient-success);
 }
 
 .shahi-module-card.shahi-module-active::before {
-    background: linear-gradient(90deg, #00ff88 0%, #00d4ff 100%);
+    background: var(--shahi-gradient-success);
     opacity: 1;
 }
 
@@ -169,8 +170,8 @@
 }
 
 .shahi-module-active .shahi-module-status-indicator {
-    background: #00ff88;
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+    background: var(--shahi-success, #10b981);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
     animation: pulse 2s infinite;
 }
 
@@ -197,11 +198,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+    background: var(--shahi-gradient-primary);
     border-radius: 12px;
     font-size: 28px;
-    color: #ffffff;
-    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+    color: var(--shahi-text-primary);
+    box-shadow: var(--shahi-shadow);
     transition: transform 0.3s;
 }
 
@@ -216,7 +217,7 @@
 .shahi-module-title {
     font-size: 20px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--shahi-text-primary);
     margin: 0 0 8px 0;
     line-height: 1.3;
 }
@@ -232,33 +233,33 @@
 }
 
 .shahi-badge-tracking {
-    background: rgba(0, 212, 255, 0.2);
-    color: #00d4ff;
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: rgba(96,165,250,0.15);
+    color: var(--shahi-accent-primary);
+    border: 1px solid var(--shahi-border-color);
 }
 
 .shahi-badge-performance {
-    background: rgba(124, 58, 237, 0.2);
-    color: #7c3aed;
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: rgba(147,197,253,0.15);
+    color: var(--shahi-accent-secondary);
+    border: 1px solid var(--shahi-border-color);
 }
 
 .shahi-badge-security {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--shahi-accent-error);
+    border: 1px solid var(--shahi-border-color);
 }
 
 .shahi-badge-marketing {
-    background: rgba(0, 255, 136, 0.2);
-    color: #00ff88;
-    border: 1px solid rgba(0, 255, 136, 0.3);
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--shahi-accent-success);
+    border: 1px solid var(--shahi-border-color);
 }
 
 .shahi-badge-content {
-    background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
-    border: 1px solid rgba(251, 191, 36, 0.3);
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--shahi-accent-warning);
+    border: 1px solid var(--shahi-border-color);
 }
 
 .shahi-badge-tools,
@@ -279,7 +280,7 @@
 }
 
 .shahi-module-description {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--shahi-text-secondary);
     font-size: 14px;
     line-height: 1.7;
     margin-bottom: 15px;
@@ -290,11 +291,11 @@
     align-items: center;
     gap: 8px;
     padding: 10px;
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.3);
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--shahi-border-color);
     border-radius: 8px;
     font-size: 13px;
-    color: #fbbf24;
+    color: var(--shahi-accent-warning);
     margin-top: 12px;
 }
 
@@ -332,7 +333,7 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 15px;
-    border-top: 1px solid rgba(45, 53, 97, 0.5);
+    border-top: 1px solid var(--shahi-border-color);
 }
 
 .shahi-module-meta {
@@ -340,20 +341,20 @@
     align-items: center;
     gap: 8px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--shahi-text-muted);
 }
 
 .shahi-module-separator {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--shahi-text-muted);
 }
 
 .shahi-module-settings-link {
-    color: #00d4ff;
+    color: var(--shahi-accent-primary);
     transition: color 0.3s;
 }
 
 .shahi-module-settings-link:hover {
-    color: #00ff88;
+    color: var(--shahi-accent-success);
 }
 
 .shahi-module-settings-link .dashicons {
@@ -391,8 +392,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(45, 53, 97, 0.9);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: var(--shahi-bg-tertiary);
+    border: 2px solid var(--shahi-border-light);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 32px;
 }
@@ -404,7 +405,7 @@
     width: 24px;
     left: 2px;
     bottom: 2px;
-    background: #ffffff;
+    background: var(--shahi-bg-card);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
@@ -412,19 +413,19 @@
 
 /* Active/Checked State - GREEN */
 .shahi-toggle-switch input:checked + .shahi-toggle-slider {
-    background: #00ff88;
-    border-color: #00ff88;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+    background: var(--shahi-accent-success);
+    border-color: var(--shahi-accent-success);
+    box-shadow: var(--shahi-shadow);
 }
 
 .shahi-toggle-switch input:checked + .shahi-toggle-slider:before {
     transform: translateX(28px);
-    background: #ffffff;
+    background: var(--shahi-bg-card);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .shahi-toggle-switch:hover .shahi-toggle-slider {
-    border-color: rgba(0, 212, 255, 0.6);
+    border-color: var(--shahi-border-accent);
 }
 
 /* Loading state */
@@ -458,27 +459,27 @@
 .shahi-empty-state {
     text-align: center;
     padding: 60px 20px;
-    background: linear-gradient(135deg, rgba(45, 53, 97, 0.5) 0%, rgba(28, 33, 61, 0.7) 100%);
-    border: 2px dashed rgba(0, 212, 255, 0.3);
+    background: var(--shahi-gradient-secondary);
+    border: 2px dashed var(--shahi-border-color);
     border-radius: 16px;
     margin-top: 20px;
 }
 
 .shahi-empty-state .dashicons {
     font-size: 64px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--shahi-text-muted);
     margin-bottom: 20px;
 }
 
 .shahi-empty-state h3 {
     font-size: 24px;
-    color: #ffffff;
+    color: var(--shahi-text-primary);
     margin-bottom: 10px;
 }
 
 .shahi-empty-state p {
     font-size: 16px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--shahi-text-secondary);
 }
 
 /* ============================================================================
@@ -583,3 +584,4 @@
         align-items: flex-start;
     }
 }
+

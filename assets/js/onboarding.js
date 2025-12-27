@@ -363,7 +363,7 @@
             }
 
             // Create confetti pieces
-            var colors = ['#00ffff', '#0099ff', '#00ff88', '#ff00ff', '#ffff00', '#ff0099'];
+            var colors = ['#60a5fa', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
             
             for (var i = 0; i < 50; i++) {
                 var $piece = $('<div class="confetti-piece"></div>');
@@ -439,9 +439,9 @@
             }
 
             .shahi-onboarding-notice.notice-success {
-                background: rgba(0, 255, 136, 0.1);
-                border: 1px solid rgba(0, 255, 136, 0.3);
-                color: #00ff88;
+                background: rgba(16, 185, 129, 0.1);
+                border: 1px solid rgba(16, 185, 129, 0.3);
+                color: #10b981;
             }
 
             .shahi-onboarding-notice.notice-error {
@@ -483,3 +483,4 @@
         document.head.insertAdjacentHTML('beforeend', styles);
     }
 })();
+

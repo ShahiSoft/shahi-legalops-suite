@@ -51,12 +51,14 @@ abstract class Base_REST_Controller extends WP_REST_Controller {
 	/**
 	 * Register routes
 	 *
-	 * Must be implemented by child classes.
+	 * Child controllers should override; default prevents abstract override errors.
 	 *
 	 * @since 3.0.1
 	 * @return void
 	 */
-	abstract public function register_routes();
+	public function register_routes() {
+		// Intentionally empty; concrete in subclasses.
+	}
 
 	/**
 	 * Check if user is authenticated
@@ -290,13 +292,18 @@ abstract class Base_REST_Controller extends WP_REST_Controller {
 	 */
 	protected function prepare_pagination_params( WP_REST_Request $request ): array {
 		$page     = absint( $request->get_param( 'page' ) ) ?: 1;
-		$per_page = absint( $request->get_param( 'per_page' ) ) ?: 10;
+		$per_page = absint( $request->get_param( 'per_page' ) ) ?: 25;
 		$per_page = min( $per_page, 100 ); // Cap at 100
+		
+		$order_by = sanitize_text_field( $request->get_param( 'orderby' ) ) ?: 'created_at';
+		$order    = strtoupper( sanitize_text_field( $request->get_param( 'order' ) ) ) === 'ASC' ? 'ASC' : 'DESC';
 
 		return array(
 			'page'     => $page,
 			'per_page' => $per_page,
 			'offset'   => ( $page - 1 ) * $per_page,
+			'order_by' => $order_by,
+			'order'    => $order,
 		);
 	}
 

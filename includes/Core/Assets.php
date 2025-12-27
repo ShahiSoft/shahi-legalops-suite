@@ -75,13 +75,11 @@ class Assets {
 	 *
 	 * @since 1.0.0
 	 * @param string $hook The current admin page hook.
-	 * @return string Page type identifier: 'dashboard', 'analytics_dashboard', 'analytics', 'settings', 'modules', 'module_dashboard', 'accessibility_dashboard', 'accessibility_scanner', or 'generic'
+	 * @return string Page type identifier: 'dashboard', 'analytics', 'settings', 'modules', 'module_dashboard', 'accessibility_dashboard', 'accessibility_scanner', or 'generic'
 	 */
 	private function get_current_page_type( $hook ) {
 		if ( $this->is_dashboard_page( $hook ) ) {
 			return 'dashboard';
-		} elseif ( $this->is_analytics_dashboard_page( $hook ) ) {
-			return 'analytics_dashboard';
 		} elseif ( $this->is_analytics_page( $hook ) ) {
 			return 'analytics';
 		} elseif ( $this->is_settings_page( $hook ) ) {
@@ -166,6 +164,17 @@ class Assets {
 			$this->version
 		);
 
+		// Inject active theme variables (Neon Aether by default)
+		try {
+			$theme_css = \ShahiLegalopsSuite\Core\Theme_Manager::get_instance()->build_css_variables();
+			if ( ! empty( $theme_css ) ) {
+				wp_add_inline_style( 'shahi-admin-global', $theme_css );
+			}
+		} catch ( \Throwable $e ) {
+			// Fail-safe: do not break admin if theme injection fails
+			error_log( 'SLOS Theme variables injection failed: ' . $e->getMessage() );
+		}
+
 		// Add inline CSS for admin menu highlighting
 		$this->add_admin_menu_style();
 
@@ -242,13 +251,6 @@ class Assets {
 				array( 'shahi-components' ),
 				$this->version
 			);
-		} elseif ( $this->is_analytics_dashboard_page( $hook ) ) {
-			$this->enqueue_style(
-				'shahi-admin-analytics-dashboard',
-				'css/admin-analytics-dashboard',
-				array( 'shahi-components' ),
-				$this->version
-			);
 		} elseif ( $this->is_settings_page( $hook ) ) {
 			$this->enqueue_style(
 				'shahi-admin-settings',
@@ -275,6 +277,9 @@ class Assets {
 				$this->version
 			);
 		}
+
+		// Load RTL styles if needed
+		$this->maybe_enqueue_rtl_styles();
 	}
 
 	/**
@@ -287,9 +292,9 @@ class Assets {
 	 */
 	private function add_settings_tab_style() {
 		$inline_css = '
-        /* Settings tabs - force bright visibility */
+        /* Settings tabs - Mac Slate Liquid Theme */
         .shahi-settings-page .shahi-tabs-nav {
-            background: #0a0e27 !important;
+            background: #0f172a !important;
             padding: 20px !important;
             border-radius: 12px !important;
             margin-bottom: 20px !important;
@@ -302,41 +307,41 @@ class Assets {
             align-items: center !important;
             gap: 8px !important;
             padding: 14px 24px !important;
-            color: #ffffff !important;
-            background: #1e2542 !important;
+            color: #f8fafc !important;
+            background: #1e293b !important;
             text-decoration: none !important;
             border-radius: 8px !important;
             font-size: 15px !important;
             font-weight: 500 !important;
-            border: 2px solid #2d3561 !important;
+            border: 2px solid #334155 !important;
             transition: all 0.3s ease !important;
             margin: 0 4px !important;
         }
         
         .shahi-tab-link .dashicons,
         .shahi-settings-tab .dashicons {
-            color: #00d4ff !important;
+            color: #3b82f6 !important;
             font-size: 20px !important;
         }
         
         .shahi-tab-link:hover,
         .shahi-settings-tab:hover,
         a.shahi-tab-link:hover {
-            background: #252d50 !important;
-            color: #00d4ff !important;
-            border-color: #00d4ff !important;
+            background: #334155 !important;
+            color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2) !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2) !important;
         }
         
         .shahi-tab-link.active,
         .shahi-settings-tab.active,
         a.shahi-tab-link.active {
-            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%) !important;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
             color: #ffffff !important;
             font-weight: 700 !important;
-            border-color: #00d4ff !important;
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(124, 58, 237, 0.3) !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.3) !important;
             transform: translateY(-2px) !important;
         }
         
@@ -359,14 +364,14 @@ class Assets {
 	 */
 	private function add_admin_menu_style() {
 		$inline_css = '
-        /* WordPress admin menu highlighting */
+        /* WordPress admin menu highlighting - Mac Slate Liquid */
         #adminmenu .wp-submenu li.current > a,
         #adminmenu .wp-submenu li > a.current {
-            color: #00d4ff !important;
+            color: #3b82f6 !important;
             font-weight: 600 !important;
         }
         #adminmenu .wp-submenu li a:hover {
-            color: #00d4ff !important;
+            color: #3b82f6 !important;
         }
         ';
 
@@ -407,6 +412,28 @@ class Assets {
         ";
 
 		wp_add_inline_script( 'shahi-admin-global', $inline_script );
+	}
+
+	/**
+	 * Enqueue RTL styles if needed.
+	 *
+	 * Loads RTL (Right-to-Left) stylesheets for languages like Arabic and Hebrew.
+	 *
+	 * @since 3.0.1
+	 * @return void
+	 */
+	private function maybe_enqueue_rtl_styles() {
+		if ( ! is_rtl() ) {
+			return;
+		}
+
+		// Enqueue consent module RTL styles
+		$this->enqueue_style(
+			'shahi-consent-rtl',
+			'css/consent-rtl',
+			array(),
+			$this->version
+		);
 	}
 
 	/**
@@ -475,26 +502,6 @@ class Assets {
 				true
 			);
 
-			$this->localize_dashboard_script();
-		} elseif ( $this->is_analytics_page( $hook ) ) {
-			// Enqueue Chart.js from CDN (WordPress doesn't include it by default)
-			wp_enqueue_script(
-				'chartjs',
-				'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-				array(),
-				'4.4.0',
-				true
-			);
-
-			$this->enqueue_script(
-				'shahi-analytics-charts',
-				'js/analytics-charts',
-				array( 'jquery', 'chartjs', 'shahi-components' ),
-				$this->version,
-				true
-			);
-
-			$this->localize_analytics_script();
 		} elseif ( $this->is_modules_page( $hook ) ) {
 			$this->enqueue_script(
 				'shahi-admin-modules',
@@ -542,25 +549,6 @@ class Assets {
 					'nonce'    => wp_create_nonce( 'slos_scanner_nonce' ),
 				)
 			);
-		} elseif ( $this->is_analytics_dashboard_page( $hook ) ) {
-			// Enqueue Chart.js from CDN for Analytics Dashboard
-			wp_enqueue_script(
-				'chartjs',
-				'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-				array(),
-				'4.4.0',
-				true
-			);
-
-			$this->enqueue_script(
-				'shahi-admin-analytics-dashboard',
-				'js/admin-analytics-dashboard',
-				array( 'jquery', 'chartjs', 'shahi-components' ),
-				$this->version,
-				true
-			);
-
-			$this->localize_analytics_dashboard_script();
 		} elseif ( $this->is_settings_page( $hook ) ) {
 			$this->enqueue_script(
 				'shahi-admin-settings',
@@ -571,19 +559,22 @@ class Assets {
 			);
 
 			$this->localize_settings_script();
-		} elseif ( $this->is_consent_page( $hook ) ) {
-			wp_enqueue_script(
-				'chartjs',
-				'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-				array(),
-				'4.4.0',
+
+			// Export/Import functionality
+			$this->enqueue_script(
+				'shahi-admin-export-import',
+				'js/admin-export-import',
+				array( 'jquery', 'shahi-admin-settings' ),
+				$this->version,
 				true
 			);
 
+			$this->localize_export_import_script();
+		} elseif ( $this->is_consent_page( $hook ) ) {
 			$this->enqueue_script(
 				'shahi-admin-consent',
 				'js/admin-consent',
-				array( 'jquery', 'shahi-components', 'chartjs' ),
+				array( 'jquery', 'shahi-components' ),
 				$this->version,
 				true
 			);
@@ -830,31 +821,6 @@ class Assets {
 	}
 
 	/**
-	 * Localize analytics dashboard script with data.
-	 *
-	 * @since 1.0.0
-	 * @return void
-	 */
-	private function localize_analytics_dashboard_script() {
-		// Note: Main data (trends, chartsData, dateRange) is passed via inline script in template
-		// This only provides AJAX configuration
-		wp_localize_script(
-			'shahi-admin-analytics-dashboard',
-			'shahiAnalyticsDashboardConfig',
-			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => Security::generate_nonce( 'shahi_analytics_dashboard' ),
-				'i18n'    => array(
-					'loading'   => I18n::translate( 'Loading analytics...' ),
-					'exporting' => I18n::translate( 'Exporting data...' ),
-					'error'     => I18n::translate( 'An error occurred. Please try again.' ),
-					'success'   => I18n::translate( 'Operation completed successfully.' ),
-				),
-			)
-		);
-	}
-
-	/**
 	 * Localize settings script with settings-specific data.
 	 *
 	 * @since 1.0.0
@@ -912,6 +878,32 @@ class Assets {
 					'lastUpdated'    => I18n::translate( 'Last updated' ),
 					'view'           => I18n::translate( 'View' ),
 				),
+			)
+		);
+	}
+
+	/**
+	 * Localize export/import script with translations.
+	 *
+	 * @since 3.0.1
+	 * @return void
+	 */
+	private function localize_export_import_script() {
+		wp_localize_script(
+			'shahi-admin-export-import',
+			'slosExportImportI18n',
+			array(
+				'exporting'        => __( 'Exporting consent records...', 'shahi-legalops-suite' ),
+				'exportSuccess'    => __( 'Export completed successfully!', 'shahi-legalops-suite' ),
+				'selectFile'       => __( 'Please select a file to import.', 'shahi-legalops-suite' ),
+				'invalidFileType'  => __( 'Invalid file type. Please upload CSV or JSON file.', 'shahi-legalops-suite' ),
+				'readingFile'      => __( 'Reading file...', 'shahi-legalops-suite' ),
+				'noDataFound'      => __( 'No valid data found in file.', 'shahi-legalops-suite' ),
+				'parseError'       => __( 'Error parsing file', 'shahi-legalops-suite' ),
+				'readError'        => __( 'Error reading file.', 'shahi-legalops-suite' ),
+				'importing'        => __( 'Importing %d records...', 'shahi-legalops-suite' ),
+				'imported'         => __( 'Imported', 'shahi-legalops-suite' ),
+				'skipped'          => __( 'Skipped', 'shahi-legalops-suite' ),
 			)
 		);
 	}
@@ -990,17 +982,6 @@ class Assets {
 	 */
 	private function is_analytics_page( $hook ) {
 		return strpos( $hook, 'shahi-analytics' ) !== false && strpos( $hook, 'analytics-dashboard' ) === false;
-	}
-
-	/**
-	 * Check if current page is the analytics dashboard page.
-	 *
-	 * @since 1.0.0
-	 * @param string $hook Current admin page hook.
-	 * @return bool True if analytics dashboard page, false otherwise.
-	 */
-	private function is_analytics_dashboard_page( $hook ) {
-		return strpos( $hook, 'analytics-dashboard' ) !== false;
 	}
 
 	/**

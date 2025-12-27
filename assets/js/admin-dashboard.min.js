@@ -5,7 +5,7 @@
  * smooth transitions, collapsible sections, and AJAX widget refresh.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version    3.0.1
  */
 
 (function($) {
@@ -287,3 +287,4 @@
     window.ShahiDashboard = ShahiDashboard;
 
 })(jQuery);
+

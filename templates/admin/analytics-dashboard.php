@@ -441,6 +441,156 @@ if (!defined('ABSPATH')) {
                 </div>
             </div>
         </div>
+
+        <!-- Consent Analytics Section -->
+        <div class="data-table-card consent-analytics-section">
+            <div class="data-table-header">
+                <h3 class="table-title">
+                    <span class="title-icon">🔒</span>
+                    <?php _e('Consent Analytics', 'shahi-legalops-suite'); ?>
+                </h3>
+                <div class="header-actions">
+                    <button type="button" class="btn btn-refresh" id="refresh-consent-analytics">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M13.65 2.35C12.2 0.9 10.21 0 8 0C3.58 0 0.01 3.58 0.01 8C0.01 12.42 3.58 16 8 16C11.73 16 14.84 13.45 15.73 10H13.65C12.83 12.33 10.61 14 8 14C4.69 14 2 11.31 2 8C2 4.69 4.69 2 8 2C9.66 2 11.14 2.69 12.22 3.78L9 7H16V0L13.65 2.35Z" fill="currentColor"/>
+                        </svg>
+                        <?php _e('Refresh', 'shahi-legalops-suite'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="data-table-body">
+                <!-- Consent KPIs -->
+                <div class="consent-kpis-grid">
+                    <div class="consent-kpi">
+                        <div class="kpi-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="consent-total"><?php echo number_format($consent_stats['total_consents']); ?></div>
+                            <div class="kpi-label"><?php _e('Total Consents', 'shahi-legalops-suite'); ?></div>
+                        </div>
+                    </div>
+                    <div class="consent-kpi">
+                        <div class="kpi-icon kpi-icon-success">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="consent-acceptance-rate"><?php echo number_format($consent_stats['acceptance_rate'], 1); ?>%</div>
+                            <div class="kpi-label"><?php _e('Acceptance Rate', 'shahi-legalops-suite'); ?></div>
+                        </div>
+                    </div>
+                    <div class="consent-kpi">
+                        <div class="kpi-icon kpi-icon-warning">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="consent-pending"><?php echo number_format($consent_stats['stats_by_status']['pending'] ?? 0); ?></div>
+                            <div class="kpi-label"><?php _e('Pending', 'shahi-legalops-suite'); ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consent Charts -->
+                <div class="consent-charts-grid">
+                    <!-- Consent Status Breakdown -->
+                    <div class="consent-chart-container">
+                        <h4 class="chart-subtitle"><?php _e('Status Distribution', 'shahi-legalops-suite'); ?></h4>
+                        <div class="consent-status-breakdown">
+                            <?php foreach ($consent_stats['stats_by_status'] as $status => $count): ?>
+                                <?php 
+                                    $percentage = $consent_stats['status_percentages'][$status] ?? 0;
+                                    $status_class = 'status-' . esc_attr($status);
+                                    $status_label = ucfirst($status);
+                                ?>
+                                <div class="consent-status-item <?php echo $status_class; ?>">
+                                    <div class="status-info">
+                                        <span class="status-label"><?php echo esc_html($status_label); ?></span>
+                                        <span class="status-count"><?php echo number_format($count); ?></span>
+                                    </div>
+                                    <div class="status-bar-wrapper">
+                                        <div class="status-bar" style="width: <?php echo $percentage; ?>%;">
+                                            <span class="status-percentage"><?php echo $percentage; ?>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- Consent Type Breakdown -->
+                    <div class="consent-chart-container">
+                        <h4 class="chart-subtitle"><?php _e('Purpose Distribution', 'shahi-legalops-suite'); ?></h4>
+                        <div class="consent-type-breakdown">
+                            <?php foreach ($consent_stats['stats_by_type'] as $type => $count): ?>
+                                <?php 
+                                    $percentage = $consent_stats['type_percentages'][$type] ?? 0;
+                                    $type_class = 'type-' . esc_attr($type);
+                                    $type_label = ucfirst($type);
+                                    $type_icon = array(
+                                        'necessary' => '⚙️',
+                                        'analytics' => '📊',
+                                        'marketing' => '📢',
+                                        'preferences' => '🎨'
+                                    );
+                                ?>
+                                <div class="consent-type-item <?php echo $type_class; ?>">
+                                    <div class="type-info">
+                                        <span class="type-icon"><?php echo $type_icon[$type] ?? '📋'; ?></span>
+                                        <span class="type-label"><?php echo esc_html($type_label); ?></span>
+                                    </div>
+                                    <div class="type-stats">
+                                        <span class="type-count"><?php echo number_format($count); ?></span>
+                                        <span class="type-percentage"><?php echo $percentage; ?>%</span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Consents -->
+                <div class="recent-consents-section">
+                    <h4 class="chart-subtitle"><?php _e('Recent Consents', 'shahi-legalops-suite'); ?></h4>
+                    <div class="recent-consents-list">
+                        <?php if (!empty($consent_stats['recent_consents'])): ?>
+                            <?php foreach ($consent_stats['recent_consents'] as $consent): ?>
+                                <div class="recent-consent-item">
+                                    <div class="consent-item-header">
+                                        <span class="consent-type-badge consent-type-<?php echo esc_attr($consent->type); ?>">
+                                            <?php echo esc_html(ucfirst($consent->type)); ?>
+                                        </span>
+                                        <span class="consent-status-badge consent-status-<?php echo esc_attr($consent->status); ?>">
+                                            <?php echo esc_html(ucfirst($consent->status)); ?>
+                                        </span>
+                                    </div>
+                                    <div class="consent-item-meta">
+                                        <span class="consent-date"><?php echo esc_html(date_i18n('M j, Y g:i A', strtotime($consent->created_at))); ?></span>
+                                        <?php if ($consent->user_id): ?>
+                                            <span class="consent-user"><?php printf(__('User ID: %d', 'shahi-legalops-suite'), $consent->user_id); ?></span>
+                                        <?php else: ?>
+                                            <span class="consent-user"><?php _e('Anonymous', 'shahi-legalops-suite'); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="no-consents-message">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor" opacity="0.3"/>
+                                </svg>
+                                <p><?php _e('No recent consents recorded yet.', 'shahi-legalops-suite'); ?></p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Loading Overlay -->
@@ -460,6 +610,8 @@ if (!defined('ABSPATH')) {
         trends: <?php echo json_encode($trends); ?>,
         chartsData: <?php echo json_encode($charts_data); ?>,
         dateRange: <?php echo json_encode($date_range); ?>,
+        consentStats: <?php echo json_encode($consent_stats); ?>,
         nonce: '<?php echo wp_create_nonce('shahi_analytics_dashboard'); ?>'
     };
 </script>
+

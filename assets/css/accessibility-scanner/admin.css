@@ -6,7 +6,7 @@
  *
  * @package    ShahiLegalopsSuite
  * @subpackage Modules\AccessibilityScanner
- * @version    1.0.0
+ * @version     3.0.1
  */
 
 /* ========================================
@@ -43,11 +43,11 @@
 }
 
 .shahi-a11y-stat-card {
-    background: var(--shahi-bg-secondary, #141834);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-secondary, #1e293b);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: var(--shahi-radius-md, 12px);
     padding: var(--shahi-space-md, 24px);
-    box-shadow: var(--shahi-shadow, 0 4px 20px rgba(0, 212, 255, 0.1));
+    box-shadow: var(--shahi-shadow, 0 4px 20px rgba(96, 165, 250, 0.1));
     transition: var(--shahi-transition, all 0.3s cubic-bezier(0.4, 0, 0.2, 1));
     position: relative;
     overflow: hidden;
@@ -60,13 +60,13 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: var(--shahi-accent-gradient, linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%));
+    background: var(--shahi-accent-gradient, linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%));
 }
 
 .shahi-a11y-stat-card:hover {
-    box-shadow: var(--shahi-hover-shadow, 0 8px 30px rgba(0, 212, 255, 0.2));
+    box-shadow: var(--shahi-hover-shadow, 0 8px 30px rgba(96, 165, 250, 0.2));
     transform: translateY(-2px);
-    border-color: var(--shahi-accent-primary, #00d4ff);
+    border-color: var(--shahi-accent-primary, #60a5fa);
 }
 
 .shahi-a11y-stat-label {
@@ -110,8 +110,8 @@
    ======================================== */
 
 .shahi-a11y-scan-controls {
-    background: var(--shahi-bg-secondary, #141834);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-secondary, #1e293b);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: var(--shahi-radius-md, 12px);
     padding: var(--shahi-space-md, 24px);
     margin-bottom: var(--shahi-space-lg, 32px);
@@ -125,8 +125,8 @@
 
 .shahi-a11y-scan-input {
     flex: 1;
-    background: var(--shahi-bg-tertiary, #1e2542);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-tertiary, #334155);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: 8px;
     padding: 12px 16px;
     color: var(--shahi-text-primary, #ffffff);
@@ -136,12 +136,12 @@
 
 .shahi-a11y-scan-input:focus {
     outline: none;
-    border-color: var(--shahi-accent-primary, #00d4ff);
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    border-color: var(--shahi-accent-primary, #60a5fa);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
 .shahi-a11y-scan-button {
-    background: var(--shahi-accent-gradient, linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%));
+    background: var(--shahi-accent-gradient, linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%));
     border: none;
     border-radius: 8px;
     padding: 12px 32px;
@@ -150,12 +150,12 @@
     font-weight: 600;
     cursor: pointer;
     transition: var(--shahi-transition, all 0.3s);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
 }
 
 .shahi-a11y-scan-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
 }
 
 .shahi-a11y-scan-button:active {
@@ -173,8 +173,8 @@
    ======================================== */
 
 .shahi-a11y-issues-container {
-    background: var(--shahi-bg-secondary, #141834);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-secondary, #1e293b);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: var(--shahi-radius-md, 12px);
     overflow: hidden;
     margin-bottom: var(--shahi-space-lg, 32px);
@@ -182,7 +182,7 @@
 
 .shahi-a11y-issues-header {
     padding: var(--shahi-space-md, 24px);
-    border-bottom: 1px solid var(--shahi-border, #2d3561);
+    border-bottom: 1px solid var(--shahi-border, #334155);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -201,8 +201,8 @@
 }
 
 .shahi-a11y-filter-select {
-    background: var(--shahi-bg-tertiary, #1e2542);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-tertiary, #334155);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: 6px;
     padding: 8px 12px;
     color: var(--shahi-text-primary, #ffffff);
@@ -216,7 +216,7 @@
 }
 
 .shahi-a11y-issues-table thead {
-    background: var(--shahi-bg-tertiary, #1e2542);
+    background: var(--shahi-bg-tertiary, #334155);
 }
 
 .shahi-a11y-issues-table th {
@@ -227,14 +227,14 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 2px solid var(--shahi-border, #2d3561);
+    border-bottom: 2px solid var(--shahi-border, #334155);
 }
 
 .shahi-a11y-issues-table td {
     padding: 16px;
     color: var(--shahi-text-secondary, #a8b2d1);
     font-size: 14px;
-    border-bottom: 1px solid var(--shahi-border, #2d3561);
+    border-bottom: 1px solid var(--shahi-border, #334155);
 }
 
 .shahi-a11y-issues-table tbody tr {
@@ -242,7 +242,7 @@
 }
 
 .shahi-a11y-issues-table tbody tr:hover {
-    background: var(--shahi-bg-tertiary, #1e2542);
+    background: var(--shahi-bg-tertiary, #334155);
 }
 
 /* ========================================
@@ -280,9 +280,9 @@
 }
 
 .shahi-a11y-severity-minor {
-    color: var(--shahi-accent-primary, #00d4ff);
-    background: rgba(0, 212, 255, 0.15);
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    color: var(--shahi-accent-primary, #60a5fa);
+    background: rgba(96, 165, 250, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 /* ========================================
@@ -358,14 +358,14 @@
 }
 
 .shahi-a11y-btn-details {
-    background: rgba(0, 212, 255, 0.2);
-    color: var(--shahi-accent-primary, #00d4ff);
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: rgba(96, 165, 250, 0.2);
+    color: var(--shahi-accent-primary, #60a5fa);
+    border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 .shahi-a11y-btn-details:hover {
-    background: rgba(0, 212, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 212, 255, 0.2);
+    background: rgba(96, 165, 250, 0.3);
+    box-shadow: 0 2px 8px rgba(96, 165, 250, 0.2);
 }
 
 /* ========================================
@@ -377,8 +377,8 @@
 }
 
 .shahi-a11y-settings-section {
-    background: var(--shahi-bg-secondary, #141834);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-secondary, #1e293b);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: var(--shahi-radius-md, 12px);
     padding: var(--shahi-space-md, 24px);
     margin-bottom: var(--shahi-space-md, 24px);
@@ -390,7 +390,7 @@
     font-weight: 700;
     margin: 0 0 20px 0;
     padding-bottom: 12px;
-    border-bottom: 2px solid var(--shahi-border, #2d3561);
+    border-bottom: 2px solid var(--shahi-border, #334155);
 }
 
 .shahi-a11y-form-group {
@@ -436,8 +436,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: var(--shahi-bg-tertiary, #1e2542);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-tertiary, #334155);
+    border: 1px solid var(--shahi-border, #334155);
     transition: var(--shahi-transition, all 0.3s);
     border-radius: 26px;
 }
@@ -455,8 +455,8 @@
 }
 
 .shahi-toggle-switch input:checked + .shahi-toggle-slider {
-    background: var(--shahi-accent-gradient, linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%));
-    border-color: var(--shahi-accent-primary, #00d4ff);
+    background: var(--shahi-accent-gradient, linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%));
+    border-color: var(--shahi-accent-primary, #60a5fa);
 }
 
 .shahi-toggle-switch input:checked + .shahi-toggle-slider:before {
@@ -470,8 +470,8 @@
 
 .shahi-select,
 .shahi-input {
-    background: var(--shahi-bg-tertiary, #1e2542);
-    border: 1px solid var(--shahi-border, #2d3561);
+    background: var(--shahi-bg-tertiary, #334155);
+    border: 1px solid var(--shahi-border, #334155);
     border-radius: 8px;
     padding: 10px 14px;
     color: var(--shahi-text-primary, #ffffff);
@@ -484,8 +484,8 @@
 .shahi-select:focus,
 .shahi-input:focus {
     outline: none;
-    border-color: var(--shahi-accent-primary, #00d4ff);
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    border-color: var(--shahi-accent-primary, #60a5fa);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
 /* ========================================
@@ -503,8 +503,8 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(0, 212, 255, 0.2);
-    border-top-color: var(--shahi-accent-primary, #00d4ff);
+    border: 2px solid rgba(96, 165, 250, 0.2);
+    border-top-color: var(--shahi-accent-primary, #60a5fa);
     border-radius: 50%;
     animation: shahi-spin 0.6s linear infinite;
 }
@@ -520,7 +520,7 @@
 .shahi-a11y-progress-bar {
     width: 100%;
     height: 8px;
-    background: var(--shahi-bg-tertiary, #1e2542);
+    background: var(--shahi-bg-tertiary, #334155);
     border-radius: 4px;
     overflow: hidden;
     margin: 12px 0;
@@ -528,9 +528,9 @@
 
 .shahi-a11y-progress-fill {
     height: 100%;
-    background: var(--shahi-accent-gradient, linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%));
+    background: var(--shahi-accent-gradient, linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%));
     transition: width 0.3s ease;
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
 }
 
 /* ========================================
@@ -627,3 +627,4 @@
         break-inside: avoid;
     }
 }
+

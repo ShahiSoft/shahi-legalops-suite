@@ -6,7 +6,7 @@
  *
  * @package     ShahiLegalopsSuite
  * @subpackage  Widgets
- * @version     1.0.0
+ * @version     3.0.1
  * @since       1.0.0
  * @author      ShahiLegalopsSuite Team
  * @license     GPL-3.0+
@@ -15,8 +15,8 @@
 namespace ShahiLegalopsSuite\Widgets;
 
 // Exit if accessed directly
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
@@ -27,79 +27,79 @@ if (!defined('ABSPATH')) {
  * @since 1.0.0
  */
 class WidgetManager {
-    
-    /**
-     * Registered widgets
-     *
-     * @since 1.0.0
-     * @var array
-     */
-    private $widgets = array();
-    
-    /**
-     * Constructor
-     *
-     * @since 1.0.0
-     */
-    public function __construct() {
-        $this->init_widgets();
-        $this->register_hooks();
-    }
-    
-    /**
-     * Initialize widgets
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    private function init_widgets() {
-        // Register widget classes (keeping only QuickActionsWidget for legal operations dashboard)
-        $this->widgets = array(
-            'ShahiLegalopsSuite\Widgets\QuickActionsWidget',
-        );
-    }
-    
-    /**
-     * Register WordPress hooks
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    private function register_hooks() {
-        add_action('widgets_init', array($this, 'register_widgets'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_widget_assets'));
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
-    }
-    
-    /**
-     * Register all widgets
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    public function register_widgets() {
-        foreach ($this->widgets as $widget_class) {
-            if (class_exists($widget_class)) {
-                register_widget($widget_class);
-            }
-        }
-    }
-    
-    /**
-     * Enqueue widget admin assets
-     *
-     * @since 1.0.0
-     * @param string $hook Current admin page hook.
-     * @return void
-     */
-    public function enqueue_widget_assets($hook) {
-        // Only load on widgets page
-        if ($hook !== 'widgets.php') {
-            return;
-        }
-        
-        // Add inline CSS for widget admin
-        $css = "
+
+	/**
+	 * Registered widgets
+	 *
+	 * @since 1.0.0
+	 * @var array
+	 */
+	private $widgets = array();
+
+	/**
+	 * Constructor
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct() {
+		$this->init_widgets();
+		$this->register_hooks();
+	}
+
+	/**
+	 * Initialize widgets
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	private function init_widgets() {
+		// Register widget classes (keeping only QuickActionsWidget for legal operations dashboard)
+		$this->widgets = array(
+			'ShahiLegalopsSuite\Widgets\QuickActionsWidget',
+		);
+	}
+
+	/**
+	 * Register WordPress hooks
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	private function register_hooks() {
+		add_action( 'widgets_init', array( $this, 'register_widgets' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_widget_assets' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
+	}
+
+	/**
+	 * Register all widgets
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function register_widgets() {
+		foreach ( $this->widgets as $widget_class ) {
+			if ( class_exists( $widget_class ) ) {
+				register_widget( $widget_class );
+			}
+		}
+	}
+
+	/**
+	 * Enqueue widget admin assets
+	 *
+	 * @since 1.0.0
+	 * @param string $hook Current admin page hook.
+	 * @return void
+	 */
+	public function enqueue_widget_assets( $hook ) {
+		// Only load on widgets page
+		if ( $hook !== 'widgets.php' ) {
+			return;
+		}
+
+		// Add inline CSS for widget admin
+		$css = "
         .shahi-widget-field {
             margin-bottom: 15px;
         }
@@ -128,26 +128,26 @@ class WidgetManager {
             margin-top: 10px;
         }
         ";
-        
-        wp_add_inline_style('widgets', $css);
-    }
-    
-    /**
-     * Enqueue frontend assets for widgets
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    public function enqueue_frontend_assets() {
-        // Check if any ShahiLegalopsSuite widgets are active
-        if (!is_active_widget(false, false, 'shahi_stats_widget') &&
-            !is_active_widget(false, false, 'shahi_quick_actions_widget') &&
-            !is_active_widget(false, false, 'shahi_recent_activity_widget')) {
-            return;
-        }
-        
-        // Add inline CSS for frontend widgets
-        $css = "
+
+		wp_add_inline_style( 'widgets', $css );
+	}
+
+	/**
+	 * Enqueue frontend assets for widgets
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function enqueue_frontend_assets() {
+		// Check if any ShahiLegalopsSuite widgets are active
+		if ( ! is_active_widget( false, false, 'shahi_stats_widget' ) &&
+			! is_active_widget( false, false, 'shahi_quick_actions_widget' ) &&
+			! is_active_widget( false, false, 'shahi_recent_activity_widget' ) ) {
+			return;
+		}
+
+		// Add inline CSS for frontend widgets
+		$css = '
         /* ShahiLegalopsSuite Widgets Styling */
         .shahi-widget {
             padding: 20px;
@@ -236,18 +236,19 @@ class WidgetManager {
             display: block;
             margin-top: 5px;
         }
-        ";
-        
-        wp_add_inline_style('wp-block-library', $css);
-    }
-    
-    /**
-     * Get registered widgets
-     *
-     * @since 1.0.0
-     * @return array Registered widgets.
-     */
-    public function get_widgets() {
-        return $this->widgets;
-    }
+        ';
+
+		wp_add_inline_style( 'wp-block-library', $css );
+	}
+
+	/**
+	 * Get registered widgets
+	 *
+	 * @since 1.0.0
+	 * @return array Registered widgets.
+	 */
+	public function get_widgets() {
+		return $this->widgets;
+	}
 }
+

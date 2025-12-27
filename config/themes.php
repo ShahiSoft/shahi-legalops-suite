@@ -195,4 +195,47 @@ return [
             '--shahi-border-accent' => '#c0c0c0',
         ],
     ],
+
+    'mac-slate-liquid' => [
+        'name' => 'Mac Slate Liquid',
+        'description' => 'Soft slate tones with subtle gradients and liquid glass feel',
+        'preview_colors' => ['#0f172a', '#334155', '#60a5fa'],
+        'variables' => [
+            // Backgrounds (macOS-like slate)
+            '--shahi-bg-primary'   => '#0f172a',  // Slate 900
+            '--shahi-bg-secondary' => '#111827',  // Gray 900
+            '--shahi-bg-tertiary'  => '#1f2937',  // Gray 800
+            '--shahi-bg-elevated'  => 'rgba(31, 41, 55, 0.6)', // Glass layer
+
+            // Accents (subtle blues with Apple-like feel)
+            '--shahi-accent-primary'   => '#60a5fa', // Blue 400
+            '--shahi-accent-secondary' => '#93c5fd', // Blue 300
+            '--shahi-accent-tertiary'  => '#38bdf8', // Sky 400
+            '--shahi-accent-success'   => '#34d399', // Green 400
+            '--shahi-accent-warning'   => '#f59e0b', // Amber 500
+            '--shahi-accent-error'     => '#ef4444', // Red 500
+
+            // Gradients (liquid/glass subtle)
+            '--shahi-gradient-primary'   => 'linear-gradient(135deg, rgba(96,165,250,0.35) 0%, rgba(147,197,253,0.25) 100%)',
+            '--shahi-gradient-secondary' => 'linear-gradient(135deg, rgba(56,189,248,0.30) 0%, rgba(147,197,253,0.20) 100%)',
+            '--shahi-gradient-success'   => 'linear-gradient(135deg, rgba(52,211,153,0.30) 0%, rgba(16,185,129,0.20) 100%)',
+
+            // Text
+            '--shahi-text-primary'   => '#e5e7eb', // Gray 200
+            '--shahi-text-secondary' => '#cbd5e1', // Slate 300
+            '--shahi-text-muted'     => '#94a3b8', // Slate 400
+            '--shahi-text-accent'    => '#93c5fd', // Blue 300
+
+            // Borders & effects
+            '--shahi-border-color'  => 'rgba(148,163,184,0.25)',
+            '--shahi-border-light'  => 'rgba(148,163,184,0.15)',
+            '--shahi-border-accent' => '#93c5fd',
+            '--shahi-shadow'        => '0 8px 24px rgba(2, 6, 23, 0.35)',
+            '--shahi-shadow-lg'     => '0 16px 40px rgba(2, 6, 23, 0.45)',
+            '--shahi-radius'        => '12px',
+            '--shahi-radius-sm'     => '8px',
+            '--shahi-transition'    => '0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        ],
+    ],
 ];
+

@@ -14,6 +14,8 @@
 namespace ShahiLegalopsSuite\API;
 
 use ShahiLegalopsSuite\Services\Consent_Service;
+use ShahiLegalopsSuite\Services\Geo_Service;
+use ShahiLegalopsSuite\Services\Geo_Rule_Matcher;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -41,13 +43,31 @@ class Consent_REST_Controller extends Base_REST_Controller {
 	private $service;
 
 	/**
+	 * Geo service for location detection
+	 *
+	 * @since 3.0.3
+	 * @var Geo_Service
+	 */
+	private $geo_service;
+
+	/**
+	 * Geo rule matcher
+	 *
+	 * @since 3.0.3
+	 * @var Geo_Rule_Matcher
+	 */
+	private $rule_matcher;
+
+	/**
 	 * Constructor
 	 *
 	 * @since 3.0.1
 	 */
 	public function __construct() {
-		$this->rest_base = 'consents';
-		$this->service   = new Consent_Service();
+		$this->rest_base    = 'consents';
+		$this->service      = new Consent_Service();
+		$this->geo_service  = new Geo_Service();
+		$this->rule_matcher = new Geo_Rule_Matcher();
 	}
 
 	/**
@@ -151,6 +171,90 @@ class Consent_REST_Controller extends Base_REST_Controller {
 			)
 		);
 
+		// Grant consent (convenience endpoint for preferences UI)
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/grant',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'grant_consent_simple' ),
+				'permission_callback' => '__return_true', // Public for anonymous users
+				'args'                => array(
+					'user_id'    => array(
+						'description' => __( 'User ID (0 for anonymous)', 'shahi-legalops-suite' ),
+						'type'        => 'integer',
+						'default'     => 0,
+					),
+					'session_id' => array(
+						'description' => __( 'Session ID for anonymous users', 'shahi-legalops-suite' ),
+						'type'        => 'string',
+						'default'     => '',
+					),
+					'purpose'    => array(
+						'description' => __( 'Consent purpose/type', 'shahi-legalops-suite' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
+
+		// Reject consent (convenience endpoint for banner)
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/reject',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'reject_consent_simple' ),
+				'permission_callback' => '__return_true', // Public for anonymous users
+				'args'                => array(
+					'user_id'    => array(
+						'description' => __( 'User ID (0 for anonymous)', 'shahi-legalops-suite' ),
+						'type'        => 'integer',
+						'default'     => 0,
+					),
+					'purpose'    => array(
+						'description' => __( 'Consent purpose/type', 'shahi-legalops-suite' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'source'     => array(
+						'description' => __( 'Source of consent', 'shahi-legalops-suite' ),
+						'type'        => 'string',
+						'default'     => 'banner',
+					),
+				),
+			)
+		);
+
+		// Withdraw consent (convenience endpoint for preferences UI)
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/withdraw',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'withdraw_consent_simple' ),
+				'permission_callback' => '__return_true', // Public for anonymous users
+				'args'                => array(
+					'user_id'    => array(
+						'description' => __( 'User ID (0 for anonymous)', 'shahi-legalops-suite' ),
+						'type'        => 'integer',
+						'default'     => 0,
+					),
+					'session_id' => array(
+						'description' => __( 'Session ID for anonymous users', 'shahi-legalops-suite' ),
+						'type'        => 'string',
+						'default'     => '',
+					),
+					'purpose'    => array(
+						'description' => __( 'Consent purpose/type', 'shahi-legalops-suite' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
+
 		// Get consent statistics (admin only)
 		register_rest_route(
 			$this->namespace,
@@ -227,7 +331,23 @@ class Consent_REST_Controller extends Base_REST_Controller {
 		$this->log_request( $request, 'Get Consents' );
 
 		$pagination = $this->prepare_pagination_params( $request );
-		$consents   = $this->service->get_recent_consents( $pagination['per_page'] );
+		
+		// Get filters from request
+		$filters = array(
+			'type'         => $this->sanitize_text_param( $request->get_param( 'type' ) ),
+			'status'       => $this->sanitize_text_param( $request->get_param( 'status' ) ),
+			'date_range'   => $this->sanitize_text_param( $request->get_param( 'date_range' ) ),
+			'search'       => $this->sanitize_text_param( $request->get_param( 'search' ) ),
+			'geo_rule_id'  => absint( $request->get_param( 'geo_rule_id' ) ),
+			'region'       => $this->sanitize_text_param( $request->get_param( 'region' ) ),
+			'country_code' => $this->sanitize_text_param( $request->get_param( 'country_code' ) ),
+		);
+		
+		// Remove empty values
+		$filters = array_filter( $filters );
+		
+		$consents = $this->service->get_consents( $filters, $pagination );
+		$total    = $this->service->get_consents_count( $filters );
 
 		if ( $this->service->has_errors() ) {
 			$errors = $this->service->get_errors();
@@ -238,11 +358,16 @@ class Consent_REST_Controller extends Base_REST_Controller {
 			);
 		}
 
-		$response = $this->success_response(
-			array(
-				'consents' => array_map( array( $this, 'prepare_item_for_response' ), $consents ),
-			)
-		);
+		// Return array directly for easier frontend consumption
+		$response_data = array_map( array( $this, 'prepare_item_for_response' ), $consents );
+		
+		$response = new \WP_REST_Response( array(
+			'success' => true,
+			'data'    => $response_data,
+			'total'   => $total,
+			'page'    => $pagination['page'],
+			'per_page'=> $pagination['per_page'],
+		), 200 );
 
 		return $response;
 	}
@@ -502,6 +627,229 @@ class Consent_REST_Controller extends Base_REST_Controller {
 	}
 
 	/**
+	 * Grant consent (simplified endpoint for preferences UI)
+	 *
+	 * @since 3.0.1
+	 * @param WP_REST_Request $request Request object
+	 * @return WP_REST_Response|WP_Error Response object
+	 */
+	public function grant_consent_simple( $request ) {
+		$this->log_request( $request, 'Grant Consent (Simple)' );
+
+		$user_id    = absint( $request->get_param( 'user_id' ) );
+		$session_id = $this->sanitize_text_param( $request->get_param( 'session_id' ) );
+		$purpose    = $this->sanitize_text_param( $request->get_param( 'purpose' ) );
+
+		// Use current user if not specified
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		// Get geo data from request or detect
+		$geo_rule_id  = absint( $request->get_param( 'geo_rule_id' ) );
+		$country_code = $this->sanitize_text_param( $request->get_param( 'country_code' ) );
+		$region       = $this->sanitize_text_param( $request->get_param( 'region' ) );
+
+		// If not provided in request, detect from IP
+		if ( empty( $country_code ) || empty( $region ) ) {
+			$region_data  = $this->geo_service->get_region_for_request();
+			$country_code = $country_code ?: ( $region_data['country_code'] ?? '' );
+			$region       = $region ?: ( $region_data['region'] ?? 'GLOBAL' );
+		}
+
+		// If geo_rule_id not provided, find matching rule
+		if ( ! $geo_rule_id && ! empty( $country_code ) ) {
+			$state_code    = $region_data['state'] ?? '';
+			$matching_rule = $this->rule_matcher->find_matching_rule( $country_code, $state_code );
+			$geo_rule_id   = $matching_rule['id'] ?? null;
+		}
+
+		// Prepare consent data
+		$data = array(
+			'user_id'      => $user_id,
+			'type'         => $purpose,
+			'status'       => 'accepted',
+			'consent_text' => sprintf(
+				/* translators: %s: consent purpose */
+				__( 'Consent granted for %s', 'shahi-legalops-suite' ),
+				$purpose
+			),
+			'source'       => $request->get_param('source') ?? 'preferences-ui',
+			'geo_rule_id'  => $geo_rule_id,
+			'country_code' => strtoupper( $country_code ),
+			'region'       => strtoupper( $region ),
+			'metadata'     => array(
+				'session_id'   => $session_id,
+				'ip_address'   => $this->get_client_ip(),
+				'user_agent'   => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				'geo_rule_id'  => $geo_rule_id,
+				'country_code' => strtoupper( $country_code ),
+				'region'       => strtoupper( $region ),
+			),
+		);
+
+		// Record consent
+		$consent_id = $this->service->record_consent( $data );
+
+		if ( ! $consent_id ) {
+			$errors = $this->service->get_errors();
+			return $this->error_response(
+				$errors[0]['code'] ?? 'grant_failed',
+				$errors[0]['message'] ?? __( 'Failed to grant consent', 'shahi-legalops-suite' ),
+				400
+			);
+		}
+
+		$consent = $this->service->get_consent( $consent_id );
+
+		return $this->success_response(
+			$this->prepare_item_for_response( $consent ),
+			__( 'Consent granted successfully', 'shahi-legalops-suite' ),
+			201
+		);
+	}
+
+	/**
+	 * Reject consent (simplified endpoint for banner)
+	 *
+	 * @since 3.0.1
+	 * @param WP_REST_Request $request Request object
+	 * @return WP_REST_Response|WP_Error Response object
+	 */
+	public function reject_consent_simple( $request ) {
+		$this->log_request( $request, 'Reject Consent (Simple)' );
+
+		$user_id = absint( $request->get_param( 'user_id' ) );
+		$purpose = $this->sanitize_text_param( $request->get_param( 'purpose' ) );
+		$source  = $this->sanitize_text_param( $request->get_param( 'source' ) ) ?: 'banner';
+
+		// Use current user if not specified
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		// Get geo data from request or detect
+		$geo_rule_id  = absint( $request->get_param( 'geo_rule_id' ) );
+		$country_code = $this->sanitize_text_param( $request->get_param( 'country_code' ) );
+		$region       = $this->sanitize_text_param( $request->get_param( 'region' ) );
+
+		// If not provided in request, detect from IP
+		if ( empty( $country_code ) || empty( $region ) ) {
+			$region_data  = $this->geo_service->get_region_for_request();
+			$country_code = $country_code ?: ( $region_data['country_code'] ?? '' );
+			$region       = $region ?: ( $region_data['region'] ?? 'GLOBAL' );
+		}
+
+		// If geo_rule_id not provided, find matching rule
+		if ( ! $geo_rule_id && ! empty( $country_code ) ) {
+			$state_code    = $region_data['state'] ?? '';
+			$matching_rule = $this->rule_matcher->find_matching_rule( $country_code, $state_code );
+			$geo_rule_id   = $matching_rule['id'] ?? null;
+		}
+
+		// Prepare consent data
+		$data = array(
+			'user_id'      => $user_id,
+			'type'         => $purpose,
+			'status'       => 'rejected',
+			'consent_text' => sprintf(
+				/* translators: %s: consent purpose */
+				__( 'Consent rejected for %s', 'shahi-legalops-suite' ),
+				$purpose
+			),
+			'source'       => $source,
+			'geo_rule_id'  => $geo_rule_id,
+			'country_code' => strtoupper( $country_code ),
+			'region'       => strtoupper( $region ),
+			'metadata'     => array(
+				'ip_address'   => $this->get_client_ip(),
+				'user_agent'   => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				'geo_rule_id'  => $geo_rule_id,
+				'country_code' => strtoupper( $country_code ),
+				'region'       => strtoupper( $region ),
+			),
+		);
+
+		// Record rejection
+		$consent_id = $this->service->record_consent( $data );
+
+		if ( ! $consent_id ) {
+			$errors = $this->service->get_errors();
+			return $this->error_response(
+				$errors[0]['code'] ?? 'reject_failed',
+				$errors[0]['message'] ?? __( 'Failed to reject consent', 'shahi-legalops-suite' ),
+				400
+			);
+		}
+
+		$consent = $this->service->get_consent( $consent_id );
+
+		return $this->success_response(
+			$this->prepare_item_for_response( $consent ),
+			__( 'Consent rejected successfully', 'shahi-legalops-suite' ),
+			201
+		);
+	}
+
+	/**
+	 * Withdraw consent (simplified endpoint for preferences UI)
+	 *
+	 * @since 3.0.1
+	 * @param WP_REST_Request $request Request object
+	 * @return WP_REST_Response|WP_Error Response object
+	 */
+	public function withdraw_consent_simple( $request ) {
+		$this->log_request( $request, 'Withdraw Consent (Simple)' );
+
+		$user_id    = absint( $request->get_param( 'user_id' ) );
+		$session_id = $this->sanitize_text_param( $request->get_param( 'session_id' ) );
+		$purpose    = $this->sanitize_text_param( $request->get_param( 'purpose' ) );
+
+		// Use current user if not specified
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		// Prepare consent data (withdrawal)
+		$data = array(
+			'user_id'      => $user_id,
+			'type'         => $purpose,
+			'status'       => 'withdrawn',
+			'consent_text' => sprintf(
+				/* translators: %s: consent purpose */
+				__( 'Consent withdrawn for %s', 'shahi-legalops-suite' ),
+				$purpose
+			),
+			'source'       => 'preferences-ui',
+			'metadata'     => array(
+				'session_id' => $session_id,
+				'ip_address' => $this->get_client_ip(),
+				'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+			),
+		);
+
+		// Record withdrawal
+		$consent_id = $this->service->record_consent( $data );
+
+		if ( ! $consent_id ) {
+			$errors = $this->service->get_errors();
+			return $this->error_response(
+				$errors[0]['code'] ?? 'withdraw_failed',
+				$errors[0]['message'] ?? __( 'Failed to withdraw consent', 'shahi-legalops-suite' ),
+				400
+			);
+		}
+
+		$consent = $this->service->get_consent( $consent_id );
+
+		return $this->success_response(
+			$this->prepare_item_for_response( $consent ),
+			__( 'Consent withdrawn successfully', 'shahi-legalops-suite' ),
+			200
+		);
+	}
+
+	/**
 	 * Get consent statistics
 	 *
 	 * @since 3.0.1
@@ -626,19 +974,23 @@ class Consent_REST_Controller extends Base_REST_Controller {
 	 * Prepare item for response
 	 *
 	 * @since 3.0.1
-	 * @param object $consent Consent object
+	 * @param object             $consent Consent object
+	 * @param \WP_REST_Request   $request Request object
 	 * @return array Formatted consent data
 	 */
-	protected function prepare_item_for_response( $consent ): array {
+	public function prepare_item_for_response( $consent, $request = null ): array {
 		return array(
-			'id'         => absint( $consent->id ),
-			'user_id'    => absint( $consent->user_id ),
-			'type'       => $consent->type,
-			'status'     => $consent->status,
-			'ip_hash'    => $consent->ip_hash,
-			'metadata'   => json_decode( $consent->metadata ?? '{}', true ),
-			'created_at' => $consent->created_at,
-			'updated_at' => $consent->updated_at,
+			'id'           => absint( $consent->id ),
+			'user_id'      => absint( $consent->user_id ),
+			'type'         => $consent->type,
+			'status'       => $consent->status,
+			'ip_hash'      => $consent->ip_hash,
+			'geo_rule_id'  => isset( $consent->geo_rule_id ) ? absint( $consent->geo_rule_id ) : null,
+			'country_code' => $consent->country_code ?? '',
+			'region'       => $consent->region ?? '',
+			'metadata'     => json_decode( $consent->metadata ?? '{}', true ),
+			'created_at'   => $consent->created_at,
+			'updated_at'   => $consent->updated_at,
 		);
 	}
 
@@ -707,5 +1059,36 @@ class Consent_REST_Controller extends Base_REST_Controller {
 				'type'        => 'object',
 			),
 		);
+	}
+
+	/**
+	 * Get client IP address
+	 *
+	 * @since 3.0.1
+	 * @return string Client IP address
+	 */
+	private function get_client_ip(): string {
+		$ip_keys = array(
+			'HTTP_CLIENT_IP',
+			'HTTP_X_FORWARDED_FOR',
+			'HTTP_X_FORWARDED',
+			'HTTP_X_CLUSTER_CLIENT_IP',
+			'HTTP_FORWARDED_FOR',
+			'HTTP_FORWARDED',
+			'REMOTE_ADDR',
+		);
+
+		foreach ( $ip_keys as $key ) {
+			if ( array_key_exists( $key, $_SERVER ) ) {
+				$ip_list = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) );
+				$ip      = trim( $ip_list[0] );
+
+				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+					return $ip;
+				}
+			}
+		}
+
+		return '0.0.0.0';
 	}
 }

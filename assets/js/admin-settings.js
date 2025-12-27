@@ -4,7 +4,7 @@
  * Handles tab navigation, import/export, and interactive features.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version    3.0.1
  */
 
 (function($) {
@@ -324,3 +324,4 @@
     });
     
 })(jQuery);
+

@@ -5,7 +5,7 @@
  * for the modules management page.
  *
  * @package    ShahiLegalopsSuite
- * @version    1.0.0
+ * @version    3.0.1
  */
 
 (function($) {
@@ -286,3 +286,4 @@
     window.ShahiModules = ShahiModules;
 
 })(jQuery);
+

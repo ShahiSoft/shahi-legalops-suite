@@ -488,3 +488,4 @@ jQuery(document).ready(function($) {
     // Reset
     $('#slos-aw-reset').on('click', resetAll);
 });
+

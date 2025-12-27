@@ -1,527 +1,719 @@
 /**
  * Consent Banner Component
  *
- * Displays consent banner and handles user interactions.
- * Alpine.js compatible (can be extended to React).
+ * Displays and manages user consent preferences.
+ * Supports 4 templates: EU/GDPR, CCPA, Simple, Advanced
+ * Fully integrated with REST API and localStorage
  *
- * @package ShahiLegalOpsSuite\Modules\Consent
- * @since 1.0.0
+ * @package ShahiLegalopsSuite
+ * @subpackage Frontend
+ * @version 3.0.1
+ * @since 3.0.1
  */
 
 (function() {
-  'use strict';
-
-  const config = window.complyflowConfig || {};
-  const bannerConfig = config.banner || {};
-  const API_URL = config.apiUrl || '/wp-json/complyflow/v1/consent';
-
-  /**
-   * Banner Controller Class
-   */
-  class ConsentBanner {
-    constructor() {
-      this.sessionId = config.sessionId || this.generateSessionId();
-      this.isOpen = false;
-      this.showPreferences = false;
-      this.preferences = {};
-      this.banner = null;
-    }
+    'use strict';
 
     /**
-     * Initialize banner.
+     * Consent Banner Class
      */
-    init() {
-      // Check if user already gave consent (in session/cookie).
-      const stored = this.getStoredConsent();
-      if (stored) {
-        console.log('[Consent Banner] Consent already given, skipping banner');
-        return;
-      }
+    class ConsentBanner {
+        /**
+         * Constructor
+         */
+        constructor() {
+            this.config = window.slosConsentConfig || {};
+            this.apiUrl = this.config.apiUrl || '/wp-json/slos/v1/consents';
+            this.routes = this.config.routes || {};
+            this.userId = this.config.userId || 0;
+            this.region = this.config.region || null;
+            this.bannerTemplate = this.config.template || 'eu';
+            this.position = this.config.position || 'bottom';
+            this.theme = this.config.theme || 'light';
+            this.purposes = [];
+            this.consents = {};
+            this.locale = this.config.locale || (navigator.language || 'en').substring(0, 2);
+            this.translations = window.slosConsentI18n || {};
 
-      // Inject banner HTML.
-      this.render();
-
-      // Attach event listeners.
-      this.attachListeners();
-
-      console.log('[Consent Banner] Initialized');
-    }
-
-    /**
-     * Generate session ID.
-     */
-    generateSessionId() {
-      // Simple UUID v4 implementation.
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
-    }
-
-    /**
-     * Get stored consent from session/local storage.
-     */
-    getStoredConsent() {
-      // Check localStorage first.
-      const stored = localStorage.getItem(`complyflow_consent_${this.sessionId}`);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {
-          console.warn('[Consent Banner] Invalid stored consent');
+            this.init();
         }
-      }
-      return null;
+
+        /**
+         * Initialize banner
+         *
+         * @return {Promise<void>}
+         */
+        async init() {
+            // Resolve region and adjust template if needed
+            await this.resolveRegionAndTemplate();
+
+            // Check if consent already given
+            const hasConsent = await this.checkConsent('analytics');
+            if (hasConsent && !this.shouldShowAgain()) {
+                return; // Don't show banner
+            }
+
+            // Load valid purposes
+            await this.loadPurposes();
+
+            // Show banner
+            this.showBanner();
+
+            // Bind events
+            this.bindEvents();
+        }
+
+        /**
+         * Resolve region via config or REST and adjust template
+         */
+        async resolveRegionAndTemplate() {
+            try {
+                if (!this.region) {
+                    const geoUrl = (this.routes && this.routes.geo) || (this.config.apiUrl ? this.config.apiUrl.replace('/consents', '') + '/geo/region' : '/wp-json/slos/v1/geo/region');
+                    const resp = await fetch(geoUrl, { headers: { 'Accept': 'application/json' } });
+                    const payload = await resp.json();
+                    if (payload && payload.data && payload.data.region) {
+                        this.region = payload.data.region;
+                        if (!this.config.template && payload.data.template) {
+                            this.bannerTemplate = payload.data.template;
+                        }
+                    }
+                } else {
+                    // If region provided but template not, map it
+                    if (!this.config.template) {
+                        this.bannerTemplate = this.mapRegionToTemplate(this.region);
+                    }
+                }
+            } catch (e) {
+                // Non-fatal: keep defaults
+                // console.warn('Geo resolve failed', e);
+            }
+        }
+
+        /**
+         * Map region to default banner template
+         * @param {string} region
+         * @return {string}
+         */
+        mapRegionToTemplate(region) {
+            const r = (region || '').toUpperCase();
+            switch (r) {
+                case 'EU':
+                    return 'eu';
+                case 'US-CA':
+                    return 'ccpa';
+                case 'BR':
+                    return 'advanced';
+                default:
+                    return 'simple';
+            }
+        }
+
+        /**
+         * Load valid purposes from API
+         *
+         * @return {Promise<void>}
+         */
+        async loadPurposes() {
+            try {
+                const response = await fetch(`${this.apiUrl}/purposes`);
+                const data = await response.json();
+                
+                if (data.data && data.data.purposes) {
+                    this.purposes = data.data.purposes;
+                } else {
+                    // Fallback to default purposes
+                    this.purposes = ['necessary', 'functional', 'analytics', 'marketing', 'preferences'];
+                }
+            } catch (error) {
+                console.error('Failed to load purposes:', error);
+                this.purposes = ['necessary', 'functional', 'analytics', 'marketing', 'preferences'];
+            }
+        }
+
+        /**
+         * Check if user has consent for a purpose
+         *
+         * @param {string} purpose The consent purpose
+         * @return {Promise<boolean>}
+         */
+        async checkConsent(purpose) {
+            // Check localStorage first
+            const stored = this.getFromLocalStorage(purpose);
+            if (stored !== null) {
+                return stored;
+            }
+
+            // If logged in, check database
+            if (this.userId > 0) {
+                try {
+                    const response = await fetch(`${this.apiUrl}/check?user_id=${this.userId}&type=${purpose}`);
+                    const data = await response.json();
+                    return data.data && data.data.has_consent === true;
+                } catch (error) {
+                    console.error('Error checking consent:', error);
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+        /**
+         * Get consent from localStorage
+         *
+         * @param {string} purpose The consent purpose
+         * @return {boolean|null}
+         */
+        getFromLocalStorage(purpose) {
+            try {
+                const consents = JSON.parse(localStorage.getItem('slos_consents') || '{}');
+                if (consents[purpose] && consents[purpose].granted !== undefined) {
+                    return consents[purpose].granted;
+                }
+            } catch (error) {
+                // Ignore localStorage errors
+            }
+            return null;
+        }
+
+        /**
+         * Show consent banner
+         */
+        showBanner() {
+            const banner = this.createBanner();
+            document.body.appendChild(banner);
+
+            // Trigger animation
+            setTimeout(() => {
+                banner.classList.add('slos-banner-visible');
+            }, 100);
+        }
+
+        /**
+         * Create banner DOM element
+         *
+         * @return {HTMLElement}
+         */
+        createBanner() {
+            const div = document.createElement('div');
+            div.id = 'slos-consent-banner';
+            div.className = `slos-banner slos-banner-${this.position} slos-banner-${this.theme} slos-template-${this.bannerTemplate}`;
+            div.setAttribute('role', 'dialog');
+            div.setAttribute('aria-label', this.t('bannerTitle', 'Consent Preferences'));
+
+            div.innerHTML = this.getBannerHTML();
+
+            return div;
+        }
+
+        /**
+         * Get banner HTML based on template type
+         *
+         * @return {string}
+         */
+        getBannerHTML() {
+            switch (this.bannerTemplate) {
+                case 'eu':
+                case 'gdpr':
+                    return this.getEUBannerHTML();
+                case 'ccpa':
+                    return this.getCCPABannerHTML();
+                case 'simple':
+                    return this.getSimpleBannerHTML();
+                case 'advanced':
+                    return this.getAdvancedBannerHTML();
+                default:
+                    return this.getEUBannerHTML();
+            }
+        }
+
+        /**
+         * Get EU/GDPR banner HTML (with granular options)
+         *
+         * @return {string}
+         */
+        getEUBannerHTML() {
+            const purposeOptions = this.purposes.map(purpose => {
+                const isRequired = purpose === 'necessary' || purpose === 'functional';
+                return `
+                    <div class="slos-consent-option">
+                        <label class="slos-consent-label">
+                            <span class="slos-purpose-label">${this.formatPurpose(purpose)}</span>
+                            ${isRequired ? '<span class="slos-required">' + this.t('required', '(Required)') + '</span>' : ''}
+                            <input type="checkbox" 
+                                   class="slos-consent-checkbox" 
+                                   data-purpose="${purpose}"
+                                   ${isRequired ? 'checked disabled' : ''}
+                                   aria-label="${this.formatPurpose(purpose)}">
+                        </label>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="slos-banner-content" role="main">
+                    <div class="slos-banner-header">
+                        <h2 class="slos-banner-title">${this.t('euTitle', 'We value your privacy')}</h2>
+                    </div>
+                    <div class="slos-banner-body">
+                        <p class="slos-banner-message">${this.t('euMessage', 'We use cookies to enhance your experience. Click "Accept" to consent or customize your preferences.')}</p>
+                        
+                        <div class="slos-consent-options" id="slos-consent-options">
+                            ${purposeOptions}
+                        </div>
+                    </div>
+                    <div class="slos-banner-footer">
+                        <button class="slos-btn slos-btn-accept-all" data-action="accept-all" type="button">${this.t('acceptAll', 'Accept All')}</button>
+                        <button class="slos-btn slos-btn-reject-all" data-action="reject-all" type="button">${this.t('rejectAll', 'Reject')}</button>
+                        <a href="#" class="slos-settings-link" data-action="toggle-options">${this.t('customize', 'Customize')}</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Get CCPA banner HTML (opt-out focus)
+         *
+         * @return {string}
+         */
+        getCCPABannerHTML() {
+            return `
+                <div class="slos-banner-content" role="main">
+                    <div class="slos-banner-body">
+                        <p class="slos-banner-message">${this.t('ccpaMessage', 'We use cookies. CA residents have the right to opt-out.')}</p>
+                    </div>
+                    <div class="slos-banner-footer">
+                        <button class="slos-btn slos-btn-accept-all" data-action="accept-all" type="button">${this.t('accept', 'Accept')}</button>
+                        <button class="slos-btn slos-btn-reject-all" data-action="do-not-sell" type="button">${this.t('doNotSell', 'Do Not Sell')}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Get simple banner HTML (just accept/reject)
+         *
+         * @return {string}
+         */
+        getSimpleBannerHTML() {
+            return `
+                <div class="slos-banner-content" role="main">
+                    <div class="slos-banner-body">
+                        <p class="slos-banner-message">${this.t('simpleMessage', 'We use cookies for the best experience.')}</p>
+                    </div>
+                    <div class="slos-banner-footer">
+                        <button class="slos-btn slos-btn-accept" data-action="accept-all" type="button">${this.t('accept', 'OK')}</button>
+                        <button class="slos-btn slos-btn-reject" data-action="reject-all" type="button">${this.t('decline', 'No')}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Get advanced banner HTML (detailed options)
+         *
+         * @return {string}
+         */
+        getAdvancedBannerHTML() {
+            // Similar to EU but with more detailed descriptions
+            return this.getEUBannerHTML();
+        }
+
+        /**
+         * Bind event handlers
+         */
+        bindEvents() {
+            const banner = document.getElementById('slos-consent-banner');
+            if (!banner) return;
+
+            // Accept all
+            banner.querySelectorAll('[data-action="accept-all"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.acceptAll();
+                });
+            });
+
+            // Reject all / Do not sell
+            banner.querySelectorAll('[data-action="reject-all"], [data-action="do-not-sell"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.rejectAll();
+                });
+            });
+
+            // Accept selected
+            banner.querySelectorAll('[data-action="accept-selected"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.acceptSelected();
+                });
+            });
+
+            // Toggle options panel
+            banner.querySelectorAll('[data-action="toggle-options"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.toggleOptions();
+                });
+            });
+        }
+
+        /**
+         * Toggle consent options panel visibility
+         */
+        toggleOptions() {
+            const options = document.getElementById('slos-consent-options');
+            const footer = document.querySelector('.slos-banner-footer');
+            if (options) {
+                options.classList.toggle('slos-expanded');
+                // Show save selected button when expanded
+                if (options.classList.contains('slos-expanded')) {
+                    // Add accept-selected button if not exists
+                    if (!footer.querySelector('[data-action="accept-selected"]')) {
+                        const saveBtn = document.createElement('button');
+                        saveBtn.className = 'slos-btn slos-btn-accept-selected';
+                        saveBtn.setAttribute('data-action', 'accept-selected');
+                        saveBtn.setAttribute('type', 'button');
+                        saveBtn.textContent = this.t('savePreferences', 'Save');
+                        saveBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            this.acceptSelected();
+                        });
+                        footer.insertBefore(saveBtn, footer.querySelector('.slos-settings-link'));
+                    }
+                } else {
+                    // Remove save button when collapsed
+                    const saveBtn = footer.querySelector('[data-action="accept-selected"]');
+                    if (saveBtn) {
+                        saveBtn.remove();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Accept all consents
+         *
+         * @return {Promise<void>}
+         */
+        async acceptAll() {
+            // Mark all as accepted
+            for (const purpose of this.purposes) {
+                this.consents[purpose] = true;
+            }
+
+            // Save to database and localStorage
+            for (const purpose of this.purposes) {
+                await this.grantConsent(purpose);
+            }
+
+            this.hideBanner();
+            this.emitConsentSignals();
+            this.reloadScripts();
+        }
+
+        /**
+         * Reject all consents (except required)
+         *
+         * @return {Promise<void>}
+         */
+        async rejectAll() {
+            // Only accept required/functional, reject everything else
+            for (const purpose of this.purposes) {
+                if (purpose === 'necessary' || purpose === 'functional') {
+                    await this.grantConsent(purpose);
+                    this.consents[purpose] = true;
+                } else {
+                    await this.rejectConsent(purpose);
+                    this.consents[purpose] = false;
+                }
+            }
+
+            this.hideBanner();
+            this.emitConsentSignals();
+        }
+
+        /**
+         * Accept only selected consents
+         *
+         * @return {Promise<void>}
+         */
+        async acceptSelected() {
+            const checkboxes = document.querySelectorAll('.slos-consent-checkbox:checked');
+            const selectedPurposes = Array.from(checkboxes).map(cb => cb.dataset.purpose);
+
+            // Always ensure required are accepted
+            if (!selectedPurposes.includes('necessary')) {
+                selectedPurposes.push('necessary');
+            }
+            if (!selectedPurposes.includes('functional')) {
+                selectedPurposes.push('functional');
+            }
+
+            // Save selected
+            for (const purpose of selectedPurposes) {
+                await this.grantConsent(purpose);
+                this.consents[purpose] = true;
+            }
+
+            // Mark unselected as rejected (send to server)
+            for (const purpose of this.purposes) {
+                if (!selectedPurposes.includes(purpose)) {
+                    await this.rejectConsent(purpose);
+                    this.consents[purpose] = false;
+                }
+            }
+
+            this.hideBanner();
+            this.emitConsentSignals();
+            this.reloadScripts();
+        }
+
+        /**
+         * Grant consent for a purpose via API
+         *
+         * @param {string} purpose The consent purpose
+         * @return {Promise<boolean>}
+         */
+        async grantConsent(purpose) {
+            try {
+                const bannerElement = document.getElementById('slos-consent-banner');
+                const consentText = bannerElement?.querySelector('p.slos-banner-message')?.textContent || 'Consent granted via banner';
+
+                const response = await fetch(`${this.apiUrl}/grant`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: this.userId,
+                        purpose: purpose,
+                        consent_text: consentText,
+                        consent_method: 'explicit',
+                        source: 'banner',
+                        geo_rule_id: this.config.geoRuleId || null,
+                        country_code: this.config.countryCode || '',
+                        region: this.region || ''
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success || data.data) {
+                    this.saveToLocalStorage(purpose, true);
+                    return true;
+                }
+            } catch (error) {
+                console.error(`Failed to grant ${purpose} consent:`, error);
+            }
+
+            return false;
+        }
+
+        /**
+         * Reject consent via REST API
+         *
+         * @param {string} purpose The consent purpose
+         * @return {Promise<boolean>}
+         */
+        async rejectConsent(purpose) {
+            try {
+                const response = await fetch(`${this.apiUrl}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: this.userId,
+                        purpose: purpose,
+                        source: 'banner',
+                        geo_rule_id: this.config.geoRuleId || null,
+                        country_code: this.config.countryCode || '',
+                        region: this.region || ''
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success || data.data) {
+                    this.saveToLocalStorage(purpose, false);
+                    return true;
+                }
+            } catch (error) {
+                console.error(`Failed to reject ${purpose} consent:`, error);
+            }
+
+            return false;
+        }
+
+        /**
+         * Save consent to localStorage
+         *
+         * @param {string} purpose The consent purpose
+         * @param {boolean} granted Whether consent was granted
+         */
+        saveToLocalStorage(purpose, granted = true) {
+            try {
+                const consents = JSON.parse(localStorage.getItem('slos_consents') || '{}');
+                consents[purpose] = {
+                    granted: granted,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('slos_consents', JSON.stringify(consents));
+            } catch (error) {
+                console.error('Failed to save to localStorage:', error);
+            }
+        }
+
+        /**
+         * Emit consent signals (Google Consent Mode v2, etc.)
+         */
+        emitConsentSignals() {
+            // Google Consent Mode v2 signals
+            if (window.gtag && typeof window.gtag === 'function') {
+                const state = this.buildConsentModeState();
+                window.gtag('consent', 'update', state);
+            }
+
+            // Custom event for other scripts to listen
+            document.dispatchEvent(new CustomEvent('slos-consent-updated', {
+                detail: { consents: this.consents, purposes: this.purposes }
+            }));
+
+            // WordPress Consent API compatibility
+            for (const [purpose, granted] of Object.entries(this.consents)) {
+                document.dispatchEvent(new CustomEvent('wp_consent_category_set', {
+                    detail: { category: purpose, granted: granted }
+                }));
+            }
+        }
+
+        /**
+         * Build Google Consent Mode v2 state
+         *
+         * @return {Object}
+         */
+        buildConsentModeState() {
+            return {
+                ad_storage: this.consents.marketing ? 'granted' : 'denied',
+                analytics_storage: this.consents.analytics ? 'granted' : 'denied',
+                ad_user_data: this.consents.marketing ? 'granted' : 'denied',
+                ad_personalization: this.consents.personalization ? 'granted' : 'denied',
+                functionality_storage: this.consents.functional ? 'granted' : 'denied',
+                personalization_storage: this.consents.preferences ? 'granted' : 'denied'
+            };
+        }
+
+        /**
+         * Hide banner with animation
+         */
+        hideBanner() {
+            const banner = document.getElementById('slos-consent-banner');
+            if (banner) {
+                banner.classList.remove('slos-banner-visible');
+                setTimeout(() => {
+                    if (banner.parentNode) {
+                        banner.remove();
+                    }
+                }, 300); // Match animation duration
+            }
+        }
+
+        /**
+         * Reload scripts that need consent
+         */
+        reloadScripts() {
+            // Trigger event for script blocker
+            document.dispatchEvent(new CustomEvent('slos-consents-accepted', {
+                detail: { consents: this.consents }
+            }));
+
+            // Reload page if configured
+            if (this.config.reloadOnConsent) {
+                location.reload();
+            }
+        }
+
+        /**
+         * Check if banner should be shown again
+         *
+         * @return {boolean}
+         */
+        shouldShowAgain() {
+            try {
+                const consents = JSON.parse(localStorage.getItem('slos_consents') || '{}');
+                const lastConsent = Object.values(consents)[0];
+                
+                if (lastConsent && lastConsent.timestamp) {
+                    const daysPassed = (Date.now() - lastConsent.timestamp) / (1000 * 60 * 60 * 24);
+                    return daysPassed > 30;
+                }
+            } catch (error) {
+                // Ignore
+            }
+            
+            return false;
+        }
+
+        /**
+         * Get translated string
+         *
+         * @param {string} key Translation key
+         * @param {string} fallback Fallback text
+         * @return {string}
+         */
+        t(key, fallback) {
+            return this.translations[key] || fallback;
+        }
+
+        /**
+         * Format purpose name for display
+         *
+         * @param {string} purpose The purpose
+         * @return {string}
+         */
+        formatPurpose(purpose) {
+            const formatted = {
+                'necessary': this.t('purposeNecessary', 'Necessary'),
+                'functional': this.t('purposeFunctional', 'Functional'),
+                'analytics': this.t('purposeAnalytics', 'Analytics'),
+                'marketing': this.t('purposeMarketing', 'Marketing'),
+                'preferences': this.t('purposePreferences', 'Preferences'),
+                'personalization': this.t('purposePersonalization', 'Personalization')
+            };
+
+            return formatted[purpose] || purpose.charAt(0).toUpperCase() + purpose.slice(1);
+        }
+
+        /**
+         * Get purpose description
+         *
+         * @param {string} purpose The purpose
+         * @return {string}
+         */
+        getPurposeDescription(purpose) {
+            const descriptions = {
+                'necessary': this.t('descNecessary', 'Required for the website to function properly'),
+                'functional': this.t('descFunctional', 'Enables enhanced functionality and personalization'),
+                'analytics': this.t('descAnalytics', 'Helps us understand how visitors use our website'),
+                'marketing': this.t('descMarketing', 'Used to deliver relevant ads and marketing campaigns'),
+                'preferences': this.t('descPreferences', 'Remembers your preferences and settings'),
+                'personalization': this.t('descPersonalization', 'Delivers personalized content based on your interests')
+            };
+
+            return descriptions[purpose] || '';
+        }
     }
 
     /**
-     * Store consent in localStorage.
+     * Initialize banner when DOM is ready
      */
-    storeConsent(consent) {
-      localStorage.setItem(
-        `complyflow_consent_${this.sessionId}`,
-        JSON.stringify(consent)
-      );
-    }
-
-    /**
-     * Render banner HTML.
-     */
-    render() {
-      const template = bannerConfig.template || 'top_bar';
-      const position = bannerConfig.position || 'top';
-      const html = this.getBannerTemplate();
-
-      // Create container.
-      const container = document.createElement('div');
-      container.id = 'complyflow-banner-root';
-      container.innerHTML = html;
-
-      // Add to DOM.
-      if ('top_bar' === template && 'top' === position) {
-        document.body.insertBefore(container, document.body.firstChild);
-      } else if ('bottom_bar' === template) {
-        document.body.appendChild(container);
-      } else {
-        document.body.appendChild(container);
-      }
-
-      this.banner = container;
-    }
-
-    /**
-     * Get banner HTML template.
-     */
-    getBannerTemplate() {
-      const colors = bannerConfig.colors || {};
-      const text = bannerConfig.text || {};
-      const template = bannerConfig.template || 'top_bar';
-
-      const bgColor = colors.background || '#ffffff';
-      const textColor = colors.text || '#111827';
-      const primaryColor = colors.primary || '#1f2937';
-      const btnAccept = colors.button_accept || '#10b981';
-      const btnReject = colors.button_reject || '#ef4444';
-      const btnCustomize = colors.button_customize || '#3b82f6';
-
-      const title = text.title || 'We use cookies';
-      const description = text.description || 'We use cookies to enhance your experience.';
-      const acceptLabel = text.accept_all || 'Accept All';
-      const rejectLabel = text.reject_all || 'Reject All';
-      const customizeLabel = text.customize || 'Customize';
-
-      return `
-        <div class="complyflow-banner" style="
-          background-color: ${bgColor};
-          color: ${textColor};
-          border-top: 1px solid #e5e7eb;
-          box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-          padding: 24px;
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          z-index: 999999;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          font-size: 14px;
-          line-height: 1.5;
-        ">
-          <div style="max-width: 1200px; margin: 0 auto;">
-            <h2 style="
-              margin: 0 0 12px 0;
-              font-size: 16px;
-              font-weight: 600;
-              color: ${primaryColor};
-            ">${title}</h2>
-
-            <p style="
-              margin: 0 0 16px 0;
-              color: ${textColor};
-              opacity: 0.8;
-            ">${description}</p>
-
-            <div class="complyflow-banner-actions" style="
-              display: flex;
-              gap: 12px;
-              align-items: center;
-              flex-wrap: wrap;
-            ">
-              <button class="complyflow-btn-accept" data-action="accept-all" style="
-                background-color: ${btnAccept};
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 500;
-                transition: opacity 0.2s;
-              ">${acceptLabel}</button>
-
-              <button class="complyflow-btn-reject" data-action="reject-all" style="
-                background-color: ${btnReject};
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 500;
-                transition: opacity 0.2s;
-              ">${rejectLabel}</button>
-
-              <button class="complyflow-btn-customize" data-action="customize" style="
-                background-color: transparent;
-                color: ${btnCustomize};
-                border: 1px solid ${btnCustomize};
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 500;
-                transition: background-color 0.2s;
-              ">${customizeLabel}</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preferences Modal (initially hidden) -->
-        <div class="complyflow-preferences-modal" style="
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0,0,0,0.5);
-          z-index: 999998;
-          align-items: center;
-          justify-content: center;
-        ">
-          <div style="
-            background-color: ${bgColor};
-            color: ${textColor};
-            border-radius: 12px;
-            padding: 32px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
-          ">
-            <h2 style="
-              margin: 0 0 16px 0;
-              font-size: 20px;
-              font-weight: 700;
-              color: ${primaryColor};
-            ">Customize Preferences</h2>
-
-            <div class="complyflow-categories" id="complyflow-categories">
-              <!-- Categories will be injected here -->
-            </div>
-
-            <div style="
-              display: flex;
-              gap: 12px;
-              margin-top: 24px;
-              justify-content: flex-end;
-            ">
-              <button class="complyflow-btn-cancel" data-action="cancel" style="
-                background-color: transparent;
-                color: ${textColor};
-                border: 1px solid #d1d5db;
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-              ">Cancel</button>
-
-              <button class="complyflow-btn-save" data-action="save-preferences" style="
-                background-color: ${btnAccept};
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 500;
-              ">Save Preferences</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    /**
-     * Attach event listeners to banner buttons.
-     */
-    attachListeners() {
-      if (!this.banner) return;
-
-      // Accept All button.
-      const btnAccept = this.banner.querySelector('[data-action="accept-all"]');
-      if (btnAccept) {
-        btnAccept.addEventListener('click', () => this.acceptAll());
-      }
-
-      // Reject All button.
-      const btnReject = this.banner.querySelector('[data-action="reject-all"]');
-      if (btnReject) {
-        btnReject.addEventListener('click', () => this.rejectAll());
-      }
-
-      // Customize button.
-      const btnCustomize = this.banner.querySelector('[data-action="customize"]');
-      if (btnCustomize) {
-        btnCustomize.addEventListener('click', () => this.showCustomizeModal());
-      }
-
-      // Modal Save button.
-      const btnSave = this.banner.querySelector('[data-action="save-preferences"]');
-      if (btnSave) {
-        btnSave.addEventListener('click', () => this.savePreferences());
-      }
-
-      // Modal Cancel button.
-      const btnCancel = this.banner.querySelector('[data-action="cancel"]');
-      if (btnCancel) {
-        btnCancel.addEventListener('click', () => this.hideCustomizeModal());
-      }
-    }
-
-    /**
-     * Accept all consents.
-     */
-    acceptAll() {
-      const preferences = {
-        necessary: true,
-        functional: true,
-        analytics: true,
-        marketing: true,
-      };
-
-      this.saveConsent(preferences);
-    }
-
-    /**
-     * Reject all non-necessary consents.
-     */
-    rejectAll() {
-      const preferences = {
-        necessary: true,
-        functional: false,
-        analytics: false,
-        marketing: false,
-      };
-
-      this.saveConsent(preferences);
-    }
-
-    /**
-     * Show customize modal.
-     */
-    showCustomizeModal() {
-      const modal = this.banner.querySelector('.complyflow-preferences-modal');
-      if (modal) {
-        modal.style.display = 'flex';
-        this.renderCategories();
-      }
-    }
-
-    /**
-     * Hide customize modal.
-     */
-    hideCustomizeModal() {
-      const modal = this.banner.querySelector('.complyflow-preferences-modal');
-      if (modal) {
-        modal.style.display = 'none';
-      }
-    }
-
-    /**
-     * Render category toggles in modal.
-     */
-    renderCategories() {
-      const container = this.banner.querySelector('#complyflow-categories');
-      if (!container) return;
-
-      const categories = config.categories || [];
-      let html = '';
-
-      for (const cat of categories) {
-        const disabled = cat.required ? 'disabled' : '';
-        html += `
-          <div style="
-            padding: 16px 0;
-            border-bottom: 1px solid #e5e7eb;
-          ">
-            <div style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 8px;
-            ">
-              <label style="
-                font-weight: 500;
-                cursor: pointer;
-              ">
-                <input type="checkbox" name="category_${cat.id}" class="complyflow-category-toggle" 
-                  ${cat.id === 'necessary' ? 'checked' : ''} ${disabled} style="margin-right: 8px;">
-                ${cat.label}
-              </label>
-            </div>
-            <p style="
-              margin: 0;
-              font-size: 13px;
-              color: #6b7280;
-            ">${cat.description || ''}</p>
-          </div>
-        `;
-      }
-
-      container.innerHTML = html;
-    }
-
-    /**
-     * Save preferences from modal.
-     */
-    savePreferences() {
-      const checkboxes = this.banner.querySelectorAll('.complyflow-category-toggle');
-      const preferences = {
-        necessary: true,
-      };
-
-      checkboxes.forEach((checkbox) => {
-        const category = checkbox.name.replace('category_', '');
-        preferences[category] = checkbox.checked;
-      });
-
-      this.saveConsent(preferences);
-    }
-
-    /**
-     * Save consent to backend and update page.
-     */
-    saveConsent(preferences) {
-      // Store locally.
-      this.storeConsent(preferences);
-
-      // Send to backend via REST API.
-      fetch(API_URL + '/preferences', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          session_id: this.sessionId,
-          region: config.region || 'US',
-          categories: preferences,
-          banner_version: config.bannerVersion || '1.0.0',
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('[Consent Banner] Consent saved', data);
-
-          // Hide banner.
-          this.hideBanner();
-
-          // Emit signals.
-          this.emitSignals(preferences);
-
-          // Replay blocked scripts.
-          if (typeof window.complyflowReplayScripts === 'function') {
-            window.complyflowReplayScripts(preferences);
-          }
-
-          // Re-enable blocked iframes.
-          if (typeof window.complyflowEnableIframes === 'function') {
-            window.complyflowEnableIframes(preferences);
-          }
-        })
-        .catch((err) => {
-          console.error('[Consent Banner] Error saving consent:', err);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            new ConsentBanner();
         });
+    } else {
+        new ConsentBanner();
     }
-
-    /**
-     * Hide banner after consent.
-     */
-    hideBanner() {
-      if (this.banner) {
-        this.banner.style.display = 'none';
-      }
-    }
-
-    /**
-     * Emit consent signals to analytics, GTM, etc.
-     */
-    emitSignals(preferences) {
-      // Emit WP Consent API.
-      for (const [category, granted] of Object.entries(preferences)) {
-        document.dispatchEvent(
-          new CustomEvent('wp_consent_category_set', {
-            detail: { category, granted },
-          })
-        );
-      }
-
-      // Update GTM dataLayer.
-      if (typeof window.dataLayer !== 'undefined') {
-        window.dataLayer.push({
-          event: 'consent_update',
-          consent_analytics: preferences.analytics,
-          consent_marketing: preferences.marketing,
-          consent_functional: preferences.functional,
-        });
-      }
-
-      // Update GCM via gtag.
-      if (typeof window.gtag === 'function') {
-        const gcmPayload = {
-          analytics_storage: preferences.analytics ? 'granted' : 'denied',
-          ad_storage: preferences.marketing ? 'granted' : 'denied',
-          ad_user_data: preferences.marketing && preferences.functional ? 'granted' : 'denied',
-          ad_personalization: preferences.marketing ? 'granted' : 'denied',
-        };
-
-        window.gtag('consent', 'update', gcmPayload);
-      }
-    }
-  }
-
-  /**
-   * Initialize banner when DOM ready.
-   */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      const banner = new ConsentBanner();
-      banner.init();
-      window.complyflowBanner = banner;
-    });
-  } else {
-    const banner = new ConsentBanner();
-    banner.init();
-    window.complyflowBanner = banner;
-  }
 })();
+

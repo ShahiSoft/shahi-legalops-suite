@@ -1,56 +1,56 @@
 <?php
 namespace ShahiLegalopsSuite\Modules\AccessibilityScanner\Compliance;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 class AccessibilityStatementGenerator {
-    
-    /**
-     * Generate Accessibility Statement Page
-     * 
-     * @param array $data Company/Site details
-     * @return int|WP_Error Post ID or Error
-     */
-    public function generate($data = []) {
-        $defaults = [
-            'site_name' => get_bloginfo('name'),
-            'contact_email' => get_option('admin_email'),
-            'standard' => 'WCAG 2.1 Level AA',
-            'date' => date('F j, Y')
-        ];
-        
-        $data = wp_parse_args($data, $defaults);
-        
-        $content = $this->get_template($data);
-        
-        $post_data = [
-            'post_title'    => 'Accessibility Statement',
-            'post_content'  => $content,
-            'post_status'   => 'publish',
-            'post_type'     => 'page',
-            'post_author'   => get_current_user_id(),
-        ];
-        
-        // Check if page already exists
-        $existing_page = get_page_by_title('Accessibility Statement');
-        if ($existing_page) {
-            $post_data['ID'] = $existing_page->ID;
-            return wp_update_post($post_data);
-        }
-        
-        return wp_insert_post($post_data);
-    }
-    
-    /**
-     * Get Statement Template
-     * 
-     * @param array $data
-     * @return string HTML Content
-     */
-    private function get_template($data) {
-        return <<<HTML
+
+	/**
+	 * Generate Accessibility Statement Page
+	 *
+	 * @param array $data Company/Site details
+	 * @return int|WP_Error Post ID or Error
+	 */
+	public function generate( $data = array() ) {
+		$defaults = array(
+			'site_name'     => get_bloginfo( 'name' ),
+			'contact_email' => get_option( 'admin_email' ),
+			'standard'      => 'WCAG 2.1 Level AA',
+			'date'          => date( 'F j, Y' ),
+		);
+
+		$data = wp_parse_args( $data, $defaults );
+
+		$content = $this->get_template( $data );
+
+		$post_data = array(
+			'post_title'   => 'Accessibility Statement',
+			'post_content' => $content,
+			'post_status'  => 'publish',
+			'post_type'    => 'page',
+			'post_author'  => get_current_user_id(),
+		);
+
+		// Check if page already exists
+		$existing_page = get_page_by_title( 'Accessibility Statement' );
+		if ( $existing_page ) {
+			$post_data['ID'] = $existing_page->ID;
+			return wp_update_post( $post_data );
+		}
+
+		return wp_insert_post( $post_data );
+	}
+
+	/**
+	 * Get Statement Template
+	 *
+	 * @param array $data
+	 * @return string HTML Content
+	 */
+	private function get_template( $data ) {
+		return <<<HTML
 <!-- wp:heading -->
 <h2>Accessibility Statement for {$data['site_name']}</h2>
 <!-- /wp:heading -->
@@ -107,5 +107,6 @@ class AccessibilityStatementGenerator {
 <p>This statement was created on {$data['date']} using the Shahi LegalOps Suite Accessibility Scanner.</p>
 <!-- /wp:paragraph -->
 HTML;
-    }
+	}
 }
+

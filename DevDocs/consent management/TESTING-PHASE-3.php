@@ -488,3 +488,4 @@ class Test_Performance_Security {
 		echo "✓ Nonce validation works\n";
 	}
 }
+

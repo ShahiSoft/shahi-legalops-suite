@@ -6,7 +6,7 @@
  *
  * @package     ShahiLegalopsSuite
  * @subpackage  Assets/JS
- * @version     1.0.0
+ * @version     3.0.1
  */
 
 (function($) {
@@ -218,7 +218,7 @@
                     action: 'shahi_toggle_module_premium',
                     nonce: shahiModuleDashboard.nonce,
                     module: moduleSlug,
-                    enabled: isEnabled
+                    enabled: isEnabled ? 1 : 0
                 },
                 success: (response) => {
                     if (response.success) {
@@ -471,3 +471,4 @@
     });
 
 })(jQuery);
+

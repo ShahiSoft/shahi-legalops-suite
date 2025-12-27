@@ -14,9 +14,9 @@ if (!defined('ABSPATH')) {
 
 <div class="wrap shahi-legalops-suite-admin shahi-settings-page">
     <style>
-        /* Force bright, legible tabs even if other styles load late */
+        /* Settings Page - Mac Slate Liquid Theme */
         .shahi-settings-page .shahi-tabs-nav {
-            background: #0a0e27 !important;
+            background: #0f172a !important;
             padding: 20px !important;
             border-radius: 12px !important;
             margin-bottom: 20px !important;
@@ -30,42 +30,42 @@ if (!defined('ABSPATH')) {
             align-items: center !important;
             gap: 8px !important;
             padding: 14px 24px !important;
-            color: #ffffff !important;
-            background: #1e2542 !important;
+            color: #f8fafc !important;
+            background: #1e293b !important;
             text-decoration: none !important;
             border-radius: 8px !important;
             font-size: 15px !important;
             font-weight: 600 !important;
-            border: 2px solid #2d3561 !important;
+            border: 2px solid #334155 !important;
             white-space: nowrap;
             transition: all 0.2s ease;
         }
 
         .shahi-settings-page a.shahi-tab-link .dashicons {
-            color: #00d4ff !important;
+            color: #3b82f6 !important;
             font-size: 20px !important;
             width: 20px;
             height: 20px;
         }
 
         .shahi-settings-page a.shahi-tab-link:hover {
-            background: #252d50 !important;
-            color: #00d4ff !important;
-            border-color: #00d4ff !important;
-            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.25) !important;
+            background: #334155 !important;
+            color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
             transform: translateY(-2px);
         }
 
         .shahi-settings-page a.shahi-tab-link.active {
-            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%) !important;
-            color: #ffffff !important;
-            border-color: #00d4ff !important;
-            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4), 0 0 40px rgba(124, 58, 237, 0.35) !important;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+            color: #f8fafc !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.35) !important;
             transform: translateY(-2px);
         }
 
         .shahi-settings-page a.shahi-tab-link.active .dashicons {
-            color: #ffffff !important;
+            color: #f8fafc !important;
         }
     </style>
     
@@ -103,6 +103,198 @@ if (!defined('ABSPATH')) {
         <?php wp_nonce_field('shahi_save_settings', 'shahi_settings_nonce'); ?>
 
         <div class="shahi-settings-content">
+            <?php if ($active_tab === 'privacy'): ?>
+                <!-- Privacy Settings -->
+                <div class="shahi-card">
+                    <div class="shahi-card-header">
+                        <h2 class="shahi-card-title"><?php echo esc_html__('Privacy Settings', 'shahi-legalops-suite'); ?></h2>
+                        <p class="shahi-card-description"><?php echo esc_html__('Configure geolocation, consent banner, cookie scanner, and retention.', 'shahi-legalops-suite'); ?></p>
+                    </div>
+                    <div class="shahi-card-body">
+                        <div class="shahi-settings-group">
+
+                            <!-- Geolocation -->
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label">
+                                    <?php echo esc_html__('Geolocation Detection', 'shahi-legalops-suite'); ?>
+                                </label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="enable_geolocation_detection" value="1" <?php checked($settings['enable_geolocation_detection']); ?>>
+                                        <span><?php echo esc_html__('Enable geolocation-based privacy behavior', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="geolocation_provider" class="shahi-setting-label">
+                                    <?php echo esc_html__('Geolocation Provider', 'shahi-legalops-suite'); ?>
+                                </label>
+                                <div class="shahi-setting-control">
+                                    <select id="geolocation_provider" name="geolocation_provider" class="shahi-select">
+                                        <option value="ipapi" <?php selected($settings['geolocation_provider'], 'ipapi'); ?>>ipapi</option>
+                                        <option value="ipinfo" <?php selected($settings['geolocation_provider'], 'ipinfo'); ?>>ipinfo</option>
+                                        <option value="ip-api" <?php selected($settings['geolocation_provider'], 'ip-api'); ?>>ip-api</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="geolocation_cache_ttl" class="shahi-setting-label">
+                                    <?php echo esc_html__('Geolocation Cache TTL', 'shahi-legalops-suite'); ?>
+                                </label>
+                                <div class="shahi-setting-control">
+                                    <input type="number" id="geolocation_cache_ttl" name="geolocation_cache_ttl" value="<?php echo esc_attr($settings['geolocation_cache_ttl']); ?>" min="60" max="604800" class="shahi-input shahi-input-sm">
+                                    <span class="shahi-input-suffix"><?php echo esc_html__('seconds', 'shahi-legalops-suite'); ?></span>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="geolocation_override_region" class="shahi-setting-label">
+                                    <?php echo esc_html__('Override Region', 'shahi-legalops-suite'); ?>
+                                </label>
+                                <div class="shahi-setting-control">
+                                    <select id="geolocation_override_region" name="geolocation_override_region" class="shahi-select">
+                                        <option value="" <?php selected($settings['geolocation_override_region'], ''); ?>><?php echo esc_html__('Auto-detect', 'shahi-legalops-suite'); ?></option>
+                                        <option value="EU" <?php selected($settings['geolocation_override_region'], 'EU'); ?>>EU</option>
+                                        <option value="US-CA" <?php selected($settings['geolocation_override_region'], 'US-CA'); ?>>US-CA</option>
+                                        <option value="US" <?php selected($settings['geolocation_override_region'], 'US'); ?>>US</option>
+                                        <option value="BR" <?php selected($settings['geolocation_override_region'], 'BR'); ?>>BR</option>
+                                        <option value="GLOBAL" <?php selected($settings['geolocation_override_region'], 'GLOBAL'); ?>>GLOBAL</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Privacy Controls -->
+                            <div class="shahi-divider"></div>
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label"><?php echo esc_html__('Global Privacy Controls', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="respect_dnt" value="1" <?php checked($settings['respect_dnt']); ?>>
+                                        <span><?php echo esc_html__('Respect Do Not Track (DNT) / Global Privacy Control', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label"><?php echo esc_html__('Preferences Visibility', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="show_preferences_link" value="1" <?php checked($settings['show_preferences_link']); ?>>
+                                        <span><?php echo esc_html__('Show “Cookie Settings” link globally', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                    <div class="shahi-inline-group" style="margin-top:8px;">
+                                        <label class="shahi-checkbox-label">
+                                            <input type="checkbox" name="preferences_show_history" value="1" <?php checked($settings['preferences_show_history']); ?>>
+                                            <span><?php echo esc_html__('Enable consent history on preferences UI', 'shahi-legalops-suite'); ?></span>
+                                        </label>
+                                        <label class="shahi-checkbox-label">
+                                            <input type="checkbox" name="preferences_show_download" value="1" <?php checked($settings['preferences_show_download']); ?>>
+                                            <span><?php echo esc_html__('Enable “Download My Data” on preferences UI', 'shahi-legalops-suite'); ?></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label"><?php echo esc_html__('Strict Consent Mode', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="block_scripts_until_consent" value="1" <?php checked($settings['block_scripts_until_consent']); ?>>
+                                        <span><?php echo esc_html__('Block marketing/analytics scripts until consent is granted', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="banner_region_scope" class="shahi-setting-label"><?php echo esc_html__('Banner Region Scope', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <select id="banner_region_scope" name="banner_region_scope" class="shahi-select">
+                                        <option value="GLOBAL" <?php selected($settings['banner_region_scope'], 'GLOBAL'); ?>><?php echo esc_html__('Global (all regions)', 'shahi-legalops-suite'); ?></option>
+                                        <option value="EU" <?php selected($settings['banner_region_scope'], 'EU'); ?>>EU</option>
+                                        <option value="US-CA" <?php selected($settings['banner_region_scope'], 'US-CA'); ?>>US-CA</option>
+                                        <option value="US" <?php selected($settings['banner_region_scope'], 'US'); ?>>US</option>
+                                        <option value="BR" <?php selected($settings['banner_region_scope'], 'BR'); ?>>BR</option>
+                                        <option value="" <?php selected($settings['banner_region_scope'], ''); ?>><?php echo esc_html__('Auto (match geolocation)', 'shahi-legalops-suite'); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="reprompt_interval_days" class="shahi-setting-label"><?php echo esc_html__('Re-prompt Interval', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <input type="number" id="reprompt_interval_days" name="reprompt_interval_days" value="<?php echo esc_attr($settings['reprompt_interval_days']); ?>" min="7" max="1095" class="shahi-input shahi-input-sm">
+                                    <span class="shahi-input-suffix"><?php echo esc_html__('days', 'shahi-legalops-suite'); ?></span>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label"><?php echo esc_html__('Bots & Crawlers', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="hide_banner_for_bots" value="1" <?php checked($settings['hide_banner_for_bots']); ?>>
+                                        <span><?php echo esc_html__('Hide banner for known bots/crawlers', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Cookie Scanner -->
+                            <div class="shahi-divider"></div>
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label"><?php echo esc_html__('Cookie Scanner', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="cookie_scanner_auto_scan" value="1" <?php checked($settings['cookie_scanner_auto_scan']); ?>>
+                                        <span><?php echo esc_html__('Auto-scan cookies on schedule', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="cookie_scanner_frequency" class="shahi-setting-label"><?php echo esc_html__('Scan Frequency', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <select id="cookie_scanner_frequency" name="cookie_scanner_frequency" class="shahi-select">
+                                        <option value="daily" <?php selected($settings['cookie_scanner_frequency'], 'daily'); ?>><?php echo esc_html__('Daily', 'shahi-legalops-suite'); ?></option>
+                                        <option value="weekly" <?php selected($settings['cookie_scanner_frequency'], 'weekly'); ?>><?php echo esc_html__('Weekly', 'shahi-legalops-suite'); ?></option>
+                                        <option value="monthly" <?php selected($settings['cookie_scanner_frequency'], 'monthly'); ?>><?php echo esc_html__('Monthly', 'shahi-legalops-suite'); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Data Retention -->
+                            <div class="shahi-divider"></div>
+                            <div class="shahi-setting-row">
+                                <label for="consent_retention_days" class="shahi-setting-label"><?php echo esc_html__('Consent Retention', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <input type="number" id="consent_retention_days" name="consent_retention_days" value="<?php echo esc_attr($settings['consent_retention_days']); ?>" min="30" max="1095" class="shahi-input shahi-input-sm">
+                                    <span class="shahi-input-suffix"><?php echo esc_html__('days', 'shahi-legalops-suite'); ?></span>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label for="consent_log_retention_days" class="shahi-setting-label"><?php echo esc_html__('Consent Log Retention', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <input type="number" id="consent_log_retention_days" name="consent_log_retention_days" value="<?php echo esc_attr($settings['consent_log_retention_days']); ?>" min="30" max="1095" class="shahi-input shahi-input-sm">
+                                    <span class="shahi-input-suffix"><?php echo esc_html__('days', 'shahi-legalops-suite'); ?></span>
+                                </div>
+                            </div>
+
+                            <div class="shahi-setting-row">
+                                <label class="shahi-setting-label"><?php echo esc_html__('Auto-delete Expired Records', 'shahi-legalops-suite'); ?></label>
+                                <div class="shahi-setting-control">
+                                    <label class="shahi-checkbox-label">
+                                        <input type="checkbox" name="auto_delete_expired" value="1" <?php checked($settings['auto_delete_expired']); ?>>
+                                        <span><?php echo esc_html__('Automatically remove expired consent records', 'shahi-legalops-suite'); ?></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             
             <?php if ($active_tab === 'general'): ?>
                 <!-- General Settings -->
@@ -480,7 +672,6 @@ if (!defined('ABSPATH')) {
                                               placeholder="<?php echo esc_attr__('192.168.1.1&#10;10.0.0.1&#10;172.16.0.1', 'shahi-legalops-suite'); ?>"><?php echo esc_textarea($settings['ip_blacklist']); ?></textarea>
                                     <p class="shahi-setting-description">
                                         <?php echo esc_html__('Enter one IP address per line. These IPs will be blocked from accessing your site.', 'shahi-legalops-suite'); ?>
-                                        <span class="shahi-badge shahi-badge-warning"><?php echo esc_html__('MOCK DATA', 'shahi-legalops-suite'); ?></span>
                                     </p>
                                 </div>
                             </div>
@@ -497,7 +688,7 @@ if (!defined('ABSPATH')) {
                                     </label>
                                     <p class="shahi-setting-description">
                                         <?php echo esc_html__('Only allows images, PDFs, and common document formats.', 'shahi-legalops-suite'); ?>
-                                        <span class="shahi-badge shahi-badge-warning"><?php echo esc_html__('PLACEHOLDER', 'shahi-legalops-suite'); ?></span>
+                                        <span class="shahi-badge shahi-badge-secondary"><?php echo esc_html__('Coming Soon', 'shahi-legalops-suite'); ?></span>
                                     </p>
                                 </div>
                             </div>
@@ -514,7 +705,7 @@ if (!defined('ABSPATH')) {
                                     </label>
                                     <p class="shahi-setting-description">
                                         <?php echo esc_html__('Adds an extra layer of security to admin accounts.', 'shahi-legalops-suite'); ?>
-                                        <span class="shahi-badge shahi-badge-warning"><?php echo esc_html__('PLACEHOLDER', 'shahi-legalops-suite'); ?></span>
+                                        <span class="shahi-badge shahi-badge-secondary"><?php echo esc_html__('Coming Soon', 'shahi-legalops-suite'); ?></span>
                                     </p>
                                 </div>
                             </div>
@@ -688,79 +879,6 @@ if (!defined('ABSPATH')) {
                 </div>
             <?php endif; ?>
 
-            <?php if ($active_tab === 'license'): ?>
-                <!-- License Settings -->
-                <div class="shahi-card">
-                    <div class="shahi-card-header">
-                        <h2 class="shahi-card-title"><?php echo esc_html__('License Activation', 'shahi-legalops-suite'); ?></h2>
-                        <p class="shahi-card-description"><?php echo esc_html__('Activate your license to receive updates and premium support.', 'shahi-legalops-suite'); ?></p>
-                    </div>
-                    <div class="shahi-card-body">
-                        <div class="shahi-settings-group">
-                            
-                            <?php if (!empty($settings['license_key']) && $settings['license_status'] === 'active'): ?>
-                                <div class="shahi-alert shahi-alert-success">
-                                    <span class="dashicons dashicons-yes-alt"></span>
-                                    <p>
-                                        <?php echo esc_html__('Your license is active!', 'shahi-legalops-suite'); ?>
-                                        <?php if (!empty($settings['license_expires'])): ?>
-                                            <?php echo sprintf(
-                                                esc_html__('Expires: %s', 'shahi-legalops-suite'),
-                                                esc_html($settings['license_expires'])
-                                            ); ?>
-                                        <?php endif; ?>
-                                    </p>
-                                </div>
-                            <?php endif; ?>
-
-                            <div class="shahi-setting-row">
-                                <label for="license_key" class="shahi-setting-label">
-                                    <?php echo esc_html__('License Key', 'shahi-legalops-suite'); ?>
-                                </label>
-                                <div class="shahi-setting-control">
-                                    <div class="shahi-input-group">
-                                        <input type="text" id="license_key" name="license_key" 
-                                               value="<?php echo esc_attr($settings['license_key']); ?>" 
-                                               class="shahi-input" 
-                                               placeholder="<?php echo esc_attr__('XXXX-XXXX-XXXX-XXXX', 'shahi-legalops-suite'); ?>">
-                                        <button type="button" id="shahi-activate-license" class="shahi-btn shahi-btn-primary">
-                                            <?php echo esc_html__('Activate', 'shahi-legalops-suite'); ?>
-                                        </button>
-                                    </div>
-                                    <p class="shahi-setting-description">
-                                        <?php echo esc_html__('Enter your license key to activate premium features.', 'shahi-legalops-suite'); ?>
-                                        <span class="shahi-badge shahi-badge-warning"><?php echo esc_html__('PLACEHOLDER - LICENSE SYSTEM NOT IMPLEMENTED', 'shahi-legalops-suite'); ?></span>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="shahi-setting-row">
-                                <label class="shahi-setting-label">
-                                    <?php echo esc_html__('License Status', 'shahi-legalops-suite'); ?>
-                                </label>
-                                <div class="shahi-setting-control">
-                                    <span class="shahi-badge <?php echo $settings['license_status'] === 'active' ? 'shahi-badge-success' : 'shahi-badge-secondary'; ?>">
-                                        <?php echo esc_html(ucfirst($settings['license_status'])); ?>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <?php if ($settings['license_status'] === 'active'): ?>
-                                <div class="shahi-setting-row">
-                                    <label class="shahi-setting-label"></label>
-                                    <div class="shahi-setting-control">
-                                        <button type="button" id="shahi-deactivate-license" class="shahi-btn shahi-btn-secondary">
-                                            <?php echo esc_html__('Deactivate License', 'shahi-legalops-suite'); ?>
-                                        </button>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-
         </div>
 
         <!-- Form Footer -->
@@ -774,3 +892,4 @@ if (!defined('ABSPATH')) {
     </form>
 
 </div>
+

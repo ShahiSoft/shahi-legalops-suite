@@ -28,6 +28,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class Base_Service {
 
 	/**
+	 * Base constructor
+	 *
+	 * Present so child services can safely call parent::__construct() without fatals.
+	 */
+	public function __construct() {
+	}
+
+	/**
 	 * Error messages
 	 *
 	 * @since 3.0.1

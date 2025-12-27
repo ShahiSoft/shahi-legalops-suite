@@ -29,7 +29,8 @@
         "composer/installers": "^2.0",
         "masterminds/html5": "2.8",
         "symfony/css-selector": "5.4",
-        "symfony/dom-crawler": "5.4"
+        "symfony/dom-crawler": "5.4",
+        "dompdf/dompdf": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.7",
@@ -57,6 +58,7 @@
     },
     "scripts": {
         "test": "phpunit --colors=always",
+        "test:consent": "phpunit --colors=always --testsuite consent",
         "test:coverage": "phpunit --colors=always --coverage-html coverage",
         "sniff": "phpcs --standard=WordPress includes/ shahi-legalops-suite.php",
         "sniff:verbose": "phpcs -v --standard=WordPress includes/ shahi-legalops-suite.php",

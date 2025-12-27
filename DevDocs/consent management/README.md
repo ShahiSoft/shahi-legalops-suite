@@ -1,8 +1,32 @@
 # Consent Management Module Documentation Index
 
 **Module ID:** consent  
-**Status:** ✅ Scaffolding Complete — Ready for Phase 1  
-**Documentation Date:** 2025-12-17
+**Status:** 🚀 Production-Ready Implementation Phase  
+**Documentation Date:** 2025-12-18  
+**Latest Update:** Strategic Plan + Implementation Checklist added
+
+---
+
+## 🎯 START HERE: New Implementation Resources
+
+### **[PHASED-STRATEGIC-PLAN.md](./PHASED-STRATEGIC-PLAN.md)** — Master Implementation Plan
+**What it contains:**
+- 8-week phased plan (40 working days) aligned to 10 critical recommendations
+- Admin dashboard + settings pages (SLOS submenu) and frontend banner system (4 templates)
+- GeoIP provider abstraction, cookie scanner, analytics dashboard, exports (CSV/JSON/PDF)
+- Testing targets (75%+ coverage), QA gates, risk mitigation, deliverables checklist
+
+**Who should read:** Project managers, lead developers, QA leads
+
+---
+
+### **[IMPLEMENTATION-CHECKLIST.md](./IMPLEMENTATION-CHECKLIST.md)** — Daily Task Tracker
+**What it contains:**
+- Day-by-day tasks with file paths and code templates
+- Progress tracking, commands for tests/lint, SLOS styling reminders
+- Mirrors the strategic plan for execution
+
+**Who should read:** Developers, team leads, code reviewers
 
 ---
 

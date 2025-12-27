@@ -1,12 +1,14 @@
 <?php
 /**
- * Accessibility Dashboard Template
+ * Accessibility Dashboard Template - V3 Design
  *
- * Premium dashboard for managing accessibility scans with advanced UI/UX.
+ * Dashboard for managing accessibility scans with modern UI/UX.
+ * Uses V3 dark theme design system for consistency.
  *
  * @package    ShahiLegalopsSuite
  * @subpackage Templates/Admin
  * @since      1.0.0
+ * @updated    3.0.2
  */
 
 if (!defined('ABSPATH')) {
@@ -27,380 +29,1854 @@ $total_pages = isset($stats['total_pages_scanned']) ? $stats['total_pages_scanne
 $total_issues = isset($stats['total_issues']) ? $stats['total_issues'] : 0;
 $total_critical = isset($stats['total_critical']) ? $stats['total_critical'] : 0;
 $average_score = isset($stats['average_score']) ? $stats['average_score'] : 100;
+
+// Get grade from score
+$grade = $average_score >= 90 ? 'A' : ($average_score >= 80 ? 'B' : ($average_score >= 70 ? 'C' : ($average_score >= 60 ? 'D' : 'F')));
+
+// Get scan history
+$scan_history = get_option('slos_accessibility_scan_history', []);
+
+// Get top issues by type
+$issues_by_type = get_option('slos_issues_by_type', []);
+
+// Get widget settings
+$widget_enabled = get_option('slos_widget_enabled', true);
 ?>
 
-<div class="wrap shahi-module-dashboard">
+<style>
+/* V3 Dashboard Styles - Uses Global Theme Variables */
+.slos-dashboard-v3 {
+    /* Inherit from global theme - Mac Slate Liquid */
+    --slos-bg-primary: #0f172a;
+    --slos-bg-card: #1e293b;
+    --slos-bg-input: #0f172a;
+    --slos-border: #334155;
+    --slos-border-light: #475569;
+    --slos-text-primary: #f8fafc;
+    --slos-text-secondary: #94a3b8;
+    --slos-text-muted: #64748b;
+    --slos-accent: #3b82f6;
+    --slos-accent-hover: #2563eb;
+    --slos-success: #22c55e;
+    --slos-warning: #f59e0b;
+    --slos-error: #ef4444;
+    --slos-info: #06b6d4;
     
-    <!-- Dashboard Header -->
-    <div class="shahi-dashboard-header">
-        <div class="shahi-header-content">
-            <div class="shahi-header-text">
-                <h1 class="shahi-page-title">
-                    <span class="shahi-icon-badge">
-                        <span class="dashicons dashicons-universal-access"></span>
-                    </span>
-                    <?php echo esc_html__('Accessibility Dashboard', 'shahi-legalops-suite'); ?>
-                </h1>
-                <p class="shahi-page-subtitle">
-                    <?php echo esc_html__('Monitor your website accessibility score, scan history, and compliance status', 'shahi-legalops-suite'); ?>
-                </p>
-            </div>
-            <div class="shahi-header-actions">
-                <button class="shahi-btn shahi-btn-gradient" id="slos-run-full-scan">
-                    <span class="dashicons dashicons-search"></span>
-                    <?php echo esc_html__('Run Full Scan', 'shahi-legalops-suite'); ?>
-                </button>
-                <button class="shahi-btn shahi-btn-outline" id="slos-generate-report">
-                    <span class="dashicons dashicons-media-document"></span>
-                    <?php echo esc_html__('Generate Report', 'shahi-legalops-suite'); ?>
-                </button>
-                <a href="<?php echo admin_url('admin.php?page=slos-accessibility-settings'); ?>" class="shahi-btn shahi-btn-outline">
-                    <span class="dashicons dashicons-admin-settings"></span>
-                    <?php echo esc_html__('Configure Settings', 'shahi-legalops-suite'); ?>
-                </a>
-            </div>
-        </div>
-    </div>
+    background: var(--slos-bg-primary);
+    padding: 24px;
+    margin: -20px -20px 0 -20px;
+    min-height: calc(100vh - 100px);
+}
 
-    <!-- Statistics Cards -->
-    <div class="shahi-stats-container">
-        <div class="shahi-stat-card shahi-stat-performance">
-            <div class="shahi-stat-icon">
-                <span class="dashicons dashicons-chart-bar"></span>
-            </div>
-            <div class="shahi-stat-content">
-                <div class="shahi-stat-value"><?php echo esc_html($average_score); ?>/100</div>
-                <div class="shahi-stat-label"><?php echo esc_html__('Overall Accessibility Score', 'shahi-legalops-suite'); ?></div>
-            </div>
-            <div class="shahi-stat-progress">
-                <div class="shahi-stat-progress-bar" style="width: <?php echo esc_attr($average_score); ?>%"></div>
-            </div>
-            <div class="shahi-stat-glow"></div>
-        </div>
+.slos-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    max-width: 1400px;
+}
 
-        <div class="shahi-stat-card shahi-stat-total">
-            <div class="shahi-stat-icon">
-                <span class="dashicons dashicons-warning"></span>
-            </div>
-            <div class="shahi-stat-content">
-                <div class="shahi-stat-value"><?php echo esc_html($total_issues); ?></div>
-                <div class="shahi-stat-label"><?php echo esc_html__('Total Issues Found', 'shahi-legalops-suite'); ?></div>
-            </div>
-            <div class="shahi-stat-glow"></div>
-        </div>
+.slos-dashboard-card {
+    background: var(--slos-bg-card);
+    border: 1px solid var(--slos-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
 
-        <div class="shahi-stat-card shahi-stat-inactive">
-            <div class="shahi-stat-icon">
-                <span class="dashicons dashicons-dismiss"></span>
-            </div>
-            <div class="shahi-stat-content">
-                <div class="shahi-stat-value"><?php echo esc_html($total_critical); ?></div>
-                <div class="shahi-stat-label"><?php echo esc_html__('Critical Issues', 'shahi-legalops-suite'); ?></div>
-            </div>
-            <div class="shahi-stat-glow"></div>
-        </div>
+.slos-dashboard-card.full-width {
+    grid-column: 1 / -1;
+}
 
-        <div class="shahi-stat-card shahi-stat-active">
-            <div class="shahi-stat-icon">
-                <span class="dashicons dashicons-admin-page"></span>
-            </div>
-            <div class="shahi-stat-content">
-                <div class="shahi-stat-value"><?php echo esc_html($total_pages); ?></div>
-                <div class="shahi-stat-label"><?php echo esc_html__('Pages Scanned', 'shahi-legalops-suite'); ?></div>
-            </div>
-            <div class="shahi-stat-glow"></div>
-        </div>
-    </div>
+.slos-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--slos-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-    <!-- Filter & Search Bar -->
-    <div class="shahi-controls-bar">
-        <div class="shahi-search-wrapper">
-            <span class="dashicons dashicons-search"></span>
-            <input type="text" 
-                   id="shahi-scan-search" 
-                   class="shahi-search-input" 
-                   placeholder="<?php echo esc_attr__('Search scanned pages...', 'shahi-legalops-suite'); ?>"
-                   autocomplete="off">
-            <span class="shahi-search-clear dashicons dashicons-no-alt" style="display: none;"></span>
+.slos-card-header h3 {
+    color: var(--slos-text-primary);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.slos-card-header h3 .dashicons {
+    color: var(--slos-accent);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.slos-card-header .badge {
+    background: var(--slos-accent);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.slos-card-body {
+    padding: 24px;
+}
+
+/* Score Overview */
+.slos-score-overview {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.slos-score-gauge {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    flex-shrink: 0;
+}
+
+.slos-score-gauge svg {
+    transform: rotate(-90deg);
+    width: 160px;
+    height: 160px;
+}
+
+.slos-score-gauge .bg-circle {
+    fill: none;
+    stroke: var(--slos-border);
+    stroke-width: 12;
+}
+
+.slos-score-gauge .score-circle {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease-out;
+}
+
+.slos-score-gauge.grade-a .score-circle { stroke: var(--slos-success); }
+.slos-score-gauge.grade-b .score-circle { stroke: #84cc16; }
+.slos-score-gauge.grade-c .score-circle { stroke: var(--slos-warning); }
+.slos-score-gauge.grade-d .score-circle { stroke: #f97316; }
+.slos-score-gauge.grade-f .score-circle { stroke: var(--slos-error); }
+
+.slos-score-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.slos-score-number {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--slos-text-primary);
+    line-height: 1;
+}
+
+.slos-score-label {
+    font-size: 12px;
+    color: var(--slos-text-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+.slos-score-details {
+    flex: 1;
+}
+
+.slos-grade-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.slos-grade-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+}
+
+.slos-grade-badge.grade-a { background: linear-gradient(135deg, var(--slos-success), #16a34a); }
+.slos-grade-badge.grade-b { background: linear-gradient(135deg, #84cc16, #65a30d); }
+.slos-grade-badge.grade-c { background: linear-gradient(135deg, var(--slos-warning), #d97706); }
+.slos-grade-badge.grade-d { background: linear-gradient(135deg, #f97316, #ea580c); }
+.slos-grade-badge.grade-f { background: linear-gradient(135deg, var(--slos-error), #dc2626); }
+
+.slos-grade-text .grade-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--slos-text-primary);
+}
+
+.slos-grade-text .grade-subtitle {
+    font-size: 13px;
+    color: var(--slos-text-muted);
+}
+
+.slos-trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.slos-trend-indicator.up {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--slos-success);
+}
+
+.slos-trend-indicator.down {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--slos-error);
+}
+
+.slos-trend-indicator.neutral {
+    background: rgba(161, 161, 170, 0.15);
+    color: var(--slos-text-muted);
+}
+
+/* Stats Grid */
+.slos-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--slos-border);
+}
+
+.slos-stat-box {
+    text-align: center;
+    padding: 16px;
+    background: var(--slos-bg-input);
+    border-radius: 8px;
+}
+
+.slos-stat-box .value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--slos-text-primary);
+    line-height: 1;
+}
+
+.slos-stat-box .value.critical { color: var(--slos-error); }
+.slos-stat-box .value.warning { color: var(--slos-warning); }
+.slos-stat-box .value.success { color: var(--slos-success); }
+
+.slos-stat-box .label {
+    font-size: 12px;
+    color: var(--slos-text-muted);
+    margin-top: 6px;
+}
+
+/* Issue Distribution */
+.slos-issue-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.slos-issue-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.slos-issue-label {
+    width: 100px;
+    font-size: 13px;
+    color: var(--slos-text-secondary);
+    flex-shrink: 0;
+}
+
+.slos-issue-bar-wrapper {
+    flex: 1;
+    height: 24px;
+    background: var(--slos-bg-input);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.slos-issue-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.slos-issue-bar.critical { background: linear-gradient(90deg, var(--slos-error), #f87171); }
+.slos-issue-bar.serious { background: linear-gradient(90deg, #f97316, #fb923c); }
+.slos-issue-bar.moderate { background: linear-gradient(90deg, var(--slos-warning), #fbbf24); }
+.slos-issue-bar.minor { background: linear-gradient(90deg, var(--slos-accent), #60a5fa); }
+
+.slos-issue-count {
+    width: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slos-text-primary);
+    text-align: right;
+}
+
+/* Top Issues Table */
+.slos-issues-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.slos-issues-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slos-text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--slos-border);
+}
+
+.slos-issues-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--slos-text-secondary);
+    border-bottom: 1px solid var(--slos-border);
+}
+
+.slos-issues-table tr:last-child td {
+    border-bottom: none;
+}
+
+.slos-issues-table tr:hover td {
+    background: var(--slos-bg-input);
+}
+
+.slos-issues-table .issue-name {
+    color: var(--slos-text-primary);
+    font-weight: 500;
+}
+
+.slos-fix-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.slos-fix-badge.auto {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--slos-success);
+}
+
+.slos-fix-badge.partial {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--slos-warning);
+}
+
+.slos-fix-badge.manual {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--slos-error);
+}
+
+/* Issue Count & Severity Badges */
+.slos-issue-count-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--slos-bg-input);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--slos-text-primary);
+}
+
+.slos-severity-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.slos-severity-badge.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--slos-error);
+}
+
+.slos-severity-badge.warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--slos-warning);
+}
+
+.slos-severity-badge.info {
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--slos-info);
+}
+
+.issue-description {
+    margin-left: 6px;
+    cursor: help;
+}
+
+.issue-description .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--slos-text-muted);
+    vertical-align: middle;
+}
+
+/* Scan History Chart */
+.slos-chart-placeholder {
+    height: 200px;
+    background: var(--slos-bg-input);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--slos-text-muted);
+}
+
+.slos-history-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.slos-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--slos-border);
+}
+
+.slos-history-item:last-child {
+    border-bottom: none;
+}
+
+.slos-history-date {
+    font-size: 13px;
+    color: var(--slos-text-secondary);
+}
+
+.slos-history-score {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slos-text-primary);
+}
+
+.slos-history-issues {
+    font-size: 13px;
+    color: var(--slos-text-muted);
+}
+
+.slos-history-btn {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--slos-border);
+    border-radius: 4px;
+    color: var(--slos-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slos-history-btn:hover {
+    border-color: var(--slos-accent);
+    color: var(--slos-accent);
+}
+
+/* Chart Controls */
+.slos-chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.slos-chart-select {
+    background: var(--slos-bg-input);
+    border: 1px solid var(--slos-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: var(--slos-text-primary);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.slos-chart-select:focus {
+    outline: none;
+    border-color: var(--slos-accent);
+}
+
+/* Trends Chart Container */
+.slos-trends-chart-container {
+    height: 280px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--slos-bg-input);
+    border-radius: 8px;
+}
+
+.slos-chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 12px;
+    background: var(--slos-bg-input);
+    border-radius: 8px;
+}
+
+.slos-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--slos-text-secondary);
+}
+
+.slos-legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+/* History Table */
+.slos-history-table-container {
+    margin-top: 24px;
+}
+
+.slos-history-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--slos-text-primary);
+}
+
+.slos-history-subtitle .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--slos-accent);
+}
+
+.slos-history-table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--slos-border);
+}
+
+.slos-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.slos-history-table th,
+.slos-history-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--slos-border);
+}
+
+.slos-history-table th {
+    background: var(--slos-bg-input);
+    color: var(--slos-text-secondary);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.slos-history-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.slos-history-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.slos-history-date .date-primary {
+    display: block;
+    color: var(--slos-text-primary);
+    font-weight: 500;
+}
+
+.slos-history-date .date-secondary {
+    display: block;
+    font-size: 11px;
+    color: var(--slos-text-muted);
+    margin-top: 2px;
+}
+
+.slos-score-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.slos-score-badge.excellent {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--slos-success);
+}
+
+.slos-score-badge.good {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--slos-accent);
+}
+
+.slos-score-badge.fair {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--slos-warning);
+}
+
+.slos-score-badge.poor {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--slos-error);
+}
+
+.slos-issues-count {
+    font-weight: 500;
+    color: var(--slos-text-primary);
+}
+
+.slos-critical-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--slos-error);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.slos-none-badge {
+    color: var(--slos-text-muted);
+}
+
+.slos-wcag-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--slos-info);
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.slos-view-scan-btn,
+.slos-compare-scan-btn {
+    background: transparent;
+    border: 1px solid var(--slos-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--slos-text-muted);
+    transition: all 0.2s;
+}
+
+.slos-view-scan-btn:hover,
+.slos-compare-scan-btn:hover {
+    border-color: var(--slos-accent);
+    color: var(--slos-accent);
+}
+
+.slos-view-scan-btn .dashicons,
+.slos-compare-scan-btn .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+.slos-history-pagination {
+    padding: 16px;
+    text-align: center;
+}
+
+.slos-load-more-btn {
+    background: var(--slos-bg-input);
+    border: 1px solid var(--slos-border);
+    border-radius: 6px;
+    padding: 10px 24px;
+    color: var(--slos-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slos-load-more-btn:hover {
+    border-color: var(--slos-accent);
+    color: var(--slos-accent);
+}
+
+/* Scan Details Modal */
+.slos-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slos-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.slos-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    background: var(--slos-bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--slos-border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.slos-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--slos-border);
+}
+
+.slos-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--slos-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slos-modal-header h3 .dashicons {
+    color: var(--slos-accent);
+}
+
+.slos-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: var(--slos-text-muted);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.slos-modal-close:hover {
+    color: var(--slos-text-primary);
+}
+
+.slos-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.slos-modal-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.slos-modal-stat {
+    background: var(--slos-bg-input);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.slos-modal-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--slos-text-primary);
+}
+
+.slos-modal-stat-label {
+    font-size: 12px;
+    color: var(--slos-text-muted);
+    margin-top: 4px;
+}
+
+.slos-comparison-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--slos-border);
+}
+
+.slos-comparison-label {
+    color: var(--slos-text-secondary);
+}
+
+.slos-comparison-value {
+    font-weight: 600;
+    color: var(--slos-text-primary);
+}
+
+.slos-comparison-change {
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.slos-comparison-change.positive {
+    color: var(--slos-success);
+}
+
+.slos-comparison-change.negative {
+    color: var(--slos-error);
+}
+
+/* Widget Preview */
+.slos-widget-preview-box {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px;
+    background: var(--slos-bg-input);
+    border-radius: 8px;
+}
+
+.slos-widget-mock {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--slos-accent), var(--slos-accent-hover));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.slos-widget-mock .dashicons {
+    color: white;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+}
+
+.slos-widget-info {
+    flex: 1;
+}
+
+.slos-widget-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--slos-text-primary);
+}
+
+.slos-widget-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--slos-text-muted);
+}
+
+.slos-widget-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+}
+
+.slos-widget-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slos-widget-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--slos-border);
+    border-radius: 28px;
+    transition: 0.3s;
+}
+
+.slos-widget-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.slos-widget-toggle input:checked + .slos-widget-slider {
+    background: var(--slos-success);
+}
+
+.slos-widget-toggle input:checked + .slos-widget-slider:before {
+    transform: translateX(24px);
+}
+
+/* Export Buttons */
+.slos-export-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.slos-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--slos-bg-input);
+    border: 1px solid var(--slos-border);
+    border-radius: 6px;
+    color: var(--slos-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slos-export-btn:hover {
+    border-color: var(--slos-accent);
+    color: var(--slos-accent);
+}
+
+.slos-export-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Pages Table */
+.slos-pages-attention {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.slos-page-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 80px 100px;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--slos-border);
+    gap: 16px;
+}
+
+.slos-page-row:last-child {
+    border-bottom: none;
+}
+
+.slos-page-row:hover {
+    background: var(--slos-bg-input);
+}
+
+.slos-page-name {
+    font-size: 14px;
+    color: var(--slos-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.slos-page-issues,
+.slos-page-score {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.slos-page-issues { color: var(--slos-error); }
+.slos-page-score { color: var(--slos-text-primary); }
+
+.slos-priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.slos-priority-badge.high {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--slos-error);
+}
+
+.slos-priority-badge.medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--slos-warning);
+}
+
+.slos-priority-badge.low {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--slos-success);
+}
+
+.slos-fix-link {
+    color: var(--slos-accent);
+    font-size: 13px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.slos-fix-link:hover {
+    text-decoration: underline;
+}
+
+/* Fix Buttons */
+.slos-fix-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, var(--slos-success), #16a34a);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slos-fix-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+}
+
+.slos-fix-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.slos-fix-btn.fixing {
+    background: var(--slos-warning);
+}
+
+.slos-autofix-toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.slos-autofix-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slos-autofix-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--slos-border);
+    transition: 0.3s;
+    border-radius: 20px;
+}
+
+.slos-autofix-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.slos-autofix-toggle input:checked + .slos-autofix-slider {
+    background: var(--slos-success);
+}
+
+.slos-autofix-toggle input:checked + .slos-autofix-slider:before {
+    transform: translateX(16px);
+}
+
+.slos-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Action Buttons */
+.slos-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--slos-border);
+}
+
+.slos-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--slos-accent), var(--slos-accent-hover));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slos-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.slos-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--slos-text-secondary);
+    border: 1px solid var(--slos-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slos-btn-secondary:hover {
+    border-color: var(--slos-accent);
+    color: var(--slos-accent);
+}
+
+@media (max-width: 1200px) {
+    .slos-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .slos-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+
+<div class="slos-dashboard-v3">
+    <div class="slos-dashboard-grid">
+        
+        <!-- Card 1: Score Overview -->
+        <div class="slos-dashboard-card">
+            <div class="slos-card-header">
+                <h3>
+                    <span class="dashicons dashicons-chart-pie"></span>
+                    <?php echo esc_html__('Accessibility Score Overview', 'shahi-legalops-suite'); ?>
+                </h3>
+                <span class="slos-trend-indicator up">
+                    <span class="dashicons dashicons-arrow-up-alt"></span>
+                    +5
+                </span>
+            </div>
+            <div class="slos-card-body">
+                <div class="slos-score-overview">
+                    <div class="slos-score-gauge grade-<?php echo esc_attr(strtolower($grade)); ?>">
+                        <svg viewBox="0 0 160 160">
+                            <circle class="bg-circle" cx="80" cy="80" r="70"></circle>
+                            <circle class="score-circle" cx="80" cy="80" r="70" 
+                                stroke-dasharray="440" 
+                                stroke-dashoffset="<?php echo esc_attr(440 - (440 * $average_score / 100)); ?>">
+                            </circle>
+                        </svg>
+                        <div class="slos-score-center">
+                            <div class="slos-score-number"><?php echo esc_html($average_score); ?></div>
+                            <div class="slos-score-label"><?php esc_html_e('Score', 'shahi-legalops-suite'); ?></div>
+                        </div>
+                    </div>
+                    <div class="slos-score-details">
+                        <div class="slos-grade-display">
+                            <div class="slos-grade-badge grade-<?php echo esc_attr(strtolower($grade)); ?>">
+                                <?php echo esc_html($grade); ?>
+                            </div>
+                            <div class="slos-grade-text">
+                                <div class="grade-title">
+                                    <?php 
+                                    $grade_labels = ['A' => 'Excellent', 'B' => 'Good', 'C' => 'Fair', 'D' => 'Poor', 'F' => 'Needs Work'];
+                                    echo esc_html($grade_labels[$grade] ?? 'Unknown');
+                                    ?>
+                                </div>
+                                <div class="grade-subtitle"><?php esc_html_e('WCAG 2.2 AA Compliance', 'shahi-legalops-suite'); ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slos-stats-row">
+                    <div class="slos-stat-box">
+                        <div class="value"><?php echo esc_html($total_pages); ?></div>
+                        <div class="label"><?php esc_html_e('Pages Scanned', 'shahi-legalops-suite'); ?></div>
+                    </div>
+                    <div class="slos-stat-box">
+                        <div class="value"><?php echo esc_html($total_issues); ?></div>
+                        <div class="label"><?php esc_html_e('Total Issues', 'shahi-legalops-suite'); ?></div>
+                    </div>
+                    <div class="slos-stat-box">
+                        <div class="value critical"><?php echo esc_html($total_critical); ?></div>
+                        <div class="label"><?php esc_html_e('Critical', 'shahi-legalops-suite'); ?></div>
+                    </div>
+                    <div class="slos-stat-box">
+                        <div class="value success"><?php echo esc_html(max(0, $total_issues - $total_critical)); ?></div>
+                        <div class="label"><?php esc_html_e('Auto-Fixable', 'shahi-legalops-suite'); ?></div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="shahi-filter-group">
-            <button class="shahi-filter-btn active" data-filter="all">
-                <?php echo esc_html__('All', 'shahi-legalops-suite'); ?>
-                <span class="shahi-filter-count"><?php echo esc_html($total_pages); ?></span>
-            </button>
-            <button class="shahi-filter-btn" data-filter="critical">
-                <?php echo esc_html__('Critical', 'shahi-legalops-suite'); ?>
-                <span class="shahi-filter-count"><?php echo esc_html($total_critical); ?></span>
-            </button>
-            <button class="shahi-filter-btn" data-filter="warning">
-                <?php echo esc_html__('Warnings', 'shahi-legalops-suite'); ?>
-                <span class="shahi-filter-count"><?php echo esc_html($total_issues - $total_critical); ?></span>
-            </button>
-            <button class="shahi-filter-btn" data-filter="passed">
-                <?php echo esc_html__('Passed', 'shahi-legalops-suite'); ?>
-                <span class="shahi-filter-count"><?php 
-                    $passed_count = 0;
-                    foreach ($scan_results as $result) {
-                        if ($result['status'] === 'passed') {
-                            $passed_count++;
-                        }
-                    }
-                    echo esc_html($passed_count);
-                ?></span>
-            </button>
-        </div>
-
-        <div class="shahi-view-toggle">
-            <button class="shahi-view-btn active" data-view="grid" title="<?php echo esc_attr__('Grid View', 'shahi-legalops-suite'); ?>">
-                <span class="dashicons dashicons-grid-view"></span>
-            </button>
-            <button class="shahi-view-btn" data-view="list" title="<?php echo esc_attr__('List View', 'shahi-legalops-suite'); ?>">
-                <span class="dashicons dashicons-list-view"></span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Scan Results Grid -->
-    <div class="shahi-modules-grid-premium" data-view="grid">
-        <?php foreach ($scan_results as $result): ?>
-            <div class="shahi-module-card-premium <?php echo esc_attr('shahi-status-' . $result['status']); ?>" 
-                 data-post-id="<?php echo esc_attr($result['post_id']); ?>"
-                 data-status="<?php echo esc_attr($result['status']); ?>"
-                 data-score="<?php echo esc_attr($result['score']); ?>">
-                
-                <!-- Card Background Effects -->
-                <div class="shahi-card-bg-effect"></div>
-                <div class="shahi-card-glow"></div>
-                
-                <!-- Page Header -->
-                <div class="shahi-module-card-header">
-                    <div class="shahi-module-icon-wrapper">
-                        <span class="dashicons dashicons-admin-page"></span>
-                        <div class="shahi-icon-pulse"></div>
+        <!-- Card 2: Issue Distribution -->
+        <div class="slos-dashboard-card">
+            <div class="slos-card-header">
+                <h3>
+                    <span class="dashicons dashicons-chart-bar"></span>
+                    <?php echo esc_html__('Issue Distribution', 'shahi-legalops-suite'); ?>
+                </h3>
+            </div>
+            <div class="slos-card-body">
+                <?php
+                // Calculate issue percentages
+                $max_issues = max($total_issues, 1);
+                $critical_pct = ($total_critical / $max_issues) * 100;
+                $serious_count = isset($stats['total_serious']) ? $stats['total_serious'] : round($total_issues * 0.3);
+                $serious_pct = ($serious_count / $max_issues) * 100;
+                $moderate_count = isset($stats['total_moderate']) ? $stats['total_moderate'] : round($total_issues * 0.25);
+                $moderate_pct = ($moderate_count / $max_issues) * 100;
+                $minor_count = $total_issues - $total_critical - $serious_count - $moderate_count;
+                $minor_pct = ($minor_count / $max_issues) * 100;
+                ?>
+                <div class="slos-issue-bars">
+                    <div class="slos-issue-row">
+                        <span class="slos-issue-label"><?php esc_html_e('Critical', 'shahi-legalops-suite'); ?></span>
+                        <div class="slos-issue-bar-wrapper">
+                            <div class="slos-issue-bar critical" style="width: <?php echo esc_attr($critical_pct); ?>%"></div>
+                        </div>
+                        <span class="slos-issue-count"><?php echo esc_html($total_critical); ?></span>
                     </div>
-                    
-                    <div class="shahi-module-meta">
-                        <span class="shahi-module-category">GENERAL</span>
-                        <?php if ($result['status'] === 'critical'): ?>
-                            <span class="shahi-module-priority shahi-priority-high">CRITICAL</span>
-                        <?php elseif ($result['status'] === 'warning'): ?>
-                            <span class="shahi-module-priority shahi-priority-medium">WARNING</span>
-                        <?php else: ?>
-                            <span class="shahi-module-priority shahi-priority-low">PASSED</span>
-                        <?php endif; ?>
+                    <div class="slos-issue-row">
+                        <span class="slos-issue-label"><?php esc_html_e('Serious', 'shahi-legalops-suite'); ?></span>
+                        <div class="slos-issue-bar-wrapper">
+                            <div class="slos-issue-bar serious" style="width: <?php echo esc_attr($serious_pct); ?>%"></div>
+                        </div>
+                        <span class="slos-issue-count"><?php echo esc_html($serious_count); ?></span>
+                    </div>
+                    <div class="slos-issue-row">
+                        <span class="slos-issue-label"><?php esc_html_e('Moderate', 'shahi-legalops-suite'); ?></span>
+                        <div class="slos-issue-bar-wrapper">
+                            <div class="slos-issue-bar moderate" style="width: <?php echo esc_attr($moderate_pct); ?>%"></div>
+                        </div>
+                        <span class="slos-issue-count"><?php echo esc_html($moderate_count); ?></span>
+                    </div>
+                    <div class="slos-issue-row">
+                        <span class="slos-issue-label"><?php esc_html_e('Minor', 'shahi-legalops-suite'); ?></span>
+                        <div class="slos-issue-bar-wrapper">
+                            <div class="slos-issue-bar minor" style="width: <?php echo esc_attr($minor_pct); ?>%"></div>
+                        </div>
+                        <span class="slos-issue-count"><?php echo esc_html(max(0, $minor_count)); ?></span>
                     </div>
                 </div>
-
-                <!-- Page Content -->
-                <div class="shahi-module-card-body">
-                    <h3 class="shahi-module-title"><?php echo esc_html($result['page']); ?></h3>
-                    <p class="shahi-module-description">
+                <div class="slos-action-row">
+                    <button type="button" class="slos-btn-secondary" id="slos-filter-wcag">
+                        <span class="dashicons dashicons-filter"></span>
+                        <?php esc_html_e('Filter by WCAG', 'shahi-legalops-suite'); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 3: Top Issues by Type -->
+        <div class="slos-dashboard-card">
+            <div class="slos-card-header">
+                <h3>
+                    <span class="dashicons dashicons-warning"></span>
+                    <?php echo esc_html__('Top Issues by Type', 'shahi-legalops-suite'); ?>
+                </h3>
+                <a href="#" class="slos-fix-link" style="font-size: 13px;">
+                    <?php esc_html_e('View All', 'shahi-legalops-suite'); ?>
+                    <span class="dashicons dashicons-arrow-right-alt2"></span>
+                </a>
+            </div>
+            <div class="slos-card-body" style="padding: 0;">
+                <?php if (empty($issues_by_type)): ?>
+                <div style="text-align: center; padding: 40px; color: var(--slos-text-muted);">
+                    <span class="dashicons dashicons-yes-alt" style="font-size: 32px; color: var(--slos-success); margin-bottom: 12px; display: block;"></span>
+                    <p><?php esc_html_e('No issues found. Run a scan to see results.', 'shahi-legalops-suite'); ?></p>
+                </div>
+                <?php else: ?>
+                <table class="slos-issues-table">
+                    <thead>
+                        <tr>
+                            <th><?php esc_html_e('Issue Type', 'shahi-legalops-suite'); ?></th>
+                            <th><?php esc_html_e('Count', 'shahi-legalops-suite'); ?></th>
+                            <th><?php esc_html_e('Severity', 'shahi-legalops-suite'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <?php 
-                        if ($result['critical_count'] > 0) {
-                            printf(
-                                esc_html__('Found %d critical and %d warning issues that need attention', 'shahi-legalops-suite'),
-                                $result['critical_count'],
-                                $result['issues_count'] - $result['critical_count']
-                            );
-                        } elseif ($result['issues_count'] > 0) {
-                            printf(
-                                esc_html__('Found %d accessibility warnings to review', 'shahi-legalops-suite'),
-                                $result['issues_count']
-                            );
-                        } else {
-                            echo esc_html__('All accessibility checks passed successfully', 'shahi-legalops-suite');
-                        }
+                        foreach (array_slice($issues_by_type, 0, 5) as $issue):
+                            $severity = isset($issue['severity']) ? $issue['severity'] : 'warning';
+                            $severity_class = $severity === 'critical' ? 'error' : ($severity === 'warning' ? 'warning' : 'info');
                         ?>
-                    </p>
-                    
-                    <!-- Page Stats -->
-                    <div class="shahi-module-stats">
-                        <div class="shahi-stat-item">
-                            <span class="dashicons dashicons-warning"></span>
-                            <span class="shahi-stat-value"><?php echo esc_html($result['issues_count']); ?></span>
-                            <span class="shahi-stat-text"><?php echo esc_html__('Issues', 'shahi-legalops-suite'); ?></span>
-                        </div>
-                        <div class="shahi-stat-item">
-                            <span class="dashicons dashicons-performance"></span>
-                            <span class="shahi-stat-value"><?php echo esc_html($result['score']); ?>%</span>
-                            <span class="shahi-stat-text"><?php echo esc_html__('Score', 'shahi-legalops-suite'); ?></span>
-                        </div>
+                        <tr>
+                            <td class="issue-name">
+                                <?php echo esc_html($issue['name']); ?>
+                                <?php if (!empty($issue['description'])): ?>
+                                <span class="issue-description" title="<?php echo esc_attr($issue['description']); ?>">
+                                    <span class="dashicons dashicons-info-outline"></span>
+                                </span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="slos-issue-count-badge"><?php echo esc_html($issue['count']); ?></span>
+                            </td>
+                            <td>
+                                <span class="slos-severity-badge <?php echo esc_attr($severity_class); ?>">
+                                    <?php echo esc_html(ucfirst($severity)); ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- Card 4: Widget Preview & Controls -->
+        <div class="slos-dashboard-card">
+            <div class="slos-card-header">
+                <h3>
+                    <span class="dashicons dashicons-visibility"></span>
+                    <?php echo esc_html__('Accessibility Widget', 'shahi-legalops-suite'); ?>
+                </h3>
+            </div>
+            <div class="slos-card-body">
+                <div class="slos-widget-preview-box">
+                    <div class="slos-widget-mock">
+                        <span class="dashicons dashicons-universal-access"></span>
+                    </div>
+                    <div class="slos-widget-info">
+                        <h4><?php esc_html_e('Frontend Widget', 'shahi-legalops-suite'); ?></h4>
+                        <p><?php esc_html_e('Floating accessibility toolbar for your visitors', 'shahi-legalops-suite'); ?></p>
+                    </div>
+                    <label class="slos-widget-toggle">
+                        <input type="checkbox" id="slos-widget-toggle" <?php checked($widget_enabled); ?>>
+                        <span class="slos-widget-slider"></span>
+                    </label>
+                </div>
+                <div class="slos-action-row">
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=slos-accessibility&tab=settings')); ?>" class="slos-btn-secondary">
+                        <span class="dashicons dashicons-admin-settings"></span>
+                        <?php esc_html_e('Configure Widget', 'shahi-legalops-suite'); ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card 5: Scan History (Full Width) -->
+        <div class="slos-dashboard-card full-width">
+            <div class="slos-card-header">
+                <h3>
+                    <span class="dashicons dashicons-chart-line"></span>
+                    <?php echo esc_html__('Scan History & Trends', 'shahi-legalops-suite'); ?>
+                </h3>
+                <div class="slos-chart-controls">
+                    <select id="slos-chart-range" class="slos-chart-select">
+                        <option value="7"><?php esc_html_e('Last 7 scans', 'shahi-legalops-suite'); ?></option>
+                        <option value="14"><?php esc_html_e('Last 14 scans', 'shahi-legalops-suite'); ?></option>
+                        <option value="30" selected><?php esc_html_e('Last 30 scans', 'shahi-legalops-suite'); ?></option>
+                        <option value="all"><?php esc_html_e('All scans', 'shahi-legalops-suite'); ?></option>
+                    </select>
+                    <div class="slos-export-buttons">
+                        <button type="button" class="slos-export-btn" data-format="csv" title="<?php esc_attr_e('Export as CSV', 'shahi-legalops-suite'); ?>">
+                            <span class="dashicons dashicons-media-spreadsheet"></span>
+                            CSV
+                        </button>
+                        <button type="button" class="slos-export-btn" data-format="json" title="<?php esc_attr_e('Export as JSON', 'shahi-legalops-suite'); ?>">
+                            <span class="dashicons dashicons-editor-code"></span>
+                            JSON
+                        </button>
                     </div>
                 </div>
-
-                <!-- List View - Warning Badge (hidden in grid view) -->
-                <div class="shahi-list-warning-badge">
-                    <?php if ($result['status'] === 'critical'): ?>
-                        <span class="shahi-list-priority critical">CRITICAL</span>
-                    <?php elseif ($result['status'] === 'warning'): ?>
-                        <span class="shahi-list-priority warning">WARNING</span>
-                    <?php else: ?>
-                        <span class="shahi-list-priority passed">PASSED</span>
+            </div>
+            <div class="slos-card-body">
+                <?php if (empty($scan_history)): ?>
+                <div class="slos-chart-placeholder">
+                    <div style="text-align: center;">
+                        <span class="dashicons dashicons-chart-area" style="font-size: 48px; margin-bottom: 12px; display: block; color: var(--slos-text-muted);"></span>
+                        <p><?php esc_html_e('No scan history yet. Run your first scan to see trends.', 'shahi-legalops-suite'); ?></p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-accessibility&tab=tools')); ?>" class="slos-primary-btn" style="margin-top: 16px; display: inline-block;">
+                            <?php esc_html_e('Run First Scan', 'shahi-legalops-suite'); ?>
+                        </a>
+                    </div>
+                </div>
+                <?php else: ?>
+                <!-- Chart Container -->
+                <div class="slos-trends-chart-container">
+                    <canvas id="slos-trends-chart"></canvas>
+                </div>
+                
+                <!-- Chart Legend -->
+                <div class="slos-chart-legend">
+                    <div class="slos-legend-item">
+                        <span class="slos-legend-color" style="background: #3b82f6;"></span>
+                        <span><?php esc_html_e('Accessibility Score', 'shahi-legalops-suite'); ?></span>
+                    </div>
+                    <div class="slos-legend-item">
+                        <span class="slos-legend-color" style="background: #f59e0b;"></span>
+                        <span><?php esc_html_e('Total Issues', 'shahi-legalops-suite'); ?></span>
+                    </div>
+                    <div class="slos-legend-item">
+                        <span class="slos-legend-color" style="background: #ef4444;"></span>
+                        <span><?php esc_html_e('Critical Issues', 'shahi-legalops-suite'); ?></span>
+                    </div>
+                </div>
+                
+                <!-- Scan History Table -->
+                <div class="slos-history-table-container">
+                    <h4 class="slos-history-subtitle">
+                        <span class="dashicons dashicons-list-view"></span>
+                        <?php esc_html_e('Recent Scans', 'shahi-legalops-suite'); ?>
+                    </h4>
+                    <div class="slos-history-table-wrapper">
+                        <table class="slos-history-table">
+                            <thead>
+                                <tr>
+                                    <th><?php esc_html_e('Date', 'shahi-legalops-suite'); ?></th>
+                                    <th><?php esc_html_e('Score', 'shahi-legalops-suite'); ?></th>
+                                    <th><?php esc_html_e('Issues', 'shahi-legalops-suite'); ?></th>
+                                    <th><?php esc_html_e('Critical', 'shahi-legalops-suite'); ?></th>
+                                    <th><?php esc_html_e('Pages', 'shahi-legalops-suite'); ?></th>
+                                    <th><?php esc_html_e('WCAG', 'shahi-legalops-suite'); ?></th>
+                                    <th><?php esc_html_e('Actions', 'shahi-legalops-suite'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody id="slos-history-tbody">
+                                <?php foreach (array_slice($scan_history, 0, 10) as $index => $scan): 
+                                    $score = isset($scan['score']) ? intval($scan['score']) : 0;
+                                    $score_class = $score >= 90 ? 'excellent' : ($score >= 70 ? 'good' : ($score >= 50 ? 'fair' : 'poor'));
+                                    $issues = isset($scan['issues']) ? intval($scan['issues']) : 0;
+                                    $critical = isset($scan['critical']) ? intval($scan['critical']) : 0;
+                                    $pages = isset($scan['pages_scanned']) ? intval($scan['pages_scanned']) : 0;
+                                    $wcag = isset($scan['wcag_level']) ? $scan['wcag_level'] : 'AA';
+                                    $date = isset($scan['date']) ? $scan['date'] : '';
+                                    $scan_id = isset($scan['id']) ? $scan['id'] : $index;
+                                ?>
+                                <tr data-scan-id="<?php echo esc_attr($scan_id); ?>">
+                                    <td class="slos-history-date">
+                                        <span class="date-primary"><?php echo esc_html(date_i18n('M j, Y', strtotime($date))); ?></span>
+                                        <span class="date-secondary"><?php echo esc_html(date_i18n('g:i A', strtotime($date))); ?></span>
+                                    </td>
+                                    <td>
+                                        <span class="slos-score-badge <?php echo esc_attr($score_class); ?>">
+                                            <?php echo esc_html($score); ?>/100
+                                        </span>
+                                    </td>
+                                    <td class="slos-issues-cell">
+                                        <span class="slos-issues-count"><?php echo esc_html($issues); ?></span>
+                                    </td>
+                                    <td class="slos-critical-cell">
+                                        <?php if ($critical > 0): ?>
+                                            <span class="slos-critical-badge"><?php echo esc_html($critical); ?></span>
+                                        <?php else: ?>
+                                            <span class="slos-none-badge">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo esc_html($pages); ?></td>
+                                    <td>
+                                        <span class="slos-wcag-badge"><?php echo esc_html($wcag); ?></span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="slos-view-scan-btn" data-scan-id="<?php echo esc_attr($scan_id); ?>" title="<?php esc_attr_e('View scan details', 'shahi-legalops-suite'); ?>">
+                                            <span class="dashicons dashicons-visibility"></span>
+                                        </button>
+                                        <button type="button" class="slos-compare-scan-btn" data-scan-id="<?php echo esc_attr($scan_id); ?>" title="<?php esc_attr_e('Compare with previous', 'shahi-legalops-suite'); ?>">
+                                            <span class="dashicons dashicons-controls-repeat"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php if (count($scan_history) > 10): ?>
+                    <div class="slos-history-pagination">
+                        <button type="button" class="slos-load-more-btn" id="slos-load-more-history">
+                            <?php printf(esc_html__('Load more (%d remaining)', 'shahi-legalops-suite'), count($scan_history) - 10); ?>
+                        </button>
+                    </div>
                     <?php endif; ?>
                 </div>
-
-                <!-- List View - Issues Count (hidden in grid view) -->
-                <div class="shahi-list-issues">
-                    <span class="shahi-list-issues-value"><?php echo esc_html($result['issues_count']); ?></span>
-                    <span class="shahi-list-issues-label"><?php echo esc_html__('Issues', 'shahi-legalops-suite'); ?></span>
-                </div>
-
-                <!-- List View - Score (hidden in grid view) -->
-                <div class="shahi-list-score">
-                    <span class="shahi-list-score-value"><?php echo esc_html($result['score']); ?>%</span>
-                    <span class="shahi-list-score-label"><?php echo esc_html__('Score', 'shahi-legalops-suite'); ?></span>
-                </div>
-
-                <!-- Page Footer / Actions -->
-                <div class="shahi-module-card-footer">
-                    <!-- Toggle Switch for Auto-fix -->
-                    <label class="shahi-toggle-switch-premium">
-                        <input type="checkbox" 
-                               class="shahi-autofix-toggle-input"
-                               data-post-id="<?php echo esc_attr($result['post_id']); ?>"
-                               <?php checked($result['autofix_enabled']); ?>>
-                        <span class="shahi-toggle-slider">
-                            <span class="shahi-toggle-icon shahi-toggle-icon-on">
-                                <span class="dashicons dashicons-yes"></span>
-                            </span>
-                            <span class="shahi-toggle-icon shahi-toggle-icon-off">
-                                <span class="dashicons dashicons-no"></span>
-                            </span>
-                        </span>
-                    </label>
-                    
-                    <div class="shahi-module-status-badge">
-                        <?php if ($result['autofix_enabled']): ?>
-                            <span class="shahi-status-active">
-                                <span class="shahi-status-dot"></span>
-                                <?php echo esc_html__('Auto Fix', 'shahi-legalops-suite'); ?>
-                            </span>
-                        <?php else: ?>
-                            <span class="shahi-status-inactive">
-                                <span class="shahi-status-dot"></span>
-                                <?php echo esc_html__('Manual Fix', 'shahi-legalops-suite'); ?>
-                            </span>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="shahi-module-actions">
-                        <button class="shahi-action-btn" 
-                                data-post-id="<?php echo esc_attr($result['post_id']); ?>"
-                                title="<?php echo esc_attr__('View Details', 'shahi-legalops-suite'); ?>">
-                            <span class="dashicons dashicons-info-outline"></span>
-                        </button>
-                        <button class="shahi-action-btn" 
-                                data-post-id="<?php echo esc_attr($result['post_id']); ?>"
-                                title="<?php echo esc_attr__('Fix Issues', 'shahi-legalops-suite'); ?>">
-                            <span class="dashicons dashicons-admin-tools"></span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Status Indicator Border -->
-                <div class="shahi-card-status-border"></div>
+                <?php endif; ?>
             </div>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- Empty State -->
-    <div class="shahi-empty-state" style="display: none;">
-        <div class="shahi-empty-icon">
-            <span class="dashicons dashicons-search"></span>
         </div>
-        <h3><?php echo esc_html__('No scan results found', 'shahi-legalops-suite'); ?></h3>
-        <p><?php echo esc_html__('Try adjusting your search or filter criteria', 'shahi-legalops-suite'); ?></p>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div class="shahi-loading-overlay" style="display: none;">
-        <div class="shahi-spinner">
-            <div class="shahi-spinner-ring"></div>
-            <div class="shahi-spinner-ring"></div>
-            <div class="shahi-spinner-ring"></div>
+        
+        <!-- Scan Details Modal -->
+        <div id="slos-scan-modal" class="slos-modal" style="display: none;">
+            <div class="slos-modal-overlay"></div>
+            <div class="slos-modal-content">
+                <div class="slos-modal-header">
+                    <h3><span class="dashicons dashicons-chart-bar"></span> <?php esc_html_e('Scan Details', 'shahi-legalops-suite'); ?></h3>
+                    <button type="button" class="slos-modal-close">&times;</button>
+                </div>
+                <div class="slos-modal-body" id="slos-modal-body">
+                    <!-- Content loaded dynamically -->
+                </div>
+            </div>
         </div>
+        
+        <!-- Card 6: Pages Requiring Attention (Full Width) -->
+        <div class="slos-dashboard-card full-width">
+            <div class="slos-card-header">
+                <h3>
+                    <span class="dashicons dashicons-flag"></span>
+                    <?php echo esc_html__('Pages Requiring Attention', 'shahi-legalops-suite'); ?>
+                </h3>
+                <span class="badge"><?php echo esc_html(count($scan_results)); ?> <?php esc_html_e('pages', 'shahi-legalops-suite'); ?></span>
+            </div>
+            <div class="slos-card-body" style="padding: 0;">
+                <div class="slos-pages-attention">
+                    <?php if (empty($scan_results)): ?>
+                    <div style="text-align: center; padding: 40px; color: var(--slos-text-muted);">
+                        <span class="dashicons dashicons-yes-alt" style="font-size: 48px; color: var(--slos-success); margin-bottom: 12px; display: block;"></span>
+                        <p><?php esc_html_e('No pages with accessibility issues. Great job!', 'shahi-legalops-suite'); ?></p>
+                    </div>
+                    <?php else: ?>
+                        <?php 
+                        // Sort by issues count descending
+                        usort($scan_results, function($a, $b) {
+                            return ($b['issues_count'] ?? 0) - ($a['issues_count'] ?? 0);
+                        });
+                        
+                        foreach (array_slice($scan_results, 0, 10) as $result): 
+                            $issues_count = isset($result['issues_count']) ? $result['issues_count'] : 0;
+                            $score = isset($result['score']) ? $result['score'] : 100;
+                            $priority = $issues_count > 5 ? 'high' : ($issues_count > 2 ? 'medium' : 'low');
+                            $post_id = isset($result['post_id']) ? $result['post_id'] : 0;
+                            $autofix_enabled = isset($result['autofix_enabled']) ? $result['autofix_enabled'] : false;
+                        ?>
+                        <div class="slos-page-row" data-post-id="<?php echo esc_attr($post_id); ?>">
+                            <span class="slos-page-name"><?php echo esc_html($result['page'] ?? 'Unknown Page'); ?></span>
+                            <span class="slos-page-issues"><?php echo esc_html($issues_count); ?></span>
+                            <span class="slos-page-score"><?php echo esc_html($score); ?>%</span>
+                            <span class="slos-priority-badge <?php echo esc_attr($priority); ?>">
+                                <?php echo esc_html(ucfirst($priority)); ?>
+                            </span>
+                            <div class="slos-page-actions">
+                                <button type="button" class="slos-fix-btn slos-fix-all-btn" data-post-id="<?php echo esc_attr($post_id); ?>" title="<?php esc_attr_e('Fix all issues on this page', 'shahi-legalops-suite'); ?>">
+                                    <span class="dashicons dashicons-admin-tools"></span>
+                                    <?php esc_html_e('Fix All', 'shahi-legalops-suite'); ?>
+                                </button>
+                                <label class="slos-autofix-toggle" title="<?php esc_attr_e('Enable auto-fix for this page', 'shahi-legalops-suite'); ?>">
+                                    <input type="checkbox" class="slos-autofix-checkbox" data-post-id="<?php echo esc_attr($post_id); ?>" <?php checked($autofix_enabled); ?>>
+                                    <span class="slos-autofix-slider"></span>
+                                </label>
+                                <a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" class="slos-fix-link" title="<?php esc_attr_e('Edit post manually', 'shahi-legalops-suite'); ?>">
+                                    <?php esc_html_e('Edit', 'shahi-legalops-suite'); ?>
+                                    <span class="dashicons dashicons-arrow-right-alt2"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
     </div>
-
 </div>
 
 <script>
 jQuery(document).ready(function($) {
-    // Search functionality
-    $('#shahi-scan-search').on('input', function() {
-        var searchTerm = $(this).val().toLowerCase();
-        var $clearBtn = $('.shahi-search-clear');
+    // Widget toggle
+    $('#slos-widget-toggle').on('change', function() {
+        var enabled = $(this).is(':checked');
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'slos_toggle_widget',
+                nonce: '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>',
+                enabled: enabled
+            }
+        });
+    });
+    
+    // Export buttons
+    $('.slos-export-btn').on('click', function() {
+        var format = $(this).data('format');
+        window.location.href = ajaxurl + '?action=slos_export_report&format=' + format + '&nonce=<?php echo wp_create_nonce('slos_export_nonce'); ?>';
+    });
+    
+    // =============================================
+    // FIX FUNCTIONALITY
+    // =============================================
+    
+    // Fix All Issues button
+    $('.slos-fix-all-btn').on('click', function() {
+        var $btn = $(this);
+        var postId = $btn.data('post-id');
+        var $row = $btn.closest('.slos-page-row');
         
-        if (searchTerm.length > 0) {
-            $clearBtn.show();
-        } else {
-            $clearBtn.hide();
+        if (!postId) {
+            showFixNotification('error', '<?php echo esc_js(__('Invalid page ID', 'shahi-legalops-suite')); ?>');
+            return;
         }
         
-        var visibleCount = 0;
-        $('.shahi-module-card-premium').each(function() {
-            var pageName = $(this).find('.shahi-module-title-premium').text().toLowerCase();
-            if (pageName.includes(searchTerm)) {
-                $(this).show();
-                visibleCount++;
-            } else {
-                $(this).hide();
+        if (!confirm('<?php echo esc_js(__('This will attempt to automatically fix all accessibility issues on this page. The page content will be modified. Continue?', 'shahi-legalops-suite')); ?>')) {
+            return;
+        }
+        
+        $btn.prop('disabled', true).addClass('fixing').html('<span class="dashicons dashicons-update slos-spin"></span> <?php echo esc_js(__('Fixing...', 'shahi-legalops-suite')); ?>');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'slos_fix_all_issues',
+                nonce: '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>',
+                post_id: postId
+            },
+            success: function(response) {
+                if (response.success) {
+                    var data = response.data;
+                    var fixedCount = data.total_issues_fixed || 0;
+                    var manualRequired = data.manual_required || 0;
+                    var newIssues = data.new_issues_count || 0;
+                    var newScore = data.new_score || 0;
+                    
+                    // Update button
+                    if (fixedCount > 0) {
+                        $btn.removeClass('fixing').addClass('fixed').html('<span class="dashicons dashicons-yes"></span> <?php echo esc_js(__('Fixed!', 'shahi-legalops-suite')); ?>');
+                    } else {
+                        $btn.removeClass('fixing').html('<span class="dashicons dashicons-warning"></span> <?php echo esc_js(__('Manual Fix Needed', 'shahi-legalops-suite')); ?>');
+                    }
+                    
+                    // Update the issues count with new value from server
+                    var $issuesSpan = $row.find('.slos-page-issues');
+                    $issuesSpan.text(newIssues);
+                    
+                    // Update score
+                    var $scoreSpan = $row.find('.slos-page-score');
+                    $scoreSpan.text(newScore + '%');
+                    
+                    // Update priority badge
+                    var $badge = $row.find('.slos-priority-badge');
+                    if (newIssues === 0) {
+                        $badge.removeClass('high medium').addClass('low').text('<?php echo esc_js(__('Fixed', 'shahi-legalops-suite')); ?>');
+                        setTimeout(function() { $row.fadeOut(1000); }, 2000);
+                    } else if (newIssues <= 2) {
+                        $badge.removeClass('high medium').addClass('low').text('<?php echo esc_js(__('Low', 'shahi-legalops-suite')); ?>');
+                    } else if (newIssues <= 5) {
+                        $badge.removeClass('high low').addClass('medium').text('<?php echo esc_js(__('Medium', 'shahi-legalops-suite')); ?>');
+                    }
+                    
+                    // Show detailed modal with fixed/failed/manual details
+                    var modalType = (fixedCount > 0 && manualRequired === 0) ? 'success' : ((fixedCount > 0 && manualRequired > 0) ? 'warning' : 'warning');
+                    showFixNotification(
+                        modalType, 
+                        data.message, 
+                        data.manual_fix_guidance || [],
+                        data.fixed_details || [],
+                        data.failed_details || []
+                    );
+                    
+                    // Reset button after delay
+                    setTimeout(function() {
+                        $btn.prop('disabled', false).removeClass('fixed').html('<span class="dashicons dashicons-admin-tools"></span> <?php echo esc_js(__('Fix All', 'shahi-legalops-suite')); ?>');
+                    }, 3000);
+                    
+                } else {
+                    var errorMsg = response.data && response.data.message ? response.data.message : '<?php echo esc_js(__('Unknown error', 'shahi-legalops-suite')); ?>';
+                    showFixNotification('error', errorMsg, response.data && response.data.guidance ? response.data.guidance : null, [], []);
+                    $btn.prop('disabled', false).removeClass('fixing').html('<span class="dashicons dashicons-admin-tools"></span> <?php echo esc_js(__('Fix All', 'shahi-legalops-suite')); ?>');
+                }
+            },
+            error: function(xhr, status, error) {
+                showFixNotification('error', '<?php echo esc_js(__('Network error. Please try again.', 'shahi-legalops-suite')); ?> (' + error + ')', [], [], []);
+                $btn.prop('disabled', false).removeClass('fixing').html('<span class="dashicons dashicons-admin-tools"></span> <?php echo esc_js(__('Fix All', 'shahi-legalops-suite')); ?>');
+            }
+        });
+    });
+    
+    /**
+     * Show Fix Results Modal - Centered popup with full details
+     */
+    function showFixNotification(type, message, guidance, fixedDetails, failedDetails) {
+        // Remove any existing modals
+        $('.slos-fix-results-modal-overlay').remove();
+        
+        var iconClass = type === 'success' ? 'yes-alt' : (type === 'error' ? 'dismiss' : (type === 'warning' ? 'warning' : 'info-outline'));
+        var headerBg = type === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : (type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : (type === 'warning' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #3b82f6, #2563eb)'));
+        var headerTitle = type === 'success' ? '<?php echo esc_js(__('Fix Complete', 'shahi-legalops-suite')); ?>' : (type === 'error' ? '<?php echo esc_js(__('Fix Failed', 'shahi-legalops-suite')); ?>' : (type === 'warning' ? '<?php echo esc_js(__('Manual Fixes Required', 'shahi-legalops-suite')); ?>' : '<?php echo esc_js(__('Information', 'shahi-legalops-suite')); ?>'));
+        
+        var html = '<div class="slos-fix-results-modal-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100002; display: flex; align-items: center; justify-content: center; padding: 20px;">';
+        html += '<div class="slos-fix-results-modal" style="background: #334155; border: 1px solid #475569; border-radius: 16px; width: 100%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px rgba(0,0,0,0.6); overflow: hidden;">';
+        
+        // Modal Header
+        html += '<div style="background: ' + headerBg + '; padding: 20px 24px; display: flex; align-items: center; gap: 16px;">';
+        html += '<span class="dashicons dashicons-' + iconClass + '" style="color: white; font-size: 32px; width: 32px; height: 32px;"></span>';
+        html += '<div style="flex: 1;"><h2 style="margin: 0; color: white; font-size: 20px; font-weight: 600;">' + headerTitle + '</h2>';
+        html += '<p style="margin: 4px 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">' + message + '</p></div>';
+        html += '<button type="button" class="slos-close-fix-modal" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 20px; line-height: 1; transition: background 0.2s;">&times;</button>';
+        html += '</div>';
+        
+        // Modal Body - Scrollable
+        html += '<div style="flex: 1; overflow-y: auto; padding: 24px; background: #334155;">';
+        
+        // Fixed Issues Section
+        if (fixedDetails && fixedDetails.length > 0) {
+            html += '<div style="margin-bottom: 24px;">';
+            html += '<h3 style="margin: 0 0 12px; color: #22c55e; font-size: 16px; display: flex; align-items: center; gap: 8px;"><span class="dashicons dashicons-yes-alt"></span> <?php echo esc_js(__('Automatically Fixed', 'shahi-legalops-suite')); ?> (' + fixedDetails.length + ')</h3>';
+            html += '<div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 8px; padding: 12px;">';
+            fixedDetails.forEach(function(item) {
+                html += '<div style="padding: 8px 0; border-bottom: 1px solid rgba(34, 197, 94, 0.2);">';
+                html += '<div style="font-weight: 500; color: #f1f5f9;">' + (item.title || item.type || 'Issue') + '</div>';
+                if (item.description) {
+                    html += '<div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">' + item.description + '</div>';
+                }
+                html += '</div>';
+            });
+            html += '</div></div>';
+        }
+        
+        // Failed Issues Section
+        if (failedDetails && failedDetails.length > 0) {
+            html += '<div style="margin-bottom: 24px;">';
+            html += '<h3 style="margin: 0 0 12px; color: #ef4444; font-size: 16px; display: flex; align-items: center; gap: 8px;"><span class="dashicons dashicons-dismiss"></span> <?php echo esc_js(__('Could Not Fix', 'shahi-legalops-suite')); ?> (' + failedDetails.length + ')</h3>';
+            html += '<div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 12px;">';
+            failedDetails.forEach(function(item) {
+                html += '<div style="padding: 8px 0; border-bottom: 1px solid rgba(239, 68, 68, 0.2);">';
+                html += '<div style="font-weight: 500; color: #f1f5f9;">' + (item.title || item.type || 'Issue') + '</div>';
+                if (item.reason) {
+                    html += '<div style="font-size: 12px; color: #fca5a5; margin-top: 4px;">' + item.reason + '</div>';
+                }
+                html += '</div>';
+            });
+            html += '</div></div>';
+        }
+        
+        // Manual Fix Guidance Section
+        if (guidance && guidance.length > 0) {
+            html += '<div>';
+            html += '<h3 style="margin: 0 0 12px; color: #f59e0b; font-size: 16px; display: flex; align-items: center; gap: 8px;"><span class="dashicons dashicons-edit"></span> <?php echo esc_js(__('Manual Fixes Required', 'shahi-legalops-suite')); ?> (' + guidance.length + ')</h3>';
+            
+            guidance.forEach(function(guide, idx) {
+                html += '<div style="background: #475569; border: 1px solid #64748b; border-radius: 8px; padding: 16px; margin-bottom: 12px;">';
+                html += '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+                html += '<span style="background: #f59e0b; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;">' + (idx + 1) + '</span>';
+                html += '<div style="flex: 1;">';
+                html += '<h4 style="margin: 0 0 8px; color: #f1f5f9; font-size: 14px; font-weight: 600;">' + guide.title + '</h4>';
+                html += '<p style="margin: 0 0 12px; color: #cbd5e1; font-size: 13px;">' + guide.description + '</p>';
+                
+                if (guide.steps && guide.steps.length > 0) {
+                    html += '<div style="background: #1e293b; border-radius: 6px; padding: 12px;">';
+                    html += '<div style="font-weight: 500; color: #cbd5e1; font-size: 12px; margin-bottom: 8px;"><?php echo esc_js(__('How to fix:', 'shahi-legalops-suite')); ?></div>';
+                    html += '<ol style="margin: 0; padding-left: 20px; color: #e2e8f0; font-size: 13px;">';
+                    guide.steps.forEach(function(step) {
+                        html += '<li style="margin-bottom: 6px;">' + step + '</li>';
+                    });
+                    html += '</ol>';
+                    if (guide.tip) {
+                        html += '<div style="margin-top: 10px; padding: 8px 12px; background: rgba(59, 130, 246, 0.2); border-radius: 4px; font-size: 12px; color: #93c5fd;"><span class="dashicons dashicons-lightbulb" style="font-size: 14px; margin-right: 4px;"></span> ' + guide.tip + '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div></div></div>';
+            });
+            html += '</div>';
+        }
+        
+        // No details case - just show message
+        if ((!guidance || guidance.length === 0) && (!fixedDetails || fixedDetails.length === 0) && (!failedDetails || failedDetails.length === 0)) {
+            html += '<div style="text-align: center; padding: 40px 20px;">';
+            html += '<span class="dashicons dashicons-' + iconClass + '" style="font-size: 48px; width: 48px; height: 48px; color: ' + (type === 'success' ? '#22c55e' : (type === 'error' ? '#ef4444' : '#f59e0b')) + '; display: block; margin: 0 auto 16px;"></span>';
+            html += '<p style="color: #f1f5f9; font-size: 16px; margin: 0;">' + message + '</p>';
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        
+        // Modal Footer
+        html += '<div style="padding: 16px 24px; border-top: 1px solid #64748b; background: #334155; display: flex; justify-content: flex-end; gap: 12px;">';
+        html += '<button type="button" class="slos-close-fix-modal" style="padding: 10px 24px; background: #475569; border: 1px solid #64748b; border-radius: 8px; color: #f1f5f9; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s;"><?php echo esc_js(__('Close', 'shahi-legalops-suite')); ?></button>';
+        html += '</div>';
+        
+        html += '</div></div>';
+        
+        var $modal = $(html);
+        $('body').append($modal);
+        
+        // Close handlers
+        $modal.find('.slos-close-fix-modal').on('click', function() {
+            $modal.fadeOut(200, function() { $(this).remove(); });
+        });
+        
+        $modal.on('click', function(e) {
+            if ($(e.target).hasClass('slos-fix-results-modal-overlay')) {
+                $modal.fadeOut(200, function() { $(this).remove(); });
             }
         });
         
-        if (visibleCount === 0) {
-            $('.shahi-empty-state').show();
-        } else {
-            $('.shahi-empty-state').hide();
-        }
-    });
-    
-    $('.shahi-search-clear').on('click', function() {
-        $('#shahi-scan-search').val('').trigger('input');
-    });
-    
-    // Filter functionality
-    $('.shahi-filter-btn').on('click', function() {
-        $('.shahi-filter-btn').removeClass('active');
-        $(this).addClass('active');
-        
-        var filter = $(this).data('filter');
-        var visibleCount = 0;
-        
-        $('.shahi-module-card-premium').each(function() {
-            if (filter === 'all' || $(this).data('status') === filter) {
-                $(this).show();
-                visibleCount++;
-            } else {
-                $(this).hide();
+        // ESC key to close
+        $(document).on('keydown.fixModal', function(e) {
+            if (e.key === 'Escape') {
+                $modal.fadeOut(200, function() { $(this).remove(); });
+                $(document).off('keydown.fixModal');
             }
         });
-        
-        if (visibleCount === 0) {
-            $('.shahi-empty-state').show();
-        } else {
-            $('.shahi-empty-state').hide();
-        }
-    });
-    
-    // View toggle
-    $('.shahi-view-btn').on('click', function() {
-        $('.shahi-view-btn').removeClass('active');
-        $(this).addClass('active');
-        
-        var view = $(this).data('view');
-        $('.shahi-modules-grid-premium').attr('data-view', view);
-    });
+    }
     
     // Auto-fix toggle
-    $('.shahi-autofix-toggle-input').on('change', function() {
-        var postId = $(this).data('post-id');
-        var enabled = $(this).is(':checked');
-        var $card = $(this).closest('.shahi-module-card-premium');
-        var $statusBadge = $card.find('.shahi-module-status-badge');
+    $('.slos-autofix-checkbox').on('change', function() {
+        var $checkbox = $(this);
+        var postId = $checkbox.data('post-id');
+        var enabled = $checkbox.is(':checked');
         
-        // Send AJAX request to save setting
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -412,656 +1888,477 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    // Update status badge text and class
-                    if (enabled) {
-                        $statusBadge.html('<span class="shahi-status-active"><span class="shahi-status-dot"></span>' + 
-                            '<?php echo esc_js(__('Auto Fix', 'shahi-legalops-suite')); ?></span>');
-                    } else {
-                        $statusBadge.html('<span class="shahi-status-inactive"><span class="shahi-status-dot"></span>' + 
-                            '<?php echo esc_js(__('Manual Fix', 'shahi-legalops-suite')); ?></span>');
-                    }
+                    showFixNotification('success', response.data.message);
                 } else {
-                    // Revert toggle on error
-                    $(this).prop('checked', !enabled);
-                    alert('Failed to update auto-fix setting: ' + response.data);
+                    // Revert checkbox
+                    $checkbox.prop('checked', !enabled);
+                    showFixNotification('error', '<?php echo esc_js(__('Failed to update auto-fix setting.', 'shahi-legalops-suite')); ?>');
                 }
-            }.bind(this),
+            },
             error: function() {
-                // Revert toggle on error
-                $(this).prop('checked', !enabled);
-                alert('An error occurred while saving the setting');
-            }.bind(this)
+                $checkbox.prop('checked', !enabled);
+                showFixNotification('error', '<?php echo esc_js(__('Network error.', 'shahi-legalops-suite')); ?>');
+            }
         });
     });
     
-    // Action buttons
-    $('.shahi-action-btn').on('click', function() {
-        var postId = $(this).data('post-id');
-        var icon = $(this).find('.dashicons').attr('class');
-        var $card = $(this).closest('.shahi-module-card-premium');
+    // =============================================
+    // SCAN HISTORY & TRENDS CHART
+    // =============================================
+    
+    // Store scan history data
+    var scanHistoryData = <?php echo json_encode(array_values($scan_history)); ?>;
+    var trendsChart = null;
+    
+    // Initialize chart if we have data
+    if (scanHistoryData.length > 0 && document.getElementById('slos-trends-chart')) {
+        initTrendsChart();
+    }
+    
+    /**
+     * Initialize the trends chart using Chart.js
+     */
+    function initTrendsChart() {
+        var ctx = document.getElementById('slos-trends-chart');
+        if (!ctx) return;
         
-        if (icon.includes('info-outline')) {
-            // Show issues details popup
-            showIssuesPopup(postId, $card);
-        } else if (icon.includes('admin-tools')) {
-            // Show fix progress popup
-            showFixProgressPopup(postId, $card);
+        var range = $('#slos-chart-range').val();
+        var chartData = getChartData(range);
+        
+        // Destroy existing chart if any
+        if (trendsChart) {
+            trendsChart.destroy();
+        }
+        
+        trendsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: '<?php echo esc_js(__('Score', 'shahi-legalops-suite')); ?>',
+                        data: chartData.scores,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '<?php echo esc_js(__('Issues', 'shahi-legalops-suite')); ?>',
+                        data: chartData.issues,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: '<?php echo esc_js(__('Critical', 'shahi-legalops-suite')); ?>',
+                        data: chartData.critical,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#94a3b8',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            title: function(items) {
+                                return items[0].label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#71717a',
+                            font: { size: 11 }
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#71717a',
+                            font: { size: 11 },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '<?php echo esc_js(__('Score', 'shahi-legalops-suite')); ?>',
+                            color: '#71717a'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 0,
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            color: '#71717a',
+                            font: { size: 11 }
+                        },
+                        title: {
+                            display: true,
+                            text: '<?php echo esc_js(__('Issues', 'shahi-legalops-suite')); ?>',
+                            color: '#71717a'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Get chart data filtered by range
+     */
+    function getChartData(range) {
+        var data = scanHistoryData.slice().reverse(); // Oldest first for chart
+        
+        if (range !== 'all') {
+            data = data.slice(-parseInt(range));
+        }
+        
+        return {
+            labels: data.map(function(scan) {
+                var d = new Date(scan.date);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            scores: data.map(function(scan) { return scan.score || 0; }),
+            issues: data.map(function(scan) { return scan.issues || 0; }),
+            critical: data.map(function(scan) { return scan.critical || 0; })
+        };
+    }
+    
+    // Update chart when range changes
+    $('#slos-chart-range').on('change', function() {
+        initTrendsChart();
+    });
+    
+    // =============================================
+    // SCAN DETAILS MODAL
+    // =============================================
+    
+    // View scan details
+    $('.slos-view-scan-btn').on('click', function() {
+        var scanId = $(this).data('scan-id');
+        showScanDetails(scanId);
+    });
+    
+    // Compare with previous
+    $('.slos-compare-scan-btn').on('click', function() {
+        var scanId = $(this).data('scan-id');
+        showScanComparison(scanId);
+    });
+    
+    // Close modal
+    $('.slos-modal-close, .slos-modal-overlay').on('click', function() {
+        $('#slos-scan-modal').hide();
+    });
+    
+    // Close modal on ESC
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            $('#slos-scan-modal').hide();
         }
     });
     
-    // Show issues details popup
-    function showIssuesPopup(postId, $card) {
-        // Get issue data from card
-        var criticalCount = parseInt($card.find('.shahi-list-issues .critical').text()) || 0;
-        var warningCount = parseInt($card.find('.shahi-list-issues .warning').text()) || 0;
-        var passedCount = parseInt($card.find('.shahi-list-issues .passed').text()) || 0;
+    /**
+     * Show scan details in modal
+     */
+    function showScanDetails(scanId) {
+        var scan = findScanById(scanId);
+        if (!scan) return;
         
-        var pageName = $card.find('.shahi-module-title-premium').text();
+        var scoreClass = scan.score >= 90 ? 'excellent' : (scan.score >= 70 ? 'good' : (scan.score >= 50 ? 'fair' : 'poor'));
+        var date = new Date(scan.date);
         
-        // Show popup INSTANTLY with loading skeleton
-        var loadingPopupHtml = `
-            <div class="shahi-popup-overlay" id="shahi-issues-popup">
-                <div class="shahi-popup-container">
-                    <div class="shahi-popup-header">
-                        <h2><span class="dashicons dashicons-info-outline"></span> Issues Found on ${pageName}</h2>
-                        <button class="shahi-popup-close">&times;</button>
-                    </div>
-                    <div class="shahi-popup-body">
-                        <div style="text-align:center;padding:40px;">
-                            <span class="dashicons dashicons-update shahi-spin" style="font-size:48px;color:#00d4ff;"></span>
-                            <p style="margin-top:16px;color:#6b7280;">Loading accessibility issues...</p>
-                        </div>
-                    </div>
-                    <div class="shahi-popup-footer">
-                        <button class="shahi-btn-secondary shahi-popup-close">Close</button>
-                    </div>
-                </div>
-            </div>`;
+        var html = '<div class="slos-modal-scan-date">' +
+            '<strong><?php echo esc_js(__('Scan Date:', 'shahi-legalops-suite')); ?></strong> ' + 
+            date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) +
+            '</div>' +
+            '<div class="slos-modal-stats">' +
+                '<div class="slos-modal-stat">' +
+                    '<div class="slos-modal-stat-value" style="color: var(--slos-' + (scan.score >= 70 ? 'success' : 'error') + ');">' + scan.score + '%</div>' +
+                    '<div class="slos-modal-stat-label"><?php echo esc_js(__('Accessibility Score', 'shahi-legalops-suite')); ?></div>' +
+                '</div>' +
+                '<div class="slos-modal-stat">' +
+                    '<div class="slos-modal-stat-value">' + scan.pages_scanned + '</div>' +
+                    '<div class="slos-modal-stat-label"><?php echo esc_js(__('Pages Scanned', 'shahi-legalops-suite')); ?></div>' +
+                '</div>' +
+                '<div class="slos-modal-stat">' +
+                    '<div class="slos-modal-stat-value" style="color: var(--slos-warning);">' + scan.issues + '</div>' +
+                    '<div class="slos-modal-stat-label"><?php echo esc_js(__('Total Issues', 'shahi-legalops-suite')); ?></div>' +
+                '</div>' +
+                '<div class="slos-modal-stat">' +
+                    '<div class="slos-modal-stat-value" style="color: var(--slos-error);">' + scan.critical + '</div>' +
+                    '<div class="slos-modal-stat-label"><?php echo esc_js(__('Critical Issues', 'shahi-legalops-suite')); ?></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="slos-modal-info">' +
+                '<div class="slos-comparison-row">' +
+                    '<span class="slos-comparison-label"><?php echo esc_js(__('WCAG Level', 'shahi-legalops-suite')); ?></span>' +
+                    '<span class="slos-comparison-value"><span class="slos-wcag-badge">' + (scan.wcag_level || 'AA') + '</span></span>' +
+                '</div>' +
+                '<div class="slos-comparison-row">' +
+                    '<span class="slos-comparison-label"><?php echo esc_js(__('Issues per Page', 'shahi-legalops-suite')); ?></span>' +
+                    '<span class="slos-comparison-value">' + (scan.pages_scanned > 0 ? (scan.issues / scan.pages_scanned).toFixed(1) : '0') + '</span>' +
+                '</div>' +
+            '</div>';
         
-        $('body').append(loadingPopupHtml);
-        $('#shahi-issues-popup').fadeIn(200);
-        
-        // Close handler for loading state
-        $('.shahi-popup-close').on('click', function() {
-            $('#shahi-issues-popup').fadeOut(300, function() {
-                $(this).remove();
-            });
-        });
-        
-        // Fetch real issues from server (async, non-blocking)
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'slos_get_page_issues',
-                nonce: '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>',
-                post_id: postId
-            },
-            success: function(response) {
-                // Remove loading popup, replace with real content
-                $('#shahi-issues-popup').remove();
-                
-                if (!response.success) {
-                    alert('Failed to load issues: ' + response.data);
-                    return;
-                }
-                
-                var issues = response.data.issues || [];
-                
-                var popupHtml = `
-                    <div class="shahi-popup-overlay" id="shahi-issues-popup">
-                        <div class="shahi-popup-container">
-                            <div class="shahi-popup-header">
-                                <h2><span class="dashicons dashicons-info-outline"></span> Issues Found on ${pageName}</h2>
-                                <button class="shahi-popup-close">&times;</button>
-                            </div>
-                            <div class="shahi-popup-body">
-                                <div class="shahi-issues-summary">
-                                    <div class="shahi-summary-item critical">
-                                        <span class="shahi-summary-count">${criticalCount}</span>
-                                        <span class="shahi-summary-label">Critical</span>
-                                    </div>
-                                    <div class="shahi-summary-item warning">
-                                        <span class="shahi-summary-count">${warningCount}</span>
-                                        <span class="shahi-summary-label">Warnings</span>
-                                    </div>
-                                    <div class="shahi-summary-item passed">
-                                        <span class="shahi-summary-count">${passedCount}</span>
-                                        <span class="shahi-summary-label">Passed</span>
-                                    </div>
-                                </div>
-                                <div class="shahi-issues-list">`;
-                
-                if (issues.length === 0) {
-                    popupHtml += '<p style="text-align:center;color:#10b981;font-size:16px;">No issues found! 🎉</p>';
-                } else {
-                    issues.forEach(function(issue, index) {
-                        popupHtml += `
-                                    <div class="shahi-issue-item" data-severity="${issue.severity}" data-issue-type="${issue.type}">
-                                        <div class="shahi-issue-info">
-                                            <span class="shahi-issue-badge ${issue.severity}">${issue.severity}</span>
-                                            <div class="shahi-issue-details">
-                                                <strong>${issue.type}</strong>
-                                                <code>${issue.element || 'N/A'}</code>
-                                                <span class="shahi-issue-count">${issue.count} occurrence(s)</span>
-                                            </div>
-                                        </div>
-                                        <button class="shahi-issue-fix-btn" data-issue-type="${issue.type}" data-post-id="${postId}">
-                                            <span class="dashicons dashicons-admin-tools"></span> Fix
-                                        </button>
-                                    </div>`;
-                    });
-                }
-                
-                popupHtml += `
-                                </div>
-                            </div>
-                            <div class="shahi-popup-footer">
-                                <button class="shahi-btn-secondary shahi-popup-close">Close</button>
-                                ${issues.length > 0 ? '<button class="shahi-btn-primary" id="shahi-fix-all-issues" data-post-id="' + postId + '"><span class="dashicons dashicons-admin-tools"></span> Fix All Issues</button>' : ''}
-                            </div>
-                        </div>
-                    </div>`;
-                
-                $('body').append(popupHtml);
-                
-                // Close popup handlers
-                $('.shahi-popup-close').on('click', function() {
-                    $('#shahi-issues-popup').fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                });
-                
-                // Individual fix button
-                $('.shahi-issue-fix-btn').on('click', function() {
-                    var $btn = $(this);
-                    var $item = $btn.closest('.shahi-issue-item');
-                    var issueType = $btn.data('issue-type');
-                    var fixPostId = $btn.data('post-id');
-                    
-                    $btn.prop('disabled', true).html('<span class="dashicons dashicons-update shahi-spin"></span> Fixing...');
-                    
-                    // Real AJAX call to fix issue
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: {
-                            action: 'slos_fix_single_issue',
-                            nonce: '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>',
-                            post_id: fixPostId,
-                            issue_type: issueType
-                        },
-                        success: function(fixResponse) {
-                            if (fixResponse.success) {
-                                $item.addClass('shahi-issue-fixed');
-                                $btn.html('<span class="dashicons dashicons-yes"></span> Fixed');
-                                
-                                // Update card counts
-                                updateCardCounts(postId, $card);
-                            } else {
-                                $btn.prop('disabled', false).html('<span class="dashicons dashicons-admin-tools"></span> Fix');
-                                alert('Fix failed: ' + fixResponse.data);
-                            }
-                        },
-                        error: function() {
-                            $btn.prop('disabled', false).html('<span class="dashicons dashicons-admin-tools"></span> Fix');
-                            alert('An error occurred while fixing the issue');
-                        }
-                    });
-                });
-                
-                // Fix all button
-                $('#shahi-fix-all-issues').on('click', function() {
-                    var fixAllPostId = $(this).data('post-id');
-                    $('#shahi-issues-popup').fadeOut(300, function() {
-                        $(this).remove();
-                        showFixProgressPopup(fixAllPostId, $card);
-                    });
-                });
-                
-                $('#shahi-issues-popup').fadeIn(300);
-            },
-            error: function() {
-                $('.shahi-popup-overlay').remove();
-                alert('Failed to load issues');
-            }
-        });
+        $('#slos-modal-body').html(html);
+        $('#slos-scan-modal .slos-modal-header h3').html('<span class="dashicons dashicons-chart-bar"></span> <?php echo esc_js(__('Scan Details', 'shahi-legalops-suite')); ?>');
+        $('#slos-scan-modal').show();
     }
     
-    // Show fix progress popup with animations
-    function showFixProgressPopup(postId, $card) {
-        // Show loading overlay and initiate fix
-        var pageName = $card.find('.shahi-module-title-premium').text();
-        var popupHtml = `
-            <div class="shahi-popup-overlay" id="shahi-fix-popup">
-                <div class="shahi-popup-container shahi-popup-fix">
-                    <div class="shahi-popup-header">
-                        <h2><span class="dashicons dashicons-admin-tools"></span> Fixing Issues on ${pageName}</h2>
-                    </div>
-                    <div class="shahi-popup-body">
-                        <div class="shahi-fix-progress-container" id="shahi-fix-items-container">
-                            <p style="text-align:center;color:#00d4ff;"><span class="dashicons dashicons-update shahi-spin" style="font-size:32px;"></span><br>Initializing fixes...</p>
-                        </div>
-                        <div class="shahi-overall-progress">
-                            <div class="shahi-progress-bar">
-                                <div class="shahi-progress-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="shahi-progress-text">0 / 0 issues fixed</div>
-                        </div>
-                    </div>
-                    <div class="shahi-popup-footer">
-                        <button class="shahi-btn-secondary" id="shahi-cancel-fix" disabled>Cancel</button>
-                        <button class="shahi-btn-primary" id="shahi-done-fix" style="display:none;">
-                            <span class="dashicons dashicons-yes"></span> Done
-                        </button>
-                    </div>
-                </div>
-            </div>`;
+    /**
+     * Show scan comparison in modal
+     */
+    function showScanComparison(scanId) {
+        var scanIndex = findScanIndexById(scanId);
+        if (scanIndex === -1) return;
         
-        $('body').append(popupHtml);
-        $('#shahi-fix-popup').fadeIn(300);
+        var currentScan = scanHistoryData[scanIndex];
+        var previousScan = scanHistoryData[scanIndex + 1]; // History is newest first
         
-        // Send AJAX request to fix all issues
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'slos_fix_all_issues',
-                nonce: '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>',
-                post_id: postId
-            },
-            success: function(response) {
-                if (!response.success) {
-                    $('#shahi-fix-items-container').html('<p style="text-align:center;color:#ef4444;">Fix failed: ' + response.data + '</p>');
-                    $('#shahi-cancel-fix').text('Close').prop('disabled', false);
-                    return;
-                }
-                
-                var fixedIssues = response.data.details || [];
-                var totalIssues = fixedIssues.length;
-                
-                // Build progress items
-                var itemsHtml = '';
-                fixedIssues.forEach(function(issue, index) {
-                    itemsHtml += `
-                        <div class="shahi-fix-item" data-index="${index}">
-                            <div class="shahi-fix-icon">
-                                <span class="dashicons dashicons-update shahi-spin"></span>
-                            </div>
-                            <div class="shahi-fix-text">${issue.type}</div>
-                            <div class="shahi-fix-status">
-                                <span class="shahi-status-pending">Pending...</span>
-                            </div>
-                        </div>`;
-                });
-                
-                $('#shahi-fix-items-container').html(itemsHtml);
-                $('.shahi-progress-text').text('0 / ' + totalIssues + ' issues fixed');
-                
-                // Animate fixes
-                var currentIndex = 0;
-                
-                function animateNextFix() {
-                    if (currentIndex >= totalIssues) {
-                        // All done - update card and show completion
-                        $('#shahi-done-fix').show();
-                        $('#shahi-cancel-fix').hide();
-                        updateCardCounts(postId, $card);
-                        return;
-                    }
-                    
-                    var $item = $('.shahi-fix-item[data-index="' + currentIndex + '"]');
-                    $item.addClass('shahi-fixing');
-                    $item.find('.shahi-status-pending').text('Fixing...');
-                    
-                    setTimeout(function() {
-                        $item.removeClass('shahi-fixing').addClass('shahi-fixed');
-                        $item.find('.shahi-fix-icon .dashicons')
-                            .removeClass('dashicons-update shahi-spin')
-                            .addClass('dashicons-yes');
-                        $item.find('.shahi-status-pending')
-                            .removeClass('shahi-status-pending')
-                            .addClass('shahi-status-done')
-                            .text('Fixed!');
-                        
-                        currentIndex++;
-                        var progress = (currentIndex / totalIssues) * 100;
-                        $('.shahi-progress-fill').css('width', progress + '%');
-                        $('.shahi-progress-text').text(currentIndex + ' / ' + totalIssues + ' issues fixed');
-                        
-                        setTimeout(animateNextFix, 300);
-                    }, 600 + Math.random() * 200);
-                }
-                
-                setTimeout(animateNextFix, 500);
-            },
-            error: function() {
-                $('#shahi-fix-items-container').html('<p style="text-align:center;color:#ef4444;">An error occurred while fixing issues</p>');
-                $('#shahi-cancel-fix').text('Close').prop('disabled', false);
-            }
-        });
-        
-        // Done button handler
-        $(document).on('click', '#shahi-done-fix', function() {
-            $('#shahi-fix-popup').fadeOut(300, function() {
-                $(this).remove();
-                // Refresh the page to show updated results
-                location.reload();
-            });
-        });
-        
-        // Cancel button handler
-        $(document).on('click', '#shahi-cancel-fix', function() {
-            $('#shahi-fix-popup').fadeOut(300, function() {
-                $(this).remove();
-            });
-        });
-    }
-    
-    // Update card counts after fixing
-    function updateCardCounts(postId, $card) {
-        // Fetch updated results from server
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'slos_get_page_issues',
-                nonce: '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>',
-                post_id: postId
-            },
-            success: function(response) {
-                if (response.success) {
-                    var issues = response.data.issues || [];
-                    var criticalCount = 0;
-                    var warningCount = 0;
-                    
-                    issues.forEach(function(issue) {
-                        if (issue.severity === 'critical') {
-                            criticalCount += issue.count;
-                        } else {
-                            warningCount += issue.count;
-                        }
-                    });
-                    
-                    // Update card display
-                    $card.find('.shahi-list-issues .critical').text(criticalCount);
-                    $card.find('.shahi-list-issues .warning').text(warningCount);
-                    
-                    // Update score (simple calculation)
-                    var score = 100 - (criticalCount * 5) - (warningCount * 2);
-                    score = Math.max(0, Math.min(100, score));
-                    $card.find('.shahi-list-score-value').text(score + '%');
-                    
-                    // Update status indicator
-                    if (score >= 90) {
-                        $card.attr('data-status', 'passed');
-                    } else if (score >= 70) {
-                        $card.attr('data-status', 'warning');
-                    } else {
-                        $card.attr('data-status', 'critical');
-                    }
-                }
-            }
-        });
-    }
-    
-    // Action buttons (old code removed)
-    /*
-    $('.shahi-action-btn').on('click', function() {
-        var page = $(this).data('page');
-        var icon = $(this).find('.dashicons').attr('class');
-        
-        if (icon.includes('info-outline')) {
-            console.log('View details for: ' + page);
-            // Add modal or redirect logic
-        } else if (icon.includes('admin-tools')) {
-            console.log('Fix issues for: ' + page);
-            // Add fix logic
+        if (!previousScan) {
+            showScanDetails(scanId);
+            return;
         }
-    });
-    */
+        
+        var scoreChange = currentScan.score - previousScan.score;
+        var issuesChange = currentScan.issues - previousScan.issues;
+        var criticalChange = currentScan.critical - previousScan.critical;
+        
+        var html = '<div class="slos-modal-scan-date" style="margin-bottom: 16px;">' +
+            '<strong><?php echo esc_js(__('Comparing:', 'shahi-legalops-suite')); ?></strong> ' + 
+            new Date(currentScan.date).toLocaleDateString() + ' vs ' + new Date(previousScan.date).toLocaleDateString() +
+            '</div>' +
+            '<div class="slos-comparison-row">' +
+                '<span class="slos-comparison-label"><?php echo esc_js(__('Score', 'shahi-legalops-suite')); ?></span>' +
+                '<span class="slos-comparison-value">' + 
+                    currentScan.score + '% ' + 
+                    '<span class="slos-comparison-change ' + (scoreChange >= 0 ? 'positive' : 'negative') + '">' +
+                        (scoreChange >= 0 ? '↑' : '↓') + Math.abs(scoreChange) + '%' +
+                    '</span>' +
+                '</span>' +
+            '</div>' +
+            '<div class="slos-comparison-row">' +
+                '<span class="slos-comparison-label"><?php echo esc_js(__('Total Issues', 'shahi-legalops-suite')); ?></span>' +
+                '<span class="slos-comparison-value">' + 
+                    currentScan.issues + ' ' + 
+                    '<span class="slos-comparison-change ' + (issuesChange <= 0 ? 'positive' : 'negative') + '">' +
+                        (issuesChange <= 0 ? '↓' : '↑') + Math.abs(issuesChange) +
+                    '</span>' +
+                '</span>' +
+            '</div>' +
+            '<div class="slos-comparison-row">' +
+                '<span class="slos-comparison-label"><?php echo esc_js(__('Critical Issues', 'shahi-legalops-suite')); ?></span>' +
+                '<span class="slos-comparison-value">' + 
+                    currentScan.critical + ' ' + 
+                    '<span class="slos-comparison-change ' + (criticalChange <= 0 ? 'positive' : 'negative') + '">' +
+                        (criticalChange <= 0 ? '↓' : '↑') + Math.abs(criticalChange) +
+                    '</span>' +
+                '</span>' +
+            '</div>' +
+            '<div class="slos-comparison-row">' +
+                '<span class="slos-comparison-label"><?php echo esc_js(__('Pages Scanned', 'shahi-legalops-suite')); ?></span>' +
+                '<span class="slos-comparison-value">' + currentScan.pages_scanned + ' (was ' + previousScan.pages_scanned + ')</span>' +
+            '</div>';
+        
+        $('#slos-modal-body').html(html);
+        $('#slos-scan-modal .slos-modal-header h3').html('<span class="dashicons dashicons-controls-repeat"></span> <?php echo esc_js(__('Scan Comparison', 'shahi-legalops-suite')); ?>');
+        $('#slos-scan-modal').show();
+    }
     
-    // Header action buttons
-    $('#slos-run-full-scan').on('click', function() {
-        var nonce = '<?php echo wp_create_nonce('slos_scanner_nonce'); ?>';
-
-        // Show popup INSTANTLY with loading state
-        var loadingPopupHtml = `
-        <div class="shahi-popup-overlay" id="shahi-fullscan-popup">
-            <div class="shahi-popup-container shahi-popup-fix">
-                <div class="shahi-popup-header">
-                    <h2><span class="dashicons dashicons-update shahi-spin"></span> Preparing Full Scan</h2>
-                </div>
-                <div class="shahi-popup-body">
-                    <div style="text-align:center;padding:60px 20px;">
-                        <span class="dashicons dashicons-update shahi-spin" style="font-size:64px;color:#00d4ff;"></span>
-                        <p style="margin-top:24px;color:#6b7280;font-size:16px;">Loading pages to scan...</p>
-                    </div>
-                </div>
-                <div class="shahi-popup-footer">
-                    <button class="shahi-btn-secondary" id="shahi-fullscan-cancel">Cancel</button>
-                </div>
-            </div>
-        </div>`;
-
-        $('body').append(loadingPopupHtml);
-        $('#shahi-fullscan-popup').fadeIn(100);
-
-        // Cancel handler for loading state
-        var scanCancelled = false;
-        $(document).on('click', '#shahi-fullscan-cancel', function() {
-            scanCancelled = true;
-            $('#shahi-fullscan-popup').fadeOut(200, function() {
-                $(this).remove();
-            });
-        });
-
-        // 1) Fetch all published posts/pages to scan (async, non-blocking)
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'slos_get_posts_to_scan',
-                nonce: nonce
-            },
-            success: function(res) {
-                if (scanCancelled) return;
-
-                if (!res || !res.success || !Array.isArray(res.data) || res.data.length === 0) {
-                    $('#shahi-fullscan-popup').remove();
-                    alert('No published posts/pages found to scan.');
-                    return;
-                }
-
-                var pages = res.data;
-                var total = pages.length;
-                var current = 0;
-
-                // Replace loading content with scan UI
-                $('#shahi-fullscan-popup .shahi-popup-header h2').html('<span class="dashicons dashicons-update shahi-spin"></span> Running Full Scan');
-                $('#shahi-fullscan-popup .shahi-popup-body').html(`
-                    <div class="shahi-overall-progress" style="margin-bottom:16px;">
-                        <div class="shahi-progress-bar">
-                            <div class="shahi-progress-fill" id="shahi-fullscan-progress" style="width:0%"></div>
-                        </div>
-                        <div class="shahi-progress-text" id="shahi-fullscan-progress-text">0 / ${total} pages scanned</div>
-                    </div>
-                    <div id="shahi-fullscan-list" class="shahi-issues-list" style="max-height:320px;overflow:auto;">
-                    </div>
-                `);
-                $('#shahi-fullscan-popup .shahi-popup-footer').html(`
-                    <button class="shahi-btn-secondary" id="shahi-fullscan-cancel" disabled>Cancel</button>
-                    <button class="shahi-btn-primary" id="shahi-fullscan-done" style="display:none;"><span class="dashicons dashicons-yes"></span> Done</button>
-                `);
-
-                // Render initial list
-                var $list = $('#shahi-fullscan-list');
-                pages.forEach(function(p) {
-                    $list.append(`
-                        <div class="shahi-issue-item" data-post-id="${p.id}">
-                            <div class="shahi-issue-info">
-                                <span class="shahi-issue-badge warning">pending</span>
-                                <div class="shahi-issue-details">
-                                    <strong>${p.title || '(Untitled)'}</strong>
-                                    <div class="shahi-issue-count">Waiting to scan...</div>
-                                </div>
-                            </div>
-                            <div class="shahi-issue-meta" style="font-size:12px;color:#6b7280;">&nbsp;</div>
-                        </div>`);
-                });
-
-                function updateProgress() {
-                    var pct = total === 0 ? 0 : Math.round((completedCount / total) * 100);
-                    $('#shahi-fullscan-progress').css('width', pct + '%');
-                    var statusText = completedCount + ' / ' + total + ' pages scanned';
-                    if (activeScanCount > 0) {
-                        statusText += ' (' + activeScanCount + ' scanning now)';
-                    }
-                    $('#shahi-fullscan-progress-text').text(statusText);
-                }
-
-                function renderResult(p, scanRes) {
-                    var $row = $list.find('[data-post-id="' + p.id + '"]');
-                    if ($row.length === 0) return;
-
-                    var issuesCount = scanRes.issues_count || 0;
-                    var criticalCount = scanRes.critical_count || 0;
-                    var badgeClass = 'passed';
-                    var badgeLabel = 'passed';
-                    if (criticalCount > 0) { badgeClass = 'critical'; badgeLabel = 'critical'; }
-                    else if (issuesCount > 0) { badgeClass = 'warning'; badgeLabel = 'warning'; }
-
-                    var issueTypes = scanRes.issue_types || [];
-
-                    $row.find('.shahi-issue-badge')
-                        .removeClass('warning critical passed')
-                        .addClass(badgeClass)
-                        .text(badgeLabel);
-                    $row.find('.shahi-issue-count').text(issuesCount + ' issues (' + criticalCount + ' critical)');
-                    $row.find('.shahi-issue-meta').text(issueTypes.length ? 'Checks: ' + issueTypes.join(', ') : 'No issues found');
-                }
-
-                // 2) Scan with CONCURRENCY (4 parallel scans for speed)
-                var CONCURRENCY = 4;
-                var activeScanCount = 0;
-                var nextIndex = 0;
-                var completedCount = 0;
-
-                function scanNext() {
-                    // Start new scans if we have capacity and pages remaining
-                    while (activeScanCount < CONCURRENCY && nextIndex < total) {
-                        if (scanCancelled) return;
-                        
-                        var pageIndex = nextIndex++;
-                        var page = pages[pageIndex];
-                        activeScanCount++;
-                        
-                        scanPage(page);
-                    }
-                    
-                    // Check if all done
-                    if (completedCount >= total && activeScanCount === 0) {
-                        finalizeScan();
-                    }
-                }
-
-                function scanPage(page) {
-                    var $row = $list.find('[data-post-id="' + page.id + '"]');
-                    $row.find('.shahi-issue-count').text('Scanning...');
-                    $row.find('.shahi-issue-meta').text('Running checks');
-                    $row.find('.shahi-issue-badge').removeClass('critical warning passed').addClass('warning').text('scanning');
-
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: {
-                            action: 'slos_scan_single_post',
-                            nonce: nonce,
-                            post_id: page.id
-                        },
-                        success: function(scanRes) {
-                            if (scanCancelled) return;
-                            if (scanRes && scanRes.success && scanRes.data) {
-                                renderResult(page, scanRes.data);
-                            } else {
-                                $row.find('.shahi-issue-count').text('Scan failed');
-                                $row.find('.shahi-issue-meta').text('Error');
-                                $row.find('.shahi-issue-badge').removeClass('critical warning passed').addClass('critical').text('error');
-                            }
-                        },
-                        error: function() {
-                            if (scanCancelled) return;
-                            $row.find('.shahi-issue-count').text('Scan failed');
-                            $row.find('.shahi-issue-meta').text('Network or server error');
-                            $row.find('.shahi-issue-badge').removeClass('critical warning passed').addClass('critical').text('error');
-                        },
-                        complete: function() {
-                            activeScanCount--;
-                            completedCount++;
-                            updateProgress();
-                            scanNext(); // Trigger next batch
-                        }
-                    });
-                }
-
-                function finalizeScan() {
-                    if (scanCancelled) return;
-                    
-                    // All scans complete - now consolidate ONCE
-                    $list.prepend('<div class="shahi-issue-item"><div class="shahi-issue-info"><span class="shahi-issue-badge warning">consolidating</span><div class="shahi-issue-details"><strong>Finalizing results...</strong></div></div></div>');
-                    
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: {
-                            action: 'slos_consolidate_scan_results',
-                            nonce: nonce
-                        },
-                        complete: function() {
-                            $list.find('.shahi-issue-item:first').remove();
-                            $('#shahi-fullscan-done').show();
-                            $('#shahi-fullscan-cancel').prop('disabled', false).text('Close');
-                            updateProgress();
-                        }
-                    });
-                }
-
-                // Start scanning with concurrency
-                updateProgress();
-                scanNext();
-
-                // Cancel/Close handler - FIXED
-                $(document).off('click', '#shahi-fullscan-cancel').on('click', '#shahi-fullscan-cancel', function() {
-                    scanCancelled = true;
-                    $('#shahi-fullscan-popup').fadeOut(200, function() {
-                        $(this).remove();
-                    });
-                });
-
-                // Done handler
-                $(document).on('click', '#shahi-fullscan-done', function() {
-                    $('#shahi-fullscan-popup').fadeOut(200, function() {
-                        $(this).remove();
-                        location.reload();
-                    });
-                });
-
-                // Cancel/Close handler
-                $(document).on('click', '#shahi-fullscan-cancel', function() {
-                    $('#shahi-fullscan-popup').fadeOut(200, function() {
-                        $(this).remove();
-                    });
-                });
-            },
-            error: function() {
-                alert('Failed to initiate full scan.');
+    /**
+     * Find scan by ID in history
+     */
+    function findScanById(scanId) {
+        for (var i = 0; i < scanHistoryData.length; i++) {
+            if (scanHistoryData[i].id === scanId || i === parseInt(scanId)) {
+                return scanHistoryData[i];
             }
-        });
+        }
+        return null;
+    }
+    
+    /**
+     * Find scan index by ID
+     */
+    function findScanIndexById(scanId) {
+        for (var i = 0; i < scanHistoryData.length; i++) {
+            if (scanHistoryData[i].id === scanId || i === parseInt(scanId)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    // =============================================
+    // EXPORT FUNCTIONALITY
+    // =============================================
+    
+    // Export buttons for scan history
+    $('.slos-export-btn').on('click', function() {
+        var format = $(this).data('format');
+        exportScanHistory(format);
     });
     
-    $('#slos-generate-report').on('click', function() {
-        console.log('Generating accessibility report...');
-        // Add report generation logic
+    /**
+     * Export scan history
+     */
+    function exportScanHistory(format) {
+        if (scanHistoryData.length === 0) {
+            alert('<?php echo esc_js(__('No scan history to export.', 'shahi-legalops-suite')); ?>');
+            return;
+        }
+        
+        var filename = 'accessibility-scan-history-' + new Date().toISOString().split('T')[0];
+        
+        if (format === 'json') {
+            downloadFile(JSON.stringify(scanHistoryData, null, 2), filename + '.json', 'application/json');
+        } else if (format === 'csv') {
+            var csv = 'Date,Score,Issues,Critical,Pages Scanned,WCAG Level\n';
+            scanHistoryData.forEach(function(scan) {
+                csv += '"' + scan.date + '",' + scan.score + ',' + scan.issues + ',' + scan.critical + ',' + scan.pages_scanned + ',' + (scan.wcag_level || 'AA') + '\n';
+            });
+            downloadFile(csv, filename + '.csv', 'text/csv');
+        }
+    }
+    
+    /**
+     * Download file helper
+     */
+    function downloadFile(content, filename, mimeType) {
+        var blob = new Blob([content], { type: mimeType });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    // =============================================
+    // LOAD MORE HISTORY
+    // =============================================
+    
+    var historyPage = 1;
+    var historyPerPage = 10;
+    
+    $('#slos-load-more-history').on('click', function() {
+        historyPage++;
+        var start = historyPage * historyPerPage;
+        var end = start + historyPerPage;
+        var moreScans = scanHistoryData.slice(start - historyPerPage, end);
+        
+        if (moreScans.length === 0) {
+            $(this).hide();
+            return;
+        }
+        
+        var $tbody = $('#slos-history-tbody');
+        
+        moreScans.forEach(function(scan, index) {
+            var actualIndex = start + index;
+            var score = scan.score || 0;
+            var scoreClass = score >= 90 ? 'excellent' : (score >= 70 ? 'good' : (score >= 50 ? 'fair' : 'poor'));
+            var issues = scan.issues || 0;
+            var critical = scan.critical || 0;
+            var pages = scan.pages_scanned || 0;
+            var wcag = scan.wcag_level || 'AA';
+            var date = new Date(scan.date);
+            var scanId = scan.id || actualIndex;
+            
+            var row = '<tr data-scan-id="' + scanId + '">' +
+                '<td class="slos-history-date">' +
+                    '<span class="date-primary">' + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</span>' +
+                    '<span class="date-secondary">' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</span>' +
+                '</td>' +
+                '<td><span class="slos-score-badge ' + scoreClass + '">' + score + '/100</span></td>' +
+                '<td class="slos-issues-cell"><span class="slos-issues-count">' + issues + '</span></td>' +
+                '<td class="slos-critical-cell">' + (critical > 0 ? '<span class="slos-critical-badge">' + critical + '</span>' : '<span class="slos-none-badge">—</span>') + '</td>' +
+                '<td>' + pages + '</td>' +
+                '<td><span class="slos-wcag-badge">' + wcag + '</span></td>' +
+                '<td>' +
+                    '<button type="button" class="slos-view-scan-btn" data-scan-id="' + scanId + '" title="<?php echo esc_attr__('View scan details', 'shahi-legalops-suite'); ?>">' +
+                        '<span class="dashicons dashicons-visibility"></span>' +
+                    '</button>' +
+                    '<button type="button" class="slos-compare-scan-btn" data-scan-id="' + scanId + '" title="<?php echo esc_attr__('Compare with previous', 'shahi-legalops-suite'); ?>">' +
+                        '<span class="dashicons dashicons-controls-repeat"></span>' +
+                    '</button>' +
+                '</td>' +
+            '</tr>';
+            
+            $tbody.append(row);
+        });
+        
+        // Rebind event handlers for new buttons
+        $tbody.find('.slos-view-scan-btn').off('click').on('click', function() {
+            showScanDetails($(this).data('scan-id'));
+        });
+        $tbody.find('.slos-compare-scan-btn').off('click').on('click', function() {
+            showScanComparison($(this).data('scan-id'));
+        });
+        
+        // Update remaining count or hide button
+        var remaining = scanHistoryData.length - end;
+        if (remaining <= 0) {
+            $(this).hide();
+        } else {
+            $(this).text('<?php echo esc_js(__('Load more', 'shahi-legalops-suite')); ?> (' + remaining + ' <?php echo esc_js(__('remaining', 'shahi-legalops-suite')); ?>)');
+        }
     });
 });
+
+// Spinning animation
+var style = document.createElement('style');
+style.textContent = '.slos-spin { animation: slos-spin 1s linear infinite; } @keyframes slos-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+document.head.appendChild(style);
 </script>
+

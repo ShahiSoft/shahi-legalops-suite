@@ -14,7 +14,6 @@
 namespace ShahiLegalopsSuite\Admin;
 
 use ShahiLegalopsSuite\Core\Security;
-use ShahiLegalopsSuite\Admin\AnalyticsDashboard;
 use ShahiLegalopsSuite\Admin\Consent;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -64,12 +63,28 @@ class MenuManager {
 	private $module_dashboard;
 
 	/**
-	 * Analytics Dashboard page instance
+	 * DSR Requests page instance
 	 *
-	 * @since 1.0.0
-	 * @var AnalyticsDashboard
+	 * @since 3.0.1
+	 * @var DSRRequests
 	 */
-	private $analytics_dashboard;
+	private $dsr_requests;
+
+	/**
+	 * DSR Reports page instance
+	 *
+	 * @since 3.0.1
+	 * @var DSRReports
+	 */
+	private $dsr_reports;
+
+	/**
+	 * DSR Request Detail page instance
+	 *
+	 * @since 3.0.1
+	 * @var DSRRequestDetail
+	 */
+	private $dsr_detail;
 
 	/**
 	 * Settings page instance
@@ -95,88 +110,191 @@ class MenuManager {
 	public function __construct() {
 		$this->security = new Security();
 
-		// Initialize page controllers
-		$this->dashboard           = new Dashboard();
-		$this->module_dashboard    = new ModuleDashboard();
-		$this->analytics_dashboard = new AnalyticsDashboard();
-		$this->settings            = new Settings();
-		$this->consent             = new Consent();
+		// Initialize ModuleDashboard eagerly because it has AJAX handlers
+		// that need to be registered before any AJAX requests
+		$this->module_dashboard = new ModuleDashboard();
+		
+		// Other page controllers are initialized lazily when needed (see get_* methods)
+	}
+
+	/**
+	 * Get or create Dashboard instance
+	 *
+	 * @since 3.0.1
+	 * @return Dashboard
+	 */
+	private function get_dashboard() {
+		if ( null === $this->dashboard ) {
+			$this->dashboard = new Dashboard();
+		}
+		return $this->dashboard;
+	}
+
+	/**
+	 * Get or create ModuleDashboard instance
+	 *
+	 * @since 3.0.1
+	 * @return ModuleDashboard
+	 */
+	private function get_module_dashboard() {
+		// ModuleDashboard is already initialized in constructor
+		return $this->module_dashboard;
+	}
+
+	/**
+	 * Get or create Settings instance
+	 *
+	 * @since 3.0.1
+	 * @return Settings
+	 */
+	private function get_settings() {
+		if ( null === $this->settings ) {
+			$this->settings = new Settings();
+		}
+		return $this->settings;
+	}
+
+	/**
+	 * Get or create DSRRequests instance
+	 *
+	 * @since 3.0.1
+	 * @return DSRRequests
+	 */
+	private function get_dsr_requests() {
+		if ( null === $this->dsr_requests ) {
+			$this->dsr_requests = new DSRRequests();
+		}
+		return $this->dsr_requests;
+	}
+
+	/**
+	 * Get or create DSRReports instance
+	 *
+	 * @since 3.0.1
+	 * @return DSRReports
+	 */
+	private function get_dsr_reports() {
+		if ( null === $this->dsr_reports ) {
+			$this->dsr_reports = new DSRReports();
+		}
+		return $this->dsr_reports;
+	}
+
+	/**
+	 * Get or create DSRRequestDetail instance
+	 *
+	 * @since 3.0.1
+	 * @return DSRRequestDetail
+	 */
+	private function get_dsr_detail() {
+		if ( null === $this->dsr_detail ) {
+			$this->dsr_detail = new DSRRequestDetail();
+		}
+		return $this->dsr_detail;
+	}
+
+	/**
+	 * Get or create Consent instance
+	 *
+	 * @since 3.0.1
+	 * @return Consent
+	 */
+	private function get_consent() {
+		if ( null === $this->consent ) {
+			$this->consent = new Consent();
+		}
+		return $this->consent;
 	}
 
 	/**
 	 * Register all admin menus
 	 *
+	 * Simplified menu structure with 4 core items.
+	 * Module-specific pages are registered by their respective modules.
+	 *
 	 * @since 1.0.0
+	 * @since 3.0.2 Refactored to clean menu structure (4 core + module pages)
 	 * @return void
 	 */
 	public function register_menus() {
 		// Main menu - Dashboard (default page)
 		add_menu_page(
-			__( 'ShahiLegalopsSuite Dashboard', 'shahi-legalops-suite' ),
-			__( 'ShahiLegalopsSuite', 'shahi-legalops-suite' ),
+			__( 'SLOS Dashboard', 'shahi-legalops-suite' ),
+			__( 'SLOS', 'shahi-legalops-suite' ),
 			'manage_shahi_template',
 			self::MENU_SLUG,
-			array( $this->dashboard, 'render' ),
+			array( $this->get_dashboard(), 'render' ),
 			$this->get_menu_icon(),
 			30
 		);
 
-		// Dashboard submenu (rename the default)
+		// Remove the auto-generated first submenu item (prevents "All Items" from showing)
+		// We'll add Dashboard explicitly below
+		remove_submenu_page( self::MENU_SLUG, self::MENU_SLUG );
+
+		// Dashboard submenu (explicit registration to avoid "All Items")
 		add_submenu_page(
 			self::MENU_SLUG,
 			__( 'Dashboard', 'shahi-legalops-suite' ),
-			__( 'Dashboard', 'shahi-legalops-suite' ),
+			'📊 ' . __( 'Dashboard', 'shahi-legalops-suite' ),
 			'manage_shahi_template',
 			self::MENU_SLUG,
-			array( $this->dashboard, 'render' )
+			array( $this->get_dashboard(), 'render' )
 		);
 
-		// Analytics Dashboard submenu
+		// Module-specific pages are registered by their respective module classes at priority 20
+		// They will appear here: Requests, Compliance, Documents, Accessibility
+		// See: DSR_Portal, ConsentManagement, LegalDocs, AccessibilityScanner modules
+		
+		// Modules submenu
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Analytics Dashboard', 'shahi-legalops-suite' ),
-			__( 'Analytics Dashboard', 'shahi-legalops-suite' ),
-			'view_shahi_analytics',
-			self::MENU_SLUG . '-analytics-dashboard',
-			array( $this->analytics_dashboard, 'render' )
-		);
-
-		// Module Dashboard submenu
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Module Dashboard', 'shahi-legalops-suite' ),
-			__( 'Module Dashboard', 'shahi-legalops-suite' ),
+			__( 'Modules', 'shahi-legalops-suite' ),
+			'🧩 ' . __( 'Modules', 'shahi-legalops-suite' ),
 			'manage_shahi_modules',
-			self::MENU_SLUG . '-module-dashboard',
-			array( $this->module_dashboard, 'render' )
+			self::MENU_SLUG . '-modules',
+			array( $this->get_module_dashboard(), 'render' )
 		);
 
 		// Settings submenu
 		add_submenu_page(
 			self::MENU_SLUG,
 			__( 'Settings', 'shahi-legalops-suite' ),
-			__( 'Settings', 'shahi-legalops-suite' ),
+			'⚙️ ' . __( 'Settings', 'shahi-legalops-suite' ),
 			'edit_shahi_settings',
 			self::MENU_SLUG . '-settings',
-			array( $this->settings, 'render' )
+			array( $this->get_settings(), 'render' )
 		);
 
-		// Consent & Compliance submenu
+		// Module-specific pages are now registered by their respective module classes
+		// See: DSR_Portal, ConsentManagement, LegalDocs, AccessibilityScanner modules
+
+		// Hidden utility pages (not visible in menu, accessible via direct URL)
+		
+		// DSR Request Detail page (hidden)
 		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Consent & Compliance', 'shahi-legalops-suite' ),
-			__( 'Consent & Compliance', 'shahi-legalops-suite' ),
-			'manage_options',
-			self::MENU_SLUG . '-consent',
-			array( $this->consent, 'render' )
+			null,
+			__( 'DSR Request Detail', 'shahi-legalops-suite' ),
+			__( 'DSR Request Detail', 'shahi-legalops-suite' ),
+			'slos_manage_dsr',
+			self::MENU_SLUG . '-dsr-detail',
+			array( $this->get_dsr_detail(), 'render' )
 		);
 
-		// Submenus for optional modules are added by their own classes.
+		// Banner Settings page (hidden, linked from Compliance module)
+		add_submenu_page(
+			null,
+			__( 'Banner Settings', 'shahi-legalops-suite' ),
+			__( 'Banner Settings', 'shahi-legalops-suite' ),
+			'edit_shahi_settings',
+			self::MENU_SLUG . '-banner-settings',
+			array( $this->get_settings(), 'render_banner_settings' )
+		);
 
-		// Debug Onboarding page (hidden from menu, accessible via Settings → Advanced tab)
+		// Debug Onboarding page (hidden, only when WP_DEBUG is true)
 		if ( current_user_can( 'manage_options' ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			add_submenu_page(
-				null, // null parent = hidden from menu
+				null,
 				__( 'Debug Onboarding', 'shahi-legalops-suite' ),
 				__( 'Debug Onboarding', 'shahi-legalops-suite' ),
 				'manage_options',
@@ -206,6 +324,7 @@ class MenuManager {
 				'view_shahi_analytics',
 				'manage_shahi_modules',
 				'edit_shahi_settings',
+				'slos_manage_dsr',
 			);
 
 			foreach ( $capabilities as $cap ) {
@@ -232,6 +351,7 @@ class MenuManager {
 				'view_shahi_analytics',
 				'manage_shahi_modules',
 				'edit_shahi_settings',
+				'slos_manage_dsr',
 			);
 
 			foreach ( $capabilities as $cap ) {
@@ -278,11 +398,15 @@ class MenuManager {
 		// Check if it's one of our pages
 		$valid_pages = array(
 			self::MENU_SLUG,
-			self::MENU_SLUG . '-analytics-dashboard',
-			self::MENU_SLUG . '-module-dashboard',
+			self::MENU_SLUG . '-analytics',
+			self::MENU_SLUG . '-modules',
 			self::MENU_SLUG . '-settings',
 			self::MENU_SLUG . '-support',
-			self::MENU_SLUG . '-consent',
+			// Module pages (registered by modules themselves)
+			'slos-requests',
+			'slos-compliance',
+			'slos-documents',
+			'slos-accessibility',
 		);
 
 		return in_array( $page, $valid_pages, true ) ? $page : '';
@@ -308,13 +432,30 @@ class MenuManager {
 	 * @return string Modified parent file
 	 */
 	public function highlight_menu( $parent_file ) {
-		global $plugin_page;
-
 		if ( $this->is_plugin_page() ) {
-			$plugin_page = self::MENU_SLUG;
+			$parent_file = self::MENU_SLUG;
 		}
 
 		return $parent_file;
+	}
+
+	/**
+	 * Highlight submenu item
+	 *
+	 * Ensures the correct submenu item is highlighted on plugin pages.
+	 *
+	 * @since 3.0.1
+	 * @param string $submenu_file The submenu file.
+	 * @return string Modified submenu file
+	 */
+	public function highlight_submenu( $submenu_file ) {
+		$current_page = $this->get_current_page();
+		
+		if ( $current_page && $this->is_plugin_page() ) {
+			$submenu_file = $current_page;
+		}
+		
+		return $submenu_file;
 	}
 
 	/**
@@ -358,11 +499,14 @@ class MenuManager {
 		// Add current page if not dashboard
 		if ( $current_page !== self::MENU_SLUG ) {
 			$page_titles = array(
-				self::MENU_SLUG . '-analytics-dashboard' => __( 'Analytics Dashboard', 'shahi-legalops-suite' ),
-				self::MENU_SLUG . '-module-dashboard'    => __( 'Module Dashboard', 'shahi-legalops-suite' ),
-				self::MENU_SLUG . '-settings'            => __( 'Settings', 'shahi-legalops-suite' ),
-				self::MENU_SLUG . '-support'             => __( 'Support & Docs', 'shahi-legalops-suite' ),
-				self::MENU_SLUG . '-consent'             => __( 'Consent & Compliance', 'shahi-legalops-suite' ),
+				self::MENU_SLUG . '-modules'   => __( 'Modules', 'shahi-legalops-suite' ),
+				self::MENU_SLUG . '-settings'  => __( 'Settings', 'shahi-legalops-suite' ),
+				self::MENU_SLUG . '-support'   => __( 'Support & Docs', 'shahi-legalops-suite' ),
+				// Module pages
+				'slos-requests'       => __( 'Requests', 'shahi-legalops-suite' ),
+				'slos-compliance'     => __( 'Compliance', 'shahi-legalops-suite' ),
+				'slos-documents'      => __( 'Documents', 'shahi-legalops-suite' ),
+				'slos-accessibility'  => __( 'Accessibility', 'shahi-legalops-suite' ),
 			);
 
 			if ( isset( $page_titles[ $current_page ] ) ) {

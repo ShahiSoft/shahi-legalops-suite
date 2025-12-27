@@ -1,17 +1,17 @@
 /* Consent & Compliance Admin Styles */
 :root {
 	--slos-font-sans: "Sora", "DM Sans", "Segoe UI", sans-serif;
-	--slos-ink: #0f172a;
-	--slos-soft: #f1f5f9;
-	--slos-plate: #0b1221;
-	--slos-accent: #7c3aed;
-	--slos-accent-soft: #ede9fe;
-	--slos-positive: #10b981;
-	--slos-positive-soft: #ecfdf3;
-	--slos-warning: #f59e0b;
-	--slos-warning-soft: #fffbeb;
-	--slos-neutral: #94a3b8;
-	--slos-border: #1f2937;
+	--slos-ink: var(--shahi-text-primary, #e5e7eb);
+	--slos-soft: var(--shahi-text-secondary, #cbd5e1);
+	--slos-plate: var(--shahi-bg-elevated, #252d50);
+	--slos-accent: var(--shahi-accent-primary, #60a5fa);
+	--slos-accent-soft: rgba(96, 165, 250, 0.15);
+	--slos-positive: var(--shahi-accent-success, #34d399);
+	--slos-positive-soft: rgba(52, 211, 153, 0.15);
+	--slos-warning: var(--shahi-accent-warning, #f59e0b);
+	--slos-warning-soft: rgba(245, 158, 11, 0.15);
+	--slos-neutral: var(--shahi-text-muted, #94a3b8);
+	--slos-border: var(--shahi-border-color, #3a4e5c);
 }
 
 .shahi-consent-page {
@@ -24,10 +24,9 @@
 .shahi-consent-page .shahi-page-header {
 	align-items: flex-start;
 	border-radius: 18px;
-	background: radial-gradient(120% 120% at 20% 20%, rgba(124, 58, 237, 0.12), transparent),
-		linear-gradient(120deg, rgba(15, 23, 42, 0.82) 0%, rgba(12, 17, 30, 0.95) 100%);
-	border: 1px solid rgba(255, 255, 255, 0.05);
-	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+	background: var(--shahi-gradient-secondary);
+	border: 1px solid var(--shahi-border-color);
+	box-shadow: var(--shahi-shadow);
 }
 
 .shahi-consent-page .shahi-page-title {
@@ -66,13 +65,13 @@
 	padding: 14px;
 	border-radius: 14px;
 	background: rgba(255, 255, 255, 0.03);
-	border: 1px solid rgba(255, 255, 255, 0.06);
+	border: 1px solid var(--shahi-border-light);
 }
 
 .slos-consent-filters label {
 	display: block;
 	font-size: 12px;
-	color: #cbd5e1;
+	color: var(--shahi-text-secondary);
 	margin-bottom: 6px;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
@@ -83,9 +82,9 @@
 	width: 100%;
 	padding: 11px 12px;
 	border-radius: 10px;
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	background: rgba(255, 255, 255, 0.04);
-	color: #e2e8f0;
+	border: 1px solid var(--shahi-border-light);
+	background: var(--shahi-bg-tertiary);
+	color: var(--shahi-text-primary);
 }
 
 .slos-consent-filters .search-box {
@@ -149,8 +148,8 @@
 }
 
 .stat-card.accent {
-	background: linear-gradient(135deg, rgba(124, 58, 237, 0.16), rgba(124, 58, 237, 0));
-	border-color: rgba(124, 58, 237, 0.4);
+	background: linear-gradient(135deg, rgba(147, 197, 253, 0.16), rgba(147, 197, 253, 0));
+	border-color: rgba(147, 197, 253, 0.4);
 }
 
 .stat-card.positive {
@@ -374,7 +373,7 @@
 .shortcut:hover {
 	border-color: var(--slos-accent);
 	color: #fff;
-	box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+	box-shadow: 0 10px 30px rgba(147, 197, 253, 0.15);
 }
 
 @media (max-width: 1024px) {

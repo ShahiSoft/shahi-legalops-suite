@@ -1,215 +1,338 @@
 <?php
 /**
- * Dashboard Page Template
+ * Dashboard V3 Template - Ultra Modern Design
+ *
+ * Features: Card-based layout, visual metrics, mini charts, modern gradients,
+ * advanced animations, and responsive grid system.
  *
  * @package    ShahiLegalopsSuite
  * @subpackage Templates/Admin
- * @since      1.0.0
+ * @since      3.0.1
+ * @version    3.0.0
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Calculate metrics
+$completed_steps = 0;
+foreach ($getting_started as $item) {
+    if ($item['completed']) $completed_steps++;
+}
+$setup_progress = count($getting_started) > 0 ? round(($completed_steps / count($getting_started)) * 100) : 0;
+
+// Count active modules
+$active_modules = 0;
+$total_modules = count($modules_status);
+foreach ($modules_status as $module) {
+    if ($module['enabled']) $active_modules++;
+}
 ?>
 
-<div class="wrap shahi-legalops-suite-admin shahi-dashboard-page">
+<div class="wrap shahi-legalops-suite-admin shahi-dashboard-v3">
     
-    <!-- Page Header -->
-    <div class="shahi-page-header">
-        <div class="shahi-header-content">
-            <h1 class="shahi-page-title">
-                <span class="dashicons dashicons-dashboard"></span>
-                <?php echo esc_html__('Dashboard', 'shahi-legalops-suite'); ?>
-            </h1>
-            <p class="shahi-page-description">
-                <?php echo esc_html__('Welcome to ShahiLegalopsSuite - Your enterprise plugin foundation', 'shahi-legalops-suite'); ?>
-            </p>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TOP BAR - Compact Header with Actions
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="shahi-v3-topbar">
+        <div class="shahi-v3-topbar-left">
+            <div class="shahi-v3-brand">
+                <span class="shahi-v3-brand-icon">⚖️</span>
+                <div class="shahi-v3-brand-text">
+                    <span class="shahi-v3-brand-name">SLOS</span>
+                    <span class="shahi-v3-brand-tag">v<?php echo esc_html($plugin_info['version']); ?></span>
+                </div>
+            </div>
+            <div class="shahi-v3-breadcrumb">
+                <span class="dashicons dashicons-admin-home"></span>
+                <span class="shahi-v3-breadcrumb-text"><?php echo esc_html__('Dashboard', 'shahi-legalops-suite'); ?></span>
+            </div>
         </div>
-        <div class="shahi-header-actions">
-            <button type="button" class="shahi-btn shahi-btn-secondary" data-action="refresh">
+        <div class="shahi-v3-topbar-right">
+            <button type="button" class="shahi-v3-btn-icon shahi-trigger-onboarding" title="<?php echo esc_attr__('Quick Start', 'shahi-legalops-suite'); ?>">
+                <span class="dashicons dashicons-welcome-learn-more"></span>
+            </button>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-settings')); ?>" class="shahi-v3-btn-icon" title="<?php echo esc_attr__('Settings', 'shahi-legalops-suite'); ?>">
+                <span class="dashicons dashicons-admin-settings"></span>
+            </a>
+            <button type="button" class="shahi-v3-btn-icon" data-action="refresh" title="<?php echo esc_attr__('Refresh', 'shahi-legalops-suite'); ?>">
                 <span class="dashicons dashicons-update"></span>
-                <?php echo esc_html__('Refresh Stats', 'shahi-legalops-suite'); ?>
             </button>
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="shahi-stats-grid">
-        <?php foreach ($stats as $stat): ?>
-            <div class="shahi-stat-card shahi-stat-<?php echo esc_attr($stat['color']); ?>">
-                <div class="shahi-stat-icon">
-                    <span class="dashicons <?php echo esc_attr($stat['icon']); ?>"></span>
-                </div>
-                <div class="shahi-stat-content">
-                    <h3 class="shahi-stat-title"><?php echo esc_html($stat['title']); ?></h3>
-                    <div class="shahi-stat-value">
-                        <?php if (isset($stat['is_time']) && $stat['is_time']): ?>
-                            <span class="shahi-stat-number"><?php echo esc_html($stat['value']); ?></span>
-                        <?php else: ?>
-                            <span class="shahi-stat-number" data-value="<?php echo esc_attr($stat['value']); ?>">
-                                <?php echo esc_html($stat['value']); ?>
-                            </span>
-                            <?php if (isset($stat['suffix'])): ?>
-                                <span class="shahi-stat-suffix"><?php echo esc_html($stat['suffix']); ?></span>
-                            <?php endif; ?>
-                        <?php endif; ?>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         HERO BANNER - Compact Welcome Section
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="shahi-v3-hero">
+        <div class="shahi-v3-hero-bg"></div>
+        <div class="shahi-v3-hero-content">
+            <div class="shahi-v3-hero-main">
+                <h1 class="shahi-v3-hero-title">
+                    <?php echo esc_html__('Welcome back!', 'shahi-legalops-suite'); ?> 👋
+                </h1>
+                <p class="shahi-v3-hero-subtitle">
+                    <?php echo esc_html__('Here\'s what\'s happening with your legal compliance system today.', 'shahi-legalops-suite'); ?>
+                </p>
+            </div>
+            <div class="shahi-v3-hero-actions">
+                <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-modules')); ?>" class="shahi-v3-btn shahi-v3-btn-primary">
+                    <span class="dashicons dashicons-admin-plugins"></span>
+                    <?php echo esc_html__('Manage Modules', 'shahi-legalops-suite'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         STATS GRID - 4 Metric Cards
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="shahi-v3-stats-row">
+        <?php foreach ($stats as $index => $stat): ?>
+            <div class="shahi-v3-stat-card shahi-v3-stat-<?php echo esc_attr($stat['color']); ?>">
+                <div class="shahi-v3-stat-icon-wrap">
+                    <div class="shahi-v3-stat-icon">
+                        <span class="dashicons <?php echo esc_attr($stat['icon']); ?>"></span>
                     </div>
                     <?php if (isset($stat['trend']) && $stat['trend']): ?>
-                        <div class="shahi-stat-trend shahi-trend-up">
+                        <div class="shahi-v3-stat-badge shahi-v3-trend-up">
                             <span class="dashicons dashicons-arrow-up-alt"></span>
                             <?php echo esc_html($stat['trend']); ?>
                         </div>
                     <?php endif; ?>
                 </div>
+                <div class="shahi-v3-stat-content">
+                    <h3 class="shahi-v3-stat-label"><?php echo esc_html($stat['title']); ?></h3>
+                    <div class="shahi-v3-stat-value">
+                        <?php if (isset($stat['is_time']) && $stat['is_time']): ?>
+                            <?php echo esc_html($stat['value']); ?>
+                        <?php else: ?>
+                            <span class="shahi-v3-stat-number"><?php echo esc_html($stat['value']); ?></span>
+                            <?php if (isset($stat['suffix'])): ?>
+                                <span class="shahi-v3-stat-suffix"><?php echo esc_html($stat['suffix']); ?></span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="shahi-v3-stat-sparkline">
+                    <!-- Placeholder for mini chart -->
+                    <svg viewBox="0 0 100 30" class="shahi-v3-sparkline-svg">
+                        <polyline points="0,25 20,20 40,15 60,18 80,10 100,12" fill="none" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="shahi-dashboard-grid">
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MAIN GRID - 2 Column Layout
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="shahi-v3-main-grid">
         
-        <!-- Quick Actions -->
-        <div class="shahi-dashboard-section shahi-quick-actions-section">
-            <div class="shahi-card">
-                <div class="shahi-card-header">
-                    <h2 class="shahi-card-title">
-                        <span class="dashicons dashicons-admin-generic"></span>
-                        <?php echo esc_html__('Quick Actions', 'shahi-legalops-suite'); ?>
-                    </h2>
-                </div>
-                <div class="shahi-card-body">
-                    <div class="shahi-quick-actions">
-                        <?php foreach ($quick_actions as $action): ?>
-                            <a href="<?php echo esc_url($action['url']); ?>" 
-                               class="shahi-quick-action shahi-action-<?php echo esc_attr($action['color']); ?>">
-                                <div class="shahi-action-icon">
-                                    <span class="dashicons <?php echo esc_attr($action['icon']); ?>"></span>
-                                </div>
-                                <div class="shahi-action-content">
-                                    <h3 class="shahi-action-title"><?php echo esc_html($action['title']); ?></h3>
-                                    <p class="shahi-action-description"><?php echo esc_html($action['description']); ?></p>
-                                </div>
-                            </a>
-                        <?php endforeach; ?>
+        <!-- LEFT COLUMN -->
+        <div class="shahi-v3-col-left">
+            
+            <!-- Modules Overview -->
+            <div class="shahi-v3-card shahi-v3-modules-card">
+                <div class="shahi-v3-card-header">
+                    <div class="shahi-v3-card-header-left">
+                        <span class="shahi-v3-card-icon">
+                            <span class="dashicons dashicons-screenoptions"></span>
+                        </span>
+                        <h2 class="shahi-v3-card-title"><?php echo esc_html__('Modules', 'shahi-legalops-suite'); ?></h2>
+                        <span class="shahi-v3-badge"><?php echo esc_html($active_modules); ?>/<?php echo esc_html($total_modules); ?> <?php echo esc_html__('Active', 'shahi-legalops-suite'); ?></span>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="shahi-dashboard-section shahi-activity-section">
-            <div class="shahi-card">
-                <div class="shahi-card-header">
-                    <h2 class="shahi-card-title">
-                        <span class="dashicons dashicons-clock"></span>
-                        <?php echo esc_html__('Recent Activity', 'shahi-legalops-suite'); ?>
-                    </h2>
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-analytics')); ?>" 
-                       class="shahi-card-action">
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-modules')); ?>" class="shahi-v3-card-link">
                         <?php echo esc_html__('View All', 'shahi-legalops-suite'); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
                     </a>
                 </div>
-                <div class="shahi-card-body">
-                    <?php if (!empty($recent_activity)): ?>
-                        <div class="shahi-activity-feed">
-                            <ul class="shahi-activity-list">
-                                <?php foreach ($recent_activity as $activity): ?>
-                                    <li class="shahi-activity-item">
-                                        <div class="shahi-activity-icon">
-                                            <span class="dashicons <?php echo esc_attr($activity['icon']); ?>"></span>
-                                        </div>
-                                        <div class="shahi-activity-content">
-                                            <div class="shahi-activity-title"><?php echo esc_html($activity['title']); ?></div>
-                                            <div class="shahi-activity-description"><?php echo esc_html($activity['description']); ?></div>
-                                            <div class="shahi-activity-time"><?php echo esc_html($activity['time']); ?></div>
-                                        </div>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    <?php else: ?>
-                        <div class="shahi-empty-state">
-                            <span class="dashicons dashicons-info"></span>
-                            <p><?php echo esc_html__('No recent activity to display.', 'shahi-legalops-suite'); ?></p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-        <!-- Getting Started -->
-        <div class="shahi-dashboard-section shahi-getting-started-section">
-            <div class="shahi-card">
-                <div class="shahi-card-header">
-                    <h2 class="shahi-card-title">
-                        <span class="dashicons dashicons-list-view"></span>
-                        <?php echo esc_html__('Getting Started', 'shahi-legalops-suite'); ?>
-                    </h2>
-                </div>
-                <div class="shahi-card-body">
-                    <div class="shahi-checklist">
-                        <?php foreach ($getting_started as $item): ?>
-                            <div class="shahi-checklist-item <?php echo $item['completed'] ? 'shahi-completed' : ''; ?>">
-                                <div class="shahi-checklist-checkbox">
-                                    <?php if ($item['completed']): ?>
-                                        <span class="dashicons dashicons-yes-alt"></span>
+                <div class="shahi-v3-card-body">
+                    <div class="shahi-v3-modules-grid">
+                        <?php foreach ($modules_status as $module): ?>
+                            <div class="shahi-v3-module-item <?php echo $module['enabled'] ? 'active' : 'inactive'; ?>">
+                                <div class="shahi-v3-module-icon">
+                                    <span class="shahi-v3-module-emoji"><?php echo esc_html($module['icon']); ?></span>
+                                </div>
+                                <div class="shahi-v3-module-info">
+                                    <h4 class="shahi-v3-module-name"><?php echo esc_html($module['name']); ?></h4>
+                                    <p class="shahi-v3-module-desc"><?php echo esc_html($module['description']); ?></p>
+                                </div>
+                                <div class="shahi-v3-module-status">
+                                    <?php if ($module['enabled']): ?>
+                                        <span class="shahi-v3-status-dot active"></span>
+                                        <a href="<?php echo esc_url(admin_url('admin.php?page=' . $module['page'])); ?>" class="shahi-v3-btn-sm shahi-v3-btn-ghost">
+                                            <?php echo esc_html__('Open', 'shahi-legalops-suite'); ?>
+                                        </a>
                                     <?php else: ?>
-                                        <span class="dashicons dashicons-minus"></span>
+                                        <span class="shahi-v3-status-dot inactive"></span>
+                                        <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-modules')); ?>" class="shahi-v3-btn-sm shahi-v3-btn-outline">
+                                            <?php echo esc_html__('Enable', 'shahi-legalops-suite'); ?>
+                                        </a>
                                     <?php endif; ?>
-                                </div>
-                                <div class="shahi-checklist-content">
-                                    <h4 class="shahi-checklist-title"><?php echo esc_html($item['title']); ?></h4>
-                                    <p class="shahi-checklist-description"><?php echo esc_html($item['description']); ?></p>
-                                </div>
-                                <div class="shahi-checklist-action">
-                                    <a href="<?php echo esc_url($item['action_url']); ?>" 
-                                       class="shahi-btn shahi-btn-sm shahi-btn-secondary <?php echo esc_attr($item['action_class']); ?>">
-                                        <?php echo esc_html($item['action_text']); ?>
-                                    </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Support & Resources -->
-        <div class="shahi-dashboard-section shahi-resources-section">
-            <div class="shahi-card">
-                <div class="shahi-card-header">
-                    <h2 class="shahi-card-title">
-                        <span class="dashicons dashicons-sos"></span>
-                        <?php echo esc_html__('Support & Resources', 'shahi-legalops-suite'); ?>
-                    </h2>
+            <!-- Quick Actions Grid -->
+            <div class="shahi-v3-card shahi-v3-actions-card">
+                <div class="shahi-v3-card-header">
+                    <div class="shahi-v3-card-header-left">
+                        <span class="shahi-v3-card-icon">
+                            <span class="dashicons dashicons-superhero-alt"></span>
+                        </span>
+                        <h2 class="shahi-v3-card-title"><?php echo esc_html__('Quick Actions', 'shahi-legalops-suite'); ?></h2>
+                    </div>
                 </div>
-                <div class="shahi-card-body">
-                    <div class="shahi-resources-list">
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-support')); ?>" 
-                           class="shahi-resource-link">
-                            <span class="dashicons dashicons-book"></span>
-                            <span><?php echo esc_html__('View Documentation', 'shahi-legalops-suite'); ?></span>
-                        </a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-support')); ?>" 
-                           class="shahi-resource-link">
-                            <span class="dashicons dashicons-video-alt3"></span>
-                            <span><?php echo esc_html__('Watch Tutorials', 'shahi-legalops-suite'); ?></span>
-                        </a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-support')); ?>" 
-                           class="shahi-resource-link">
-                            <span class="dashicons dashicons-sos"></span>
-                            <span><?php echo esc_html__('Get Support', 'shahi-legalops-suite'); ?></span>
-                        </a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=shahi-legalops-suite-support#changelog')); ?>" 
-                           class="shahi-resource-link">
-                            <span class="dashicons dashicons-list-view"></span>
-                            <span><?php echo esc_html__('View Changelog', 'shahi-legalops-suite'); ?></span>
-                        </a>
+                <div class="shahi-v3-card-body">
+                    <div class="shahi-v3-actions-grid">
+                        <?php foreach ($quick_actions as $action): ?>
+                            <a href="<?php echo esc_url($action['url']); ?>" class="shahi-v3-action-tile">
+                                <div class="shahi-v3-action-icon-wrap">
+                                    <span class="dashicons <?php echo esc_attr($action['icon']); ?>"></span>
+                                </div>
+                                <span class="shahi-v3-action-title"><?php echo esc_html($action['title']); ?></span>
+                            </a>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
+
         </div>
 
+        <!-- RIGHT COLUMN -->
+        <div class="shahi-v3-col-right">
+            
+            <!-- Setup Progress -->
+            <div class="shahi-v3-card shahi-v3-setup-card">
+                <div class="shahi-v3-card-header">
+                    <div class="shahi-v3-card-header-left">
+                        <span class="shahi-v3-card-icon">
+                            <span class="dashicons dashicons-flag"></span>
+                        </span>
+                        <h2 class="shahi-v3-card-title"><?php echo esc_html__('Setup Progress', 'shahi-legalops-suite'); ?></h2>
+                        <span class="shahi-v3-badge shahi-v3-badge-success"><?php echo esc_html($setup_progress); ?>%</span>
+                    </div>
+                </div>
+                <div class="shahi-v3-card-body">
+                    <!-- Circular Progress -->
+                    <div class="shahi-v3-progress-circle-wrap">
+                        <svg class="shahi-v3-progress-circle" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#gradient)" stroke-width="8" 
+                                    stroke-dasharray="339.292" 
+                                    stroke-dashoffset="<?php echo 339.292 - (339.292 * $setup_progress / 100); ?>"
+                                    stroke-linecap="round"
+                                    transform="rotate(-90 60 60)"/>
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="shahi-v3-progress-circle-text">
+                            <span class="shahi-v3-progress-percent"><?php echo esc_html($setup_progress); ?>%</span>
+                            <span class="shahi-v3-progress-label"><?php echo esc_html__('Complete', 'shahi-legalops-suite'); ?></span>
+                        </div>
+                    </div>
+                    <!-- Checklist -->
+                    <div class="shahi-v3-checklist">
+                        <?php foreach ($getting_started as $item): ?>
+                            <div class="shahi-v3-checklist-item <?php echo $item['completed'] ? 'completed' : ''; ?>">
+                                <div class="shahi-v3-check-icon">
+                                    <?php if ($item['completed']): ?>
+                                        <span class="dashicons dashicons-yes-alt"></span>
+                                    <?php else: ?>
+                                        <span class="dashicons dashicons-marker"></span>
+                                    <?php endif; ?>
+                                </div>
+                                <span class="shahi-v3-check-text"><?php echo esc_html($item['title']); ?></span>
+                                <a href="<?php echo esc_url($item['action_url']); ?>" class="shahi-v3-check-action">
+                                    <span class="dashicons dashicons-arrow-right-alt2"></span>
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="shahi-v3-card shahi-v3-activity-card">
+                <div class="shahi-v3-card-header">
+                    <div class="shahi-v3-card-header-left">
+                        <span class="shahi-v3-card-icon">
+                            <span class="dashicons dashicons-clock"></span>
+                        </span>
+                        <h2 class="shahi-v3-card-title"><?php echo esc_html__('Recent Activity', 'shahi-legalops-suite'); ?></h2>
+                    </div>
+                </div>
+                <div class="shahi-v3-card-body">
+                    <?php if (!empty($recent_activity)): ?>
+                        <div class="shahi-v3-activity-list">
+                            <?php foreach (array_slice($recent_activity, 0, 6) as $activity): ?>
+                                <div class="shahi-v3-activity-item">
+                                    <div class="shahi-v3-activity-icon">
+                                        <span class="dashicons <?php echo esc_attr($activity['icon']); ?>"></span>
+                                    </div>
+                                    <div class="shahi-v3-activity-content">
+                                        <h4 class="shahi-v3-activity-title"><?php echo esc_html($activity['title']); ?></h4>
+                                        <p class="shahi-v3-activity-desc"><?php echo esc_html($activity['description']); ?></p>
+                                    </div>
+                                    <span class="shahi-v3-activity-time"><?php echo esc_html($activity['time']); ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="shahi-v3-empty-state">
+                            <span class="dashicons dashicons-calendar-alt"></span>
+                            <p><?php echo esc_html__('No recent activity', 'shahi-legalops-suite'); ?></p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Support Resources -->
+            <div class="shahi-v3-card shahi-v3-support-card">
+                <div class="shahi-v3-card-header">
+                    <div class="shahi-v3-card-header-left">
+                        <span class="shahi-v3-card-icon">
+                            <span class="dashicons dashicons-sos"></span>
+                        </span>
+                        <h2 class="shahi-v3-card-title"><?php echo esc_html__('Support', 'shahi-legalops-suite'); ?></h2>
+                    </div>
+                </div>
+                <div class="shahi-v3-card-body">
+                    <div class="shahi-v3-support-list">
+                        <?php foreach (array_slice($support_links, 0, 4) as $link): ?>
+                            <a href="<?php echo esc_url($link['url']); ?>" 
+                               class="shahi-v3-support-item"
+                               <?php echo $link['external'] ? 'target="_blank" rel="noopener noreferrer"' : ''; ?>>
+                                <span class="dashicons <?php echo esc_attr($link['icon']); ?>"></span>
+                                <span class="shahi-v3-support-text"><?php echo esc_html($link['title']); ?></span>
+                                <span class="dashicons dashicons-arrow-right-alt2"></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="shahi-v3-footer">
+        <div class="shahi-v3-footer-content">
+            <span class="shahi-v3-footer-text">
+                <?php echo esc_html($plugin_info['name']); ?> v<?php echo esc_html($plugin_info['version']); ?> • 
+                <?php echo esc_html__('Made with', 'shahi-legalops-suite'); ?> ❤️ <?php echo esc_html__('by', 'shahi-legalops-suite'); ?> <?php echo esc_html($plugin_info['author']); ?>
+            </span>
+        </div>
     </div>
 
 </div>
