@@ -137,8 +137,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 .slos-log-icon.export {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--slos-purple);
+    background: rgba(147, 197, 253, 0.15);
+    color: var(--slos-accent-light, #93c5fd);
 }
 
 .slos-log-icon.import {
@@ -227,8 +227,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 .slos-action-tag.export {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--slos-purple);
+    background: rgba(147, 197, 253, 0.15);
+    color: var(--slos-accent-light, #93c5fd);
 }
 
 .slos-action-tag.import {

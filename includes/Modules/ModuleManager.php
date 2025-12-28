@@ -321,6 +321,36 @@ class ModuleManager
 	}
 
 	/**
+	 * Determine if a module already has stored state (DB table or option fallback).
+	 *
+	 * This prevents auto-enabling modules when a previous state exists but the
+	 * database table is missing (e.g., activation not run in the environment).
+	 *
+	 * @param string $key Module key.
+	 * @return bool True if state exists in DB or options.
+	 */
+	private function module_record_exists($key)
+	{
+		global $wpdb;
+		$table = $wpdb->prefix . 'shahi_modules';
+
+		$db_record_exists = false;
+		if ($wpdb->get_var("SHOW TABLES LIKE '$table'") === $table) {
+			$db_record_exists = (bool) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM $table WHERE module_key = %s",
+					$key
+				)
+			);
+		}
+
+		$option_modules   = get_option('shahi_modules', array());
+		$option_has_state = isset($option_modules[$key]);
+
+		return $db_record_exists || $option_has_state;
+	}
+
+	/**
 	 * Register default modules
 	 *
 	 * Registers all built-in modules that come with the plugin.
@@ -333,21 +363,9 @@ class ModuleManager
 		// Compliance Dashboard Module (Phase 2.1)
 		if (class_exists('ShahiLegalopsSuite\Modules\ComplianceDashboard\ComplianceDashboard')) {
 			$compliance_dashboard = new \ShahiLegalopsSuite\Modules\ComplianceDashboard\ComplianceDashboard();
-			if ($this->register($compliance_dashboard)) {
-				// Auto-enable core compliance module on first registration
-				global $wpdb;
-				$table = $wpdb->prefix . 'shahi_modules';
-				$exists = $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM $table WHERE module_key = %s",
-						'compliance-dashboard'
-					)
-				);
-
-				if (!$exists) {
-					// First time - enable by default
-					$this->enable_module('compliance-dashboard');
-				}
+			if ($this->register($compliance_dashboard) && !$this->module_record_exists('compliance-dashboard')) {
+				// First time - enable by default
+				$this->enable_module('compliance-dashboard');
 			}
 		}
 
@@ -364,60 +382,24 @@ class ModuleManager
 		// Consent Management Module (GDPR compliance)
 		if (class_exists('ShahiLegalopsSuite\Modules\ConsentManagement\ConsentManagement')) {
 			$consent_module = new \ShahiLegalopsSuite\Modules\ConsentManagement\ConsentManagement();
-			if ($this->register($consent_module)) {
-				// Auto-enable on first registration
-				global $wpdb;
-				$table = $wpdb->prefix . 'shahi_modules';
-				$exists = $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM $table WHERE module_key = %s",
-						'consent-management'
-					)
-				);
-
-				if (!$exists) {
-					$this->enable_module('consent-management');
-				}
+			if ($this->register($consent_module) && !$this->module_record_exists('consent-management')) {
+				$this->enable_module('consent-management');
 			}
 		}
 
 		// DSR Portal Module (Data Subject Rights - Phase 3)
 		if (class_exists('ShahiLegalopsSuite\Modules\DSR_Portal\DSR_Portal')) {
 			$dsr_module = new \ShahiLegalopsSuite\Modules\DSR_Portal\DSR_Portal();
-			if ($this->register($dsr_module)) {
-				// Auto-enable on first registration
-				global $wpdb;
-				$table = $wpdb->prefix . 'shahi_modules';
-				$exists = $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM $table WHERE module_key = %s",
-						'dsr-portal'
-					)
-				);
-
-				if (!$exists) {
-					$this->enable_module('dsr-portal');
-				}
+			if ($this->register($dsr_module) && !$this->module_record_exists('dsr-portal')) {
+				$this->enable_module('dsr-portal');
 			}
 		}
 
 		// Legal Documents Module (New)
 		if (class_exists('ShahiLegalopsSuite\Modules\LegalDocs\LegalDocuments')) {
 			$legaldocs_module = new \ShahiLegalopsSuite\Modules\LegalDocs\LegalDocuments();
-			if ($this->register($legaldocs_module)) {
-				// Auto-enable
-				global $wpdb;
-				$table = $wpdb->prefix . 'shahi_modules';
-				$exists = $wpdb->get_var(
-					$wpdb->prepare(
-						"SELECT COUNT(*) FROM $table WHERE module_key = %s",
-						'legal-docs'
-					)
-				);
-
-				if (!$exists) {
-					$this->enable_module('legal-docs');
-				}
+			if ($this->register($legaldocs_module) && !$this->module_record_exists('legal-docs')) {
+				$this->enable_module('legal-docs');
 			}
 		}
 

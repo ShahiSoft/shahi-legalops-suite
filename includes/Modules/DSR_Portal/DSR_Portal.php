@@ -214,28 +214,11 @@ class DSR_Portal extends Module {
 			SHAHI_LEGALOPS_SUITE_VERSION
 		);
 
-		// Legacy admin CSS (for compatibility)
-		wp_enqueue_style(
-			'slos-dsr-admin',
-			SHAHI_LEGALOPS_SUITE_PLUGIN_URL . 'assets/css/admin-dsr.css',
-			array(),
-			SHAHI_LEGALOPS_SUITE_VERSION
-		);
-
 		// Enqueue modern JavaScript
 		wp_enqueue_script(
 			'slos-dsr-modern',
 			SHAHI_LEGALOPS_SUITE_PLUGIN_URL . 'assets/js/dsr-modern.js',
 			array( 'jquery' ),
-			SHAHI_LEGALOPS_SUITE_VERSION,
-			true
-		);
-
-		// Legacy admin JS (for compatibility)
-		wp_enqueue_script(
-			'slos-dsr-admin',
-			SHAHI_LEGALOPS_SUITE_PLUGIN_URL . 'assets/js/admin-dsr.js',
-			array( 'jquery', 'wp-api-fetch' ),
 			SHAHI_LEGALOPS_SUITE_VERSION,
 			true
 		);

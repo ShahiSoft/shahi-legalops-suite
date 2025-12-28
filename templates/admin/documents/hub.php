@@ -26,6 +26,70 @@ $outdated   = $data['outdated'] ?? array();
 $nonce      = $data['nonce'] ?? '';
 ?>
 
+<style>
+/* Legal Documents Hub - Glowing White Header */
+.slos-hub-wrap .slos-hub-title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 28px !important;
+	font-weight: 700 !important;
+	color: #ffffff !important;
+	margin: 0 0 8px;
+	text-shadow: 
+		0 0 10px rgba(255, 255, 255, 0.8),
+		0 0 20px rgba(255, 255, 255, 0.6),
+		0 0 40px rgba(255, 255, 255, 0.4),
+		0 0 60px rgba(147, 197, 253, 0.3) !important;
+	letter-spacing: 0.5px;
+}
+
+.slos-hub-wrap .slos-hub-title .dashicons {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	color: #3b82f6 !important;
+}
+
+/* Legal Documents Hub - Blue/White Gradient Tabs */
+.slos-hub-wrap .slos-hub-filters__tabs {
+	display: flex;
+	gap: 12px;
+}
+
+.slos-hub-wrap .slos-hub-filter-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 20px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #f8fafc !important;
+	background: #1e293b !important;
+	border: 2px solid #334155 !important;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.slos-hub-wrap .slos-hub-filter-btn:hover {
+	background: #475569 !important;
+	color: #3b82f6 !important;
+	border-color: #3b82f6 !important;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.slos-hub-wrap .slos-hub-filter-btn--active {
+	background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%) !important;
+	color: #1e3a5f !important;
+	font-weight: 700 !important;
+	border-color: #3b82f6 !important;
+	box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 197, 253, 0.3) !important;
+	transform: translateY(-2px);
+}
+</style>
+
 <div class="wrap slos-hub-wrap">
 	<div class="slos-hub-header">
 		<h1 class="slos-hub-title">

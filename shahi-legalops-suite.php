@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Shahi LegalOps Suite
+ * Plugin Name: Shahi LegalOps Suite 321
  * Plugin URI: https://shahisoft.com/shahi-legalops-suite
  * Description: A professional, modular WordPress plugin template with dark futuristic UI, analytics dashboard, and extensible architecture.
  * Version: 3.1.1

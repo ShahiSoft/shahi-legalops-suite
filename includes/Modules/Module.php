@@ -304,22 +304,41 @@ abstract class Module {
 		global $wpdb;
 		$table = $wpdb->prefix . 'shahi_modules';
 
-		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) !== $table ) {
+		$state_loaded = false;
+		$db_result    = null;
+
+		// First, check the option (authoritative source for enabled state)
+		$modules_option = get_option( 'shahi_modules', array() );
+		if ( isset( $modules_option[ $this->key ] ) ) {
+			$module_state = $modules_option[ $this->key ];
+			if ( isset( $module_state['enabled'] ) ) {
+				$this->enabled = (bool) $module_state['enabled'];
+				$state_loaded  = true;
+			}
+			if ( isset( $module_state['settings'] ) && is_array( $module_state['settings'] ) ) {
+				$this->settings = $module_state['settings'];
+			}
+		}
+
+		// If state found in option, we're done - option is authoritative
+		if ( $state_loaded ) {
 			return;
 		}
 
-		$result = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT is_enabled, settings FROM $table WHERE module_key = %s",
-				$this->key
-			),
-			ARRAY_A
-		);
+		// Fallback: Check database table only if option had nothing
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) === $table ) {
+			$db_result = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT is_enabled, settings FROM $table WHERE module_key = %s",
+					$this->key
+				),
+				ARRAY_A
+			);
 
-		if ( $result ) {
-			$this->enabled  = (bool) $result['is_enabled'];
-			$this->settings = ! empty( $result['settings'] ) ? json_decode( $result['settings'], true ) : array();
+			if ( $db_result ) {
+				$this->enabled  = (bool) $db_result['is_enabled'];
+				$this->settings = ! empty( $db_result['settings'] ) ? json_decode( $db_result['settings'], true ) : array();
+			}
 		}
 	}
 
@@ -332,24 +351,39 @@ abstract class Module {
 	protected function save_settings() {
 		global $wpdb;
 		$table = $wpdb->prefix . 'shahi_modules';
+		$db_saved = true;
 
 		// Check if table exists
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) !== $table ) {
-			return false;
+			$db_saved = false;
+		} else {
+			$result = $wpdb->update(
+				$table,
+				array(
+					'settings'     => wp_json_encode( $this->settings ),
+					'last_updated' => current_time( 'mysql' ),
+				),
+				array( 'module_key' => $this->key ),
+				array( '%s', '%s' ),
+				array( '%s' )
+			);
+
+			$db_saved = $result !== false;
 		}
 
-		$result = $wpdb->update(
-			$table,
-			array(
-				'settings'     => wp_json_encode( $this->settings ),
-				'last_updated' => current_time( 'mysql' ),
-			),
-			array( 'module_key' => $this->key ),
-			array( '%s', '%s' ),
-			array( '%s' )
-		);
+		// Persist to option as a secondary store to avoid losing state when the table is missing
+		$option_before   = get_option( 'shahi_modules', array() );
+		$modules_option  = $option_before;
+		if ( ! isset( $modules_option[ $this->key ] ) ) {
+			$modules_option[ $this->key ] = array();
+		}
 
-		return $result !== false;
+		$modules_option[ $this->key ]['enabled']  = $this->enabled;
+		$modules_option[ $this->key ]['settings'] = $this->settings;
+		$option_saved = update_option( 'shahi_modules', $modules_option );
+		$option_ok    = $option_saved || $modules_option === $option_before; // unchanged still fine
+
+		return $db_saved || $option_ok;
 	}
 
 	/**
@@ -362,47 +396,59 @@ abstract class Module {
 	protected function save_enabled_state( $enabled ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'shahi_modules';
+		$db_saved = false;
 
 		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) !== $table ) {
-			return false;
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table'" ) === $table ) {
+			// Check if record exists
+			$exists = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM $table WHERE module_key = %s",
+					$this->key
+				)
+			);
+
+			if ( $exists ) {
+				// Update existing record
+				$result = $wpdb->update(
+					$table,
+					array(
+						'is_enabled'   => $enabled ? 1 : 0,
+						'last_updated' => current_time( 'mysql' ),
+					),
+					array( 'module_key' => $this->key ),
+					array( '%d', '%s' ),
+					array( '%s' )
+				);
+			} else {
+				// Insert new record
+				$result = $wpdb->insert(
+					$table,
+					array(
+						'module_key'   => $this->key,
+						'is_enabled'   => $enabled ? 1 : 0,
+						'settings'     => wp_json_encode( $this->settings ),
+						'last_updated' => current_time( 'mysql' ),
+					),
+					array( '%s', '%d', '%s', '%s' )
+				);
+			}
+
+			$db_saved = $result !== false;
 		}
 
-		// Check if record exists
-		$exists = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $table WHERE module_key = %s",
-				$this->key
-			)
-		);
-
-		if ( $exists ) {
-			// Update existing record
-			$result = $wpdb->update(
-				$table,
-				array(
-					'is_enabled'   => $enabled ? 1 : 0,
-					'last_updated' => current_time( 'mysql' ),
-				),
-				array( 'module_key' => $this->key ),
-				array( '%d', '%s' ),
-				array( '%s' )
-			);
-		} else {
-			// Insert new record
-			$result = $wpdb->insert(
-				$table,
-				array(
-					'module_key'   => $this->key,
-					'is_enabled'   => $enabled ? 1 : 0,
-					'settings'     => wp_json_encode( $this->settings ),
-					'last_updated' => current_time( 'mysql' ),
-				),
-				array( '%s', '%d', '%s', '%s' )
-			);
+		// Persist to option as fallback to avoid losing state if the DB table is missing
+		$option_before  = get_option( 'shahi_modules', array() );
+		$modules_option = $option_before;
+		if ( ! isset( $modules_option[ $this->key ] ) ) {
+			$modules_option[ $this->key ] = array();
 		}
+		$modules_option[ $this->key ]['enabled']  = (bool) $enabled;
+		$modules_option[ $this->key ]['settings'] = $this->settings;
+		$option_saved = update_option( 'shahi_modules', $modules_option );
+		$option_ok    = $option_saved || $modules_option === $option_before;
 
-		return $result !== false;
+		return $db_saved || $option_ok;
 	}
 
 	/**

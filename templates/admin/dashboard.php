@@ -40,7 +40,7 @@ foreach ($modules_status as $module) {
             <div class="shahi-v3-brand">
                 <span class="shahi-v3-brand-icon">⚖️</span>
                 <div class="shahi-v3-brand-text">
-                    <span class="shahi-v3-brand-name">SLOS</span>
+                    <span class="shahi-v3-brand-name">Shahi LegalOps Suite</span>
                     <span class="shahi-v3-brand-tag">v<?php echo esc_html($plugin_info['version']); ?></span>
                 </div>
             </div>

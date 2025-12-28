@@ -102,9 +102,89 @@ class AccessibilityMainPage {
 		}
 
 		?>
+		<style>
+		/* Accessibility Center Custom Styles */
+		.slos-accessibility-main-page {
+			background: #0f172a;
+			margin: -20px -20px 0 -20px;
+			padding: 24px;
+			min-height: calc(100vh - 32px);
+		}
+		
+		.slos-accessibility-main-page h1.slos-page-title {
+			color: #ffffff;
+			font-size: 28px;
+			font-weight: 700;
+			margin: 0 0 24px 0;
+			text-shadow: 
+				0 0 10px rgba(255, 255, 255, 0.8),
+				0 0 20px rgba(255, 255, 255, 0.6),
+				0 0 40px rgba(255, 255, 255, 0.4),
+				0 0 60px rgba(147, 197, 253, 0.3);
+			letter-spacing: 0.5px;
+		}
+		
+		.slos-accessibility-main-page .slos-tab-nav {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 24px;
+			padding: 0;
+			border: none;
+			background: transparent;
+			flex-wrap: wrap;
+		}
+		
+		.slos-accessibility-main-page .slos-tab-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 20px;
+			color: #f8fafc;
+			background: #1e293b;
+			text-decoration: none;
+			font-size: 14px;
+			font-weight: 500;
+			border: 2px solid #334155;
+			border-radius: 8px;
+			transition: all 0.2s ease;
+			white-space: nowrap;
+		}
+		
+		.slos-accessibility-main-page .slos-tab-link:hover {
+			background: #475569;
+			color: #3b82f6;
+			border-color: #3b82f6;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+		}
+		
+		.slos-accessibility-main-page .slos-tab-link.active {
+			background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%) !important;
+			color: #1e3a5f !important;
+			font-weight: 700;
+			border-color: #3b82f6;
+			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 197, 253, 0.3);
+			transform: translateY(-2px);
+		}
+		
+		.slos-accessibility-main-page .slos-tab-link .dashicons {
+			font-size: 18px;
+			width: 18px;
+			height: 18px;
+		}
+		
+		.slos-accessibility-main-page .slos-tab-content {
+			background: transparent;
+		}
+		
+		.slos-accessibility-main-page hr.wp-header-end {
+			display: none;
+		}
+		</style>
+		
 		<div class="wrap slos-accessibility-main-page">
-			<h1 class="wp-heading-inline">
-				<?php echo esc_html__( 'Accessibility Scanner', 'shahi-legalops-suite' ); ?>
+			<h1 class="slos-page-title">
+				<?php echo esc_html__( 'Accessibility Center', 'shahi-legalops-suite' ); ?>
 			</h1>
 			
 			<?php $this->render_tabs(); ?>
@@ -127,17 +207,26 @@ class AccessibilityMainPage {
 	private function render_tabs() {
 		$tabs        = $this->get_tabs();
 		$current_url = admin_url( 'admin.php?page=slos-accessibility' );
+		
+		// Tab icons
+		$tab_icons = array(
+			'tools'     => 'dashicons-admin-tools',
+			'dashboard' => 'dashicons-chart-area',
+			'settings'  => 'dashicons-admin-generic',
+		);
 
-		echo '<nav class="nav-tab-wrapper wp-clearfix" aria-label="' . esc_attr__( 'Secondary menu', 'shahi-legalops-suite' ) . '">';
+		echo '<nav class="slos-tab-nav" aria-label="' . esc_attr__( 'Accessibility sections', 'shahi-legalops-suite' ) . '">';
 		
 		foreach ( $tabs as $tab_key => $tab_label ) {
-			$active_class = ( $this->current_tab === $tab_key ) ? 'nav-tab-active' : '';
+			$active_class = ( $this->current_tab === $tab_key ) ? 'active' : '';
 			$tab_url      = add_query_arg( 'tab', $tab_key, $current_url );
+			$icon         = isset( $tab_icons[ $tab_key ] ) ? $tab_icons[ $tab_key ] : 'dashicons-admin-generic';
 			
 			printf(
-				'<a href="%s" class="nav-tab %s">%s</a>',
+				'<a href="%s" class="slos-tab-link %s"><span class="dashicons %s"></span>%s</a>',
 				esc_url( $tab_url ),
 				esc_attr( $active_class ),
+				esc_attr( $icon ),
 				esc_html( $tab_label )
 			);
 		}

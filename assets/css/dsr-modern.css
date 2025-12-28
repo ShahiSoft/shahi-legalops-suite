@@ -115,9 +115,15 @@
 
 .slos-header-title {
     margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--slos-text-primary);
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 40px rgba(255, 255, 255, 0.4),
+        0 0 60px rgba(147, 197, 253, 0.3) !important;
+    letter-spacing: 0.5px;
 }
 
 .slos-header-center {
@@ -169,34 +175,47 @@
 }
 
 /* ============================================
-   Modern Tab Navigation
+   Modern Tab Navigation - Blue/White Gradient Style
    ============================================ */
 .slos-modern-tabs {
     display: inline-flex;
-    gap: var(--slos-space-xs);
-    background: var(--slos-gray-100);
-    padding: 4px;
-    border-radius: var(--slos-radius-lg);
+    gap: 12px;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
 }
 
 .slos-tab-link {
-    padding: var(--slos-space-sm) var(--slos-space-lg);
-    border-radius: var(--slos-radius-md);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 8px;
     font-weight: 500;
-    color: var(--slos-text-muted);
+    font-size: 14px;
+    color: #f8fafc;
+    background: #1e293b;
     text-decoration: none;
-    transition: all var(--slos-transition-fast);
+    border: 2px solid #334155;
+    transition: all 0.2s ease;
     position: relative;
 }
 
 .slos-tab-link:hover {
-    color: var(--slos-text-primary);
+    background: #475569;
+    color: #3b82f6;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .slos-tab-link.active {
-    background: var(--slos-bg-card);
-    color: var(--slos-primary);
-    box-shadow: var(--slos-shadow-sm);
+    background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%) !important;
+    color: #1e3a5f !important;
+    font-weight: 700;
+    border-color: #3b82f6;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 197, 253, 0.3);
+    transform: translateY(-2px);
 }
 
 /* ============================================

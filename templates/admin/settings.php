@@ -14,6 +14,30 @@ if (!defined('ABSPATH')) {
 
 <div class="wrap shahi-legalops-suite-admin shahi-settings-page">
     <style>
+        /* Settings Page - Glowing White Header */
+        .shahi-settings-page .shahi-page-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 28px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            margin: 0 0 8px;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 255, 255, 0.6),
+                0 0 40px rgba(255, 255, 255, 0.4),
+                0 0 60px rgba(147, 197, 253, 0.3) !important;
+            letter-spacing: 0.5px;
+        }
+
+        .shahi-settings-page .shahi-page-title .dashicons {
+            font-size: 32px;
+            width: 32px;
+            height: 32px;
+            color: #3b82f6 !important;
+        }
+
         /* Settings Page - Mac Slate Liquid Theme */
         .shahi-settings-page .shahi-tabs-nav {
             background: #0f172a !important;
@@ -57,15 +81,15 @@ if (!defined('ABSPATH')) {
         }
 
         .shahi-settings-page a.shahi-tab-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
-            color: #f8fafc !important;
+            background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%) !important;
+            color: #1e3a5f !important;
             border-color: #3b82f6 !important;
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.35) !important;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 197, 253, 0.3) !important;
             transform: translateY(-2px);
         }
 
         .shahi-settings-page a.shahi-tab-link.active .dashicons {
-            color: #f8fafc !important;
+            color: #1e3a5f !important;
         }
     </style>
     

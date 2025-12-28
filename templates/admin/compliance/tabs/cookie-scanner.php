@@ -134,8 +134,8 @@ foreach ( $detected_cookies as $cookie ) {
 }
 
 .slos-category-icon.marketing {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--slos-purple);
+    background: rgba(147, 197, 253, 0.15);
+    color: var(--slos-accent-light, #93c5fd);
 }
 
 .slos-category-icon.preferences {

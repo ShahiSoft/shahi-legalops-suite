@@ -307,8 +307,8 @@ $eea_countries = array_merge($eu_countries, array('IS', 'LI', 'NO'));
 }
 
 .slos-rule-icon.default {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--slos-purple);
+    background: rgba(147, 197, 253, 0.15);
+    color: var(--slos-accent-light, #93c5fd);
 }
 
 .slos-rule-name {

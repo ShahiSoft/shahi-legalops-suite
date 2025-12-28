@@ -57,7 +57,7 @@ $offset = $circumference - ( $stats['compliance_score'] / 100 ) * $circumference
         </div>
     </div>
 
-    <div class="slos-stat-card error">
+    <div class="slos-stat-card danger">
         <div class="slos-stat-label">
             <span class="dashicons dashicons-dismiss"></span>
             <?php esc_html_e( 'Rejected', 'shahi-legalops-suite' ); ?>

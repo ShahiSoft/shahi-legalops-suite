@@ -358,7 +358,7 @@ $available_regions = array(
 }
 
 .slos-source-icon.banner { background: rgba(59, 130, 246, 0.15); color: var(--slos-accent); }
-.slos-source-icon.api { background: rgba(139, 92, 246, 0.15); color: var(--slos-purple); }
+.slos-source-icon.api { background: rgba(147, 197, 253, 0.15); color: var(--slos-accent-light, #93c5fd); }
 .slos-source-icon.import { background: rgba(245, 158, 11, 0.15); color: var(--slos-warning); }
 
 /* Geo Cell Styles */
@@ -407,8 +407,8 @@ $available_regions = array(
 }
 
 .slos-region-badge.APAC {
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--slos-purple);
+    background: rgba(147, 197, 253, 0.1);
+    color: var(--slos-accent-light, #93c5fd);
 }
 </style>
 

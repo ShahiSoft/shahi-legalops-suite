@@ -30,12 +30,13 @@
          * Cache DOM elements
          */
         cacheDom() {
-            this.$grid = $('.shahi-modules-grid-premium');
-            this.$cards = $('.shahi-module-card-premium');
+            // V3 layout selectors
+            this.$grid = $('.shahi-v3-modules-grid');
+            this.$cards = $('.shahi-v3-module-card');
             this.$search = $('#shahi-module-search');
             this.$searchClear = $('.shahi-search-clear');
-            this.$filterBtns = $('.shahi-filter-btn');
-            this.$viewBtns = $('.shahi-view-btn');
+            this.$filterBtns = $('.shahi-v3-filter-btn');
+            this.$viewBtns = $('.shahi-v3-view-btn');
             this.$toggles = $('.shahi-module-toggle-input');
             this.$bulkEnable = $('.shahi-bulk-enable');
             this.$bulkDisable = $('.shahi-bulk-disable');
@@ -97,9 +98,9 @@
             
             this.$cards.each((index, card) => {
                 const $card = $(card);
-                const title = $card.find('.shahi-module-title').text().toLowerCase();
-                const description = $card.find('.shahi-module-description').text().toLowerCase();
-                const category = $card.data('category').toLowerCase();
+                const title = $card.find('.shahi-v3-module-title').text().toLowerCase();
+                const description = $card.find('.shahi-v3-module-desc').text().toLowerCase();
+                const category = ($card.data('category') || '').toLowerCase();
                 
                 const matches = title.includes(query) || 
                                description.includes(query) || 
@@ -200,7 +201,7 @@
          */
         handleToggle(e) {
             const $toggle = $(e.target);
-            const $card = $toggle.closest('.shahi-module-card-premium');
+            const $card = $toggle.closest('.shahi-v3-module-card');
             const moduleSlug = $toggle.data('module');
             const isEnabled = $toggle.is(':checked');
             
@@ -230,12 +231,33 @@
                             $card.removeClass('active').addClass('inactive');
                             $card.attr('data-status', 'inactive');
                         }
-                        
+
+                        // Update toggle label text
+                        const $label = $card.find('.shahi-v3-toggle-label');
+                        if ($label.length) {
+                            $label.text(isEnabled ? (shahiModuleDashboard.i18n.enabledText || 'Enabled') : (shahiModuleDashboard.i18n.disabledText || 'Disabled'));
+                        }
+
+                        // Update status badge
+                        const $badge = $card.find('.shahi-v3-module-status-badge');
+                        if ($badge.length) {
+                            if (isEnabled) {
+                                $badge.removeClass('inactive').addClass('active');
+                                $badge.find(':not(.shahi-v3-status-dot)').last().text(shahiModuleDashboard.i18n.activeText || 'Active');
+                            } else {
+                                $badge.removeClass('active').addClass('inactive');
+                                $badge.find(':not(.shahi-v3-status-dot)').last().text(shahiModuleDashboard.i18n.inactiveText || 'Inactive');
+                            }
+                        }
+
                         // Show success notification
                         this.showNotification(response.data.message, 'success');
-                        
+
                         // Update stats
                         this.updateStats();
+
+                        // Reload page to ensure UI reflects saved state
+                        setTimeout(() => window.location.reload(), 500);
                     } else {
                         // Revert toggle on error
                         $toggle.prop('checked', !isEnabled);
@@ -465,7 +487,8 @@
      * Initialize on document ready
      */
     $(document).ready(() => {
-        if ($('.shahi-module-dashboard').length) {
+        // Support both V3 layout and legacy layout
+        if ($('.shahi-modules-v3').length || $('.shahi-module-dashboard').length) {
             ModuleDashboard.init();
         }
     });

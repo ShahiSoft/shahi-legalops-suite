@@ -77,8 +77,8 @@
 
 .shahi-tab-link.active,
 .shahi-settings-tab.active {
-    background: var(--shahi-gradient-primary);
-    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%);
+    color: #1e3a5f;
     font-weight: 700;
     border-color: var(--shahi-accent-primary);
     box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4), 0 0 40px rgba(147, 197, 253, 0.3);
@@ -87,7 +87,7 @@
 
 .shahi-tab-link.active .dashicons,
 .shahi-settings-tab.active .dashicons {
-    color: #ffffff;
+    color: #1e3a5f;
 }
 
 /* ============================================================================

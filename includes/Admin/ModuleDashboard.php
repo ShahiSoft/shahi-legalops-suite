@@ -326,7 +326,9 @@ class ModuleDashboard {
 		}
 
 		$module_slug = isset( $_POST['module'] ) ? sanitize_text_field( $_POST['module'] ) : '';
-		$enabled     = isset( $_POST['enabled'] ) ? filter_var( $_POST['enabled'], FILTER_VALIDATE_BOOLEAN ) : false;
+		// Handle enabled: "1"/"0" from JS, or boolean from other callers
+		$enabled_raw = $_POST['enabled'] ?? '';
+		$enabled     = ( $enabled_raw === '1' || $enabled_raw === 1 || $enabled_raw === true || $enabled_raw === 'true' );
 
 		if ( empty( $module_slug ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid module.', 'shahi-legalops-suite' ) ) );

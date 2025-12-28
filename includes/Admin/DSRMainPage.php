@@ -106,6 +106,63 @@ class DSRMainPage {
 		}
 
 		?>
+		<style>
+		/* DSR Page Header - Glowing White Title */
+		.slos-dsr-modern-page .slos-header-title {
+			margin: 0;
+			font-size: 28px !important;
+			font-weight: 700 !important;
+			color: #ffffff !important;
+			text-shadow: 
+				0 0 10px rgba(255, 255, 255, 0.8),
+				0 0 20px rgba(255, 255, 255, 0.6),
+				0 0 40px rgba(255, 255, 255, 0.4),
+				0 0 60px rgba(147, 197, 253, 0.3) !important;
+			letter-spacing: 0.5px;
+		}
+		
+		/* DSR Tab Navigation - Blue/White Gradient Style */
+		.slos-dsr-modern-page .slos-modern-tabs {
+			display: inline-flex;
+			gap: 12px;
+			background: transparent;
+			padding: 0;
+			border-radius: 0;
+		}
+		
+		.slos-dsr-modern-page .slos-tab-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 20px;
+			border-radius: 8px;
+			font-weight: 500;
+			font-size: 14px;
+			color: #f8fafc !important;
+			background: #1e293b !important;
+			text-decoration: none;
+			border: 2px solid #334155 !important;
+			transition: all 0.2s ease;
+		}
+		
+		.slos-dsr-modern-page .slos-tab-link:hover {
+			background: #475569 !important;
+			color: #3b82f6 !important;
+			border-color: #3b82f6 !important;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+		}
+		
+		.slos-dsr-modern-page .slos-tab-link.active {
+			background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%) !important;
+			color: #1e3a5f !important;
+			font-weight: 700 !important;
+			border-color: #3b82f6 !important;
+			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 197, 253, 0.3) !important;
+			transform: translateY(-2px);
+		}
+		</style>
+		
 		<div class="wrap slos-dsr-modern-page">
 			<!-- Sticky Header Bar -->
 			<div class="slos-dsr-header-bar">

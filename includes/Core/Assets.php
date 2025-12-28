@@ -337,17 +337,17 @@ class Assets {
         .shahi-tab-link.active,
         .shahi-settings-tab.active,
         a.shahi-tab-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
-            color: #ffffff !important;
+            background: linear-gradient(135deg, #3b82f6 0%, #93c5fd 50%, #ffffff 100%) !important;
+            color: #1e3a5f !important;
             font-weight: 700 !important;
             border-color: #3b82f6 !important;
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.3) !important;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(147, 197, 253, 0.3) !important;
             transform: translateY(-2px) !important;
         }
         
         .shahi-tab-link.active .dashicons,
         .shahi-settings-tab.active .dashicons {
-            color: #ffffff !important;
+            color: #1e3a5f !important;
         }
         ';
 
@@ -809,12 +809,16 @@ class Assets {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => Security::generate_nonce( 'shahi_module_dashboard' ),
 				'i18n'    => array(
-					'enabling'  => I18n::translate( 'Activating...' ),
-					'disabling' => I18n::translate( 'Deactivating...' ),
-					'enabled'   => I18n::translate( 'Module activated successfully.' ),
-					'disabled'  => I18n::translate( 'Module deactivated successfully.' ),
-					'error'     => I18n::translate( 'An error occurred. Please try again.' ),
-					'loading'   => I18n::translate( 'Loading...' ),
+					'enabling'     => I18n::translate( 'Activating...' ),
+					'disabling'    => I18n::translate( 'Deactivating...' ),
+					'enabled'      => I18n::translate( 'Module activated successfully.' ),
+					'disabled'     => I18n::translate( 'Module deactivated successfully.' ),
+					'error'        => I18n::translate( 'An error occurred. Please try again.' ),
+					'loading'      => I18n::translate( 'Loading...' ),
+					'enabledText'  => I18n::translate( 'Enabled' ),
+					'disabledText' => I18n::translate( 'Disabled' ),
+					'activeText'   => I18n::translate( 'Active' ),
+					'inactiveText' => I18n::translate( 'Inactive' ),
 				),
 			)
 		);
@@ -952,14 +956,15 @@ class Assets {
 	}
 
 	/**
-	 * Check if current page is the modules page.
+	 * Check if current page is the old modules page (legacy).
 	 *
 	 * @since 1.0.0
 	 * @param string $hook Current admin page hook.
-	 * @return bool True if modules page, false otherwise.
+	 * @return bool True if old modules page, false otherwise.
 	 */
 	private function is_modules_page( $hook ) {
-		return strpos( $hook, 'shahi-modules' ) !== false && strpos( $hook, 'module-dashboard' ) === false;
+		// Legacy modules page - no longer used, V3 module dashboard is used instead
+		return false;
 	}
 
 	/**
@@ -970,7 +975,8 @@ class Assets {
 	 * @return bool True if module dashboard page, false otherwise.
 	 */
 	private function is_module_dashboard_page( $hook ) {
-		return strpos( $hook, 'module-dashboard' ) !== false;
+		// Match the modules page (shahi-legalops-suite-modules) which uses the V3 dashboard
+		return strpos( $hook, 'shahi-legalops-suite-modules' ) !== false || strpos( $hook, 'module-dashboard' ) !== false;
 	}
 
 	/**
